@@ -199,3 +199,19 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+   --------------------------------------------------
+    NEXUS PROJECT - COPYRIGHT AND CONTRIBUTORS
+   --------------------------------------------------
+
+   Copyright 2026 Cypher - Nexus Project
+
+   Project Contributors:
+     - Cesar Santamaria
+     - Elizabeth Farrell
+     - Arpit Shukla
+     - Dominic Reyes
+     - Juan Rojas
+     - Alexander Taschuk
+
+This project is licensed under the Apache License,
+Version 2.0.
