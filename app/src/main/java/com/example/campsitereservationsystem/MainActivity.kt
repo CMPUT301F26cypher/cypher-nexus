@@ -39,13 +39,18 @@ The main menu, if need be later we modify how exactly this works to account for 
 @Composable
 fun MainMenuManager(){
     var showLottery by remember { mutableStateOf(false) }
+    var showImageUpload by remember {mutableStateOf(false)}
 
 
     //doing it this way avoid the "calling a composable function from
     // outside a composable function" error
     if (showLottery) {
         LotteryScreen(
-            onBack = {showLottery = false}
+            onBack = { showLottery = false }
+        )
+    } else if (showImageUpload){
+        ImageUploadTestScreen(
+            onBack = {showImageUpload = false}
         )
     } else {
         //Lottery wip button
@@ -60,6 +65,14 @@ fun MainMenuManager(){
                 }
             ) {
                 Text("Lottery WIP")
+            }
+            //IMAGE UPLOAD BUTTON
+            Button( //Just for testing purposes rn
+                onClick = {
+                    showImageUpload = true
+                }
+            ) {
+                Text("Image Upload Test Screen")
             }
         }
     }
