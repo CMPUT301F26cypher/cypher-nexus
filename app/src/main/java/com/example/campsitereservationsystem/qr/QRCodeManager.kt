@@ -10,6 +10,7 @@ class QRCodeManager {
     }
 
     //This function generates de actual QR Image
+    //we are going to use the library ZXing
     fun generateQRImage(content:String): Bitmap{
         TODO("Generate QR image")
     }
