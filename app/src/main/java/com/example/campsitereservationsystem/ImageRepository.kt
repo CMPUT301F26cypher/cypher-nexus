@@ -1,9 +1,10 @@
 package com.example.campsitereservationsystem
 
 /**
- * API's/LIBRARIES NEEDED:
+ * API's/LIBRARIES NEEDED FOR GENERAL UPLOAD IMAGE FUNCTIONS:
  *  -Android Studio Picker
- *  -Firebase Cloud Storage SDK
+ *  -Android
+ *  -Firebase Storage
  *  -Firebase Firestore SDK
  *  -Coil (Image-loading/displaying library)
  *
