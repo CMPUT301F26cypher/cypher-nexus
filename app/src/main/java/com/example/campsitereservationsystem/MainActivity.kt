@@ -13,7 +13,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,19 +42,26 @@ The main menu, if need be later we modify how exactly this works to account for 
 fun MainMenuManager(){
     var showLottery by remember { mutableStateOf(false) }
     var showImageUpload by remember {mutableStateOf(false)}
-
+    var lotteryTestArray1 = remember {mutableStateListOf(
+        "John Man", "Jane Woman", "Petey Person", "Bob", "Brad", "Billy", "Bartolomeu",
+        "Barry", "Terry", "Tom", "Timmy", "Jimmy", "Jack", "Robert"
+    )}
+    var lotteryTestArray2 = remember {mutableStateListOf(
+        "John Man", "Jane Woman", "Petey Person"
+    )}
 
     //doing it this way avoid the "calling a composable function from
     // outside a composable function" error
     if (showLottery) {
         LotteryScreen(
-            onBack = { showLottery = false }
+            onBack = {showLottery = false},
+            lotteryTestArray2
         )
-    } else if (showImageUpload){
+    }else if (showImageUpload){
         ImageUploadTestScreen(
             onBack = {showImageUpload = false}
         )
-    } else {
+    }else {
         //Lottery wip button
         Column(
             modifier = Modifier.fillMaxSize(),
