@@ -55,7 +55,7 @@ fun MainMenuManager(){
     if (showLottery) {
         LotteryScreen(
             onBack = {showLottery = false},
-            lotteryTestArray2
+            lotteryTestArray1
         )
     }else if (showImageUpload){
         ImageUploadTestScreen(
