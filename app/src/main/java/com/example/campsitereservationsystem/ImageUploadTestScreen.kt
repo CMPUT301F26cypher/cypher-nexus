@@ -30,28 +30,20 @@ import coil3.compose.AsyncImage // coil version 3.3.0 and newer
 fun ImageUploadTestScreen(onBack: ()-> Unit){
     var pickedImageURI by remember { mutableStateOf<Uri?>(null)} // holds image address
 
-    val imagePickerLauncher = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
-        if (uri != null){
-            pickedImageURI = uri
-            Log.d("PhotoPicker", "Selected URI: $uri")
-        } else{
-            Log.d("PhotoPicker", "No Image Selected")
-        }
-    }
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(12.dp)
     ){
         Button(onClick = onBack){
             Text("Back")
         }
-        Button(
-            onClick = {
-                imagePickerLauncher.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+
+        ImagePickerButton(
+            onImageSelected = {uri ->
+                pickedImageURI = uri
+                Log.d("PhotoPicker", "Selected URI: $uri")
             }
-        ){
-            Text("Select Image")
-        }
+        )
 
         if (pickedImageURI != null) {
             Text("Image Selected")

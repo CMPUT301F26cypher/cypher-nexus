@@ -14,7 +14,8 @@ package com.example.campsitereservationsystem
  * -Upload image to firebase
  * -Delete photo from firebase
  * -Replace existing photo
- * -
+ * -Gather photo reference from firebase
  */
 class ImageRepository {
+
 }
