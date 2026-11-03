@@ -1,4 +1,5 @@
 plugins {
+    id("com.google.gms.google-services")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
@@ -53,4 +54,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     //Coil Compose Library, newer versions do not work because compiler is older than new kotlin library
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }
