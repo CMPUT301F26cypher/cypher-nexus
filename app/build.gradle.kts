@@ -56,4 +56,5 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
     implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
 }
