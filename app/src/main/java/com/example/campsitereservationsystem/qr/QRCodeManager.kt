@@ -1,6 +1,10 @@
 package com.example.campsitereservationsystem.qr
 
 import android.graphics.Bitmap
+import android.graphics.Color
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+
 
 class QRCodeManager {
 
@@ -10,9 +14,30 @@ class QRCodeManager {
     }
 
     //This function generates de actual QR Image
-    //we are going to use the library ZXing
     fun generateQRImage(content:String): Bitmap{
-        TODO("Generate QR image")
+
+        val size =512
+
+        val bitMatrix = MultiFormatWriter().encode(
+            content, BarcodeFormat.QR_CODE,size,size
+        )
+
+        val bitmap = Bitmap.createBitmap(
+            size,size, Bitmap.Config.ARGB_8888
+        )
+
+        for(x in 0 until size){
+            for(y in 0 until size){
+                val color = if(bitMatrix[x,y]){
+                    Color.BLACK
+                }else{
+                    Color.WHITE
+                }
+                bitmap.setPixel(x,y,color)
+            }
+        }
+
+        return bitmap
     }
 
     //This function extract the campsite ID from the scanned QR content
