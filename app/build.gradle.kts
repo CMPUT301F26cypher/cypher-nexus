@@ -53,4 +53,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     //Coil Compose Library, newer versions do not work because compiler is older than new kotlin library
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+
+    implementation(platform("androidx.compose:compose-bom:2024.09.00"))
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.activity:activity-compose:1.9.2")
+    implementation("androidx.navigation:navigation-compose:2.8.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
 }
