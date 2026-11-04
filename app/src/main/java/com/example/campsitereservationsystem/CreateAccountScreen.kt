@@ -9,8 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun setupScreen(
-    onCreate: (name: String, email: String,phone: String) -> Unit,) {
+fun CreateAccountScreen(onCreate: (name: String, email: String, phone: String) -> Unit) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -22,11 +21,10 @@ fun setupScreen(
 
     ) {
         Text("Welcome to Campsite")
-
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         Text("Create Account")
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
@@ -34,7 +32,7 @@ fun setupScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp)))
+        Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -42,7 +40,7 @@ fun setupScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
             value = phone,
             onValueChange = { phone = it },
@@ -50,13 +48,13 @@ fun setupScreen(
             modifier = Modifier.fillMaxWidth()
 
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = { onCreate(name, email, phone) },
             enabled = name.isNotBlank() && email.isNotBlank() && phone.isNotBlank(),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Account Created")
+            Text("Create Account")
         }
     }
 }
