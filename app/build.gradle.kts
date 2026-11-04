@@ -54,7 +54,12 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     //Coil Compose Library, newer versions do not work because compiler is older than new kotlin library
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
-    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
+    //dependencies from qrcode
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+
 }
