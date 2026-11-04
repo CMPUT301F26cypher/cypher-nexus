@@ -86,3 +86,7 @@ fun MainMenuManager(){
         }
     }
 }
+
+@Composable
+fun profileScreen() {
+}
