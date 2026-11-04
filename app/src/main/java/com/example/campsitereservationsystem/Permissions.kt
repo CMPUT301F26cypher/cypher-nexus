@@ -53,5 +53,4 @@ class Permissions {
             }
         }
     }
-    fun actionsFor(role: Role): Set<Action> = allowedActions[role].orEmpty()
 }
