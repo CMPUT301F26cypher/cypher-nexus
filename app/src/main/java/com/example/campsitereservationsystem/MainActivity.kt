@@ -36,8 +36,8 @@ import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
 import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
 
 /**
- * Opens the welcome page and keeps the existing
- * feature test menu reachable.
+ * Main activity with temporary navigation for testing.
+ * Preserves the team's screens and QR functionality.
  */
 class MainActivity : ComponentActivity() {
 
@@ -48,21 +48,40 @@ class MainActivity : ComponentActivity() {
         setContent {
             CampsiteReservationSystemTheme {
 
-                // Existing team navigation
+                // ==========================================
+                // TEMPORARY START SCREEN
+                // CHANGE ONLY THIS VALUE TO TEST SCREENS
+                // ==========================================
+
+                val startScreen = "schedule"
+
+                // Available values:
+                // "list"     -> My Campsites
+                // "scanner"  -> QR Scanner
+                // "schedule" -> Availability Calendar
+                // "test"     -> Lottery and Image Upload
+                // "welcome"  -> Welcome Screen
+
+                // ==========================================
+                // TEAM NAVIGATION
+                // ==========================================
+
                 var showTestMenu by remember {
-                    mutableStateOf(false)
+                    mutableStateOf(startScreen == "test")
                 }
 
                 var showAvailability by remember {
-                    mutableStateOf(false)
+                    mutableStateOf(startScreen == "schedule")
                 }
 
-                // Preserve the team's availability schedule
                 var savedSchedule by remember {
                     mutableStateOf(AvailabilitySchedule())
                 }
 
-                // Temporary campsite repository
+                // ==========================================
+                // CAMPSITE AND QR DATA
+                // ==========================================
+
                 val repository = remember {
                     FakeCampsiteRepository()
                 }
@@ -79,14 +98,24 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf<Campsite?>(null)
                 }
 
-                // Null means we are using the team's navigation
+                // Null means use the team's navigation
                 var currentQRScreen by remember {
-                    mutableStateOf<String?>(null)
+                    mutableStateOf<String?>(
+                        when (startScreen) {
+                            "list" -> "list"
+                            "scanner" -> "scanner"
+                            else -> null
+                        }
+                    )
                 }
 
-                // QR screens take priority while they are open
+                // ==========================================
+                // SCREEN NAVIGATION
+                // ==========================================
+
                 when (currentQRScreen) {
 
+                    // OWNER CAMPSITES LIST
                     "list" -> {
                         OwnerCampsitesScreen(
                             campsites = campsites,
@@ -97,6 +126,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    // OWNER CAMPSITE DETAILS
                     "details" -> {
                         selectedCampsite?.let { campsite ->
                             OwnerCampsiteDetailsScreen(
@@ -111,6 +141,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    // QR CODE GENERATION
                     "qr" -> {
                         selectedCampsite?.let { campsite ->
                             QRCodeScreen(
@@ -123,6 +154,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    // QR CODE SCANNER
                     "scanner" -> {
                         QRCodeScannerScreen(
                             onQRCodeScanned = { content ->
@@ -160,6 +192,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    // ENTRANT CAMPSITE DETAILS
                     "entrantDetails" -> {
                         selectedCampsite?.let { campsite ->
                             EntrantCampsiteDetailsScreen(
@@ -168,11 +201,8 @@ class MainActivity : ComponentActivity() {
                                 // Temporary test value
                                 isLotteryActive = true,
 
-                                // Waiting list integration pending
                                 onJoinWaitingList = {
-                                    println(
-                                        "Join Waiting List clicked"
-                                    )
+                                    println("Join Waiting List clicked")
                                 },
 
                                 onBack = {
@@ -182,9 +212,12 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    // ==========================================
+                    // ORIGINAL TEAM SCREENS
+                    // ==========================================
+
                     else -> {
 
-                        // Original navigation from main
                         if (showAvailability) {
 
                             AvailabilityScreen(
@@ -215,12 +248,13 @@ class MainActivity : ComponentActivity() {
 
                             WelcomeScreen(
                                 onFindCampsite = {
-                                    // Temporary: open QR scanner
                                     currentQRScreen = "scanner"
                                 },
+
                                 onManageCampsites = {
                                     showAvailability = true
                                 },
+
                                 onPolicyClick = {
                                     Toast.makeText(
                                         this,
@@ -228,6 +262,7 @@ class MainActivity : ComponentActivity() {
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 },
+
                                 onOpenTestMenu = {
                                     showTestMenu = true
                                 }
@@ -240,9 +275,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/*
- * The main menu, if need be later we modify
- * how exactly this works to account for different user types.
+/**
+ * Original team test menu.
+ * Includes temporary navigation to QR features.
  */
 @Composable
 fun MainMenuManager(
@@ -259,8 +294,8 @@ fun MainMenuManager(
         mutableStateOf(false)
     }
 
-    // Original test arrays from main
-    var lotteryTestArray1 = remember {
+    // Original test arrays
+    val lotteryTestArray1 = remember {
         mutableStateListOf(
             "John Man", "Jane Woman", "Petey Person",
             "Bob", "Brad", "Billy", "Bartolomeu",
@@ -269,7 +304,7 @@ fun MainMenuManager(
         )
     }
 
-    var lotteryTestArray2 = remember {
+    val lotteryTestArray2 = remember {
         mutableStateListOf(
             "John Man", "Jane Woman", "Petey Person"
         )
@@ -285,7 +320,6 @@ fun MainMenuManager(
         }
     }
 
-    // Original team functionality
     if (showLottery) {
 
         LotteryScreen(
@@ -311,7 +345,7 @@ fun MainMenuManager(
             verticalArrangement = Arrangement.Center
         ) {
 
-            // Original lottery test button
+            // Team lottery functionality
             Button(
                 onClick = {
                     showLottery = true
@@ -320,7 +354,7 @@ fun MainMenuManager(
                 Text("Lottery WIP")
             }
 
-            // Original image upload test button
+            // Team image upload functionality
             Button(
                 onClick = {
                     showImageUpload = true
@@ -329,20 +363,21 @@ fun MainMenuManager(
                 Text("Image Upload Test Screen")
             }
 
-            // New QR functionality
+            // Owner campsite functionality
             Button(
                 onClick = onOpenOwnerCampsites
             ) {
                 Text("My Campsites")
             }
 
+            // QR scanner functionality
             Button(
                 onClick = onOpenQRScanner
             ) {
                 Text("Scan QR Code")
             }
 
-            // Original back button
+            // Back to welcome
             Button(
                 onClick = onBack
             ) {
