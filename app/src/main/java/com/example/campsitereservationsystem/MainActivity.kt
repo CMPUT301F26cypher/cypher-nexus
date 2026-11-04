@@ -1,76 +1,111 @@
+
 package com.example.campsitereservationsystem
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.campsitereservationsystem.qr.QRCodeScreen
+
 import com.example.campsitereservationsystem.ui.theme.CampsiteReservationSystemTheme
+
+// Campsite functionality
 import com.example.campsitereservationsystem.campsite.Campsite
 import com.example.campsitereservationsystem.campsite.FakeCampsiteRepository
 import com.example.campsitereservationsystem.campsite.OwnerCampsitesScreen
 import com.example.campsitereservationsystem.campsite.OwnerCampsiteDetailsScreen
-import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
-import com.example.campsitereservationsystem.qr.QRCodeManager
-import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
 
+// QR functionality
+import com.example.campsitereservationsystem.qr.QRCodeManager
+import com.example.campsitereservationsystem.qr.QRCodeScreen
+import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
+import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
+
+/**
+ * Opens the welcome page and keeps the existing
+ * feature test menu reachable.
+ */
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             CampsiteReservationSystemTheme {
-                //Temporary repository until Firebase is connected
-                val repository = remember { FakeCampsiteRepository() }
 
-                val qrCodeManager = remember { QRCodeManager() }
+                // Existing team navigation
+                var showTestMenu by remember {
+                    mutableStateOf(false)
+                }
 
-                //Campsites that belong to the owner
+                var showAvailability by remember {
+                    mutableStateOf(false)
+                }
+
+                // Preserve the team's availability schedule
+                var savedSchedule by remember {
+                    mutableStateOf(AvailabilitySchedule())
+                }
+
+                // Temporary campsite repository
+                val repository = remember {
+                    FakeCampsiteRepository()
+                }
+
+                val qrCodeManager = remember {
+                    QRCodeManager()
+                }
+
                 val campsites = remember(repository) {
                     repository.getOwnerCampsites()
                 }
 
-                //Currently selected campsite
                 var selectedCampsite by remember {
                     mutableStateOf<Campsite?>(null)
                 }
 
-                // Current screen
-                var currentScreen by remember {
-                    mutableStateOf("scanner" )
+                // Null means we are using the team's navigation
+                var currentQRScreen by remember {
+                    mutableStateOf<String?>(null)
                 }
 
-                when (currentScreen) {
+                // QR screens take priority while they are open
+                when (currentQRScreen) {
 
                     "list" -> {
                         OwnerCampsitesScreen(
                             campsites = campsites,
                             onCampsiteClick = { campsite ->
                                 selectedCampsite = campsite
-                                currentScreen = "details"
+                                currentQRScreen = "details"
                             }
                         )
                     }
+
                     "details" -> {
                         selectedCampsite?.let { campsite ->
                             OwnerCampsiteDetailsScreen(
                                 campsite = campsite,
                                 onViewQRCode = {
-                                    currentScreen = "qr"
+                                    currentQRScreen = "qr"
                                 },
                                 onBack = {
-                                    currentScreen = "list"
+                                    currentQRScreen = "list"
                                 }
                             )
                         }
@@ -82,47 +117,119 @@ class MainActivity : ComponentActivity() {
                                 campsiteId = campsite.id,
                                 campsiteName = campsite.name,
                                 onBack = {
-                                    currentScreen = "details"
+                                    currentQRScreen = "details"
                                 }
                             )
                         }
                     }
-                    "scanner" ->{
+
+                    "scanner" -> {
                         QRCodeScannerScreen(
                             onQRCodeScanned = { content ->
-                                val campsiteId = qrCodeManager.decodeQRCode(content)
+
+                                val campsiteId =
+                                    qrCodeManager.decodeQRCode(content)
 
                                 if (campsiteId != null) {
 
-                                    // Find the campsite in our repository
-                                    val campsite = repository.getCampsiteById(campsiteId)
+                                    val campsite =
+                                        repository.getCampsiteById(campsiteId)
 
                                     if (campsite != null) {
                                         selectedCampsite = campsite
-                                        currentScreen = "entrantDetails"
+                                        currentQRScreen = "entrantDetails"
                                     } else {
-                                        println("Campsite not found")
+                                        Toast.makeText(
+                                            this,
+                                            "Campsite not found",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
 
                                 } else {
-                                    println("Invalid QR code")
+                                    Toast.makeText(
+                                        this,
+                                        "Invalid QR code",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             },
                             onBack = {
-                                currentScreen = "list"
+                                currentQRScreen = null
                             }
                         )
                     }
-                    "entrantDetails"->{
+
+                    "entrantDetails" -> {
                         selectedCampsite?.let { campsite ->
                             EntrantCampsiteDetailsScreen(
                                 campsite = campsite,
-                                isLotteryActive = true, //Temporal value for the test
+
+                                // Temporary test value
+                                isLotteryActive = true,
+
+                                // Waiting list integration pending
                                 onJoinWaitingList = {
-                                    println("Join Waiting List clicked")
+                                    println(
+                                        "Join Waiting List clicked"
+                                    )
+                                },
+
+                                onBack = {
+                                    currentQRScreen = "scanner"
+                                }
+                            )
+                        }
+                    }
+
+                    else -> {
+
+                        // Original navigation from main
+                        if (showAvailability) {
+
+                            AvailabilityScreen(
+                                schedule = savedSchedule,
+                                onSave = {
+                                    savedSchedule = it
                                 },
                                 onBack = {
-                                    currentScreen = "scanner"
+                                    showAvailability = false
+                                }
+                            )
+
+                        } else if (showTestMenu) {
+
+                            MainMenuManager(
+                                onBack = {
+                                    showTestMenu = false
+                                },
+                                onOpenOwnerCampsites = {
+                                    currentQRScreen = "list"
+                                },
+                                onOpenQRScanner = {
+                                    currentQRScreen = "scanner"
+                                }
+                            )
+
+                        } else {
+
+                            WelcomeScreen(
+                                onFindCampsite = {
+                                    // Temporary: open QR scanner
+                                    currentQRScreen = "scanner"
+                                },
+                                onManageCampsites = {
+                                    showAvailability = true
+                                },
+                                onPolicyClick = {
+                                    Toast.makeText(
+                                        this,
+                                        "The policy page is not connected yet.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                onOpenTestMenu = {
+                                    showTestMenu = true
                                 }
                             )
                         }
@@ -133,18 +240,114 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/*
+ * The main menu, if need be later we modify
+ * how exactly this works to account for different user types.
+ */
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun MainMenuManager(
+    onBack: () -> Unit,
+    onOpenOwnerCampsites: () -> Unit = {},
+    onOpenQRScanner: () -> Unit = {}
+) {
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CampsiteReservationSystemTheme {
-        Greeting("Android")
+    var showLottery by remember {
+        mutableStateOf(false)
+    }
+
+    var showImageUpload by remember {
+        mutableStateOf(false)
+    }
+
+    // Original test arrays from main
+    var lotteryTestArray1 = remember {
+        mutableStateListOf(
+            "John Man", "Jane Woman", "Petey Person",
+            "Bob", "Brad", "Billy", "Bartolomeu",
+            "Barry", "Terry", "Tom", "Timmy",
+            "Jimmy", "Jack", "Robert"
+        )
+    }
+
+    var lotteryTestArray2 = remember {
+        mutableStateListOf(
+            "John Man", "Jane Woman", "Petey Person"
+        )
+    }
+
+    BackHandler {
+        if (showLottery) {
+            showLottery = false
+        } else if (showImageUpload) {
+            showImageUpload = false
+        } else {
+            onBack()
+        }
+    }
+
+    // Original team functionality
+    if (showLottery) {
+
+        LotteryScreen(
+            onBack = {
+                showLottery = false
+            },
+            lotteryTestArray2
+        )
+
+    } else if (showImageUpload) {
+
+        ImageUploadTestScreen(
+            onBack = {
+                showImageUpload = false
+            }
+        )
+
+    } else {
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            // Original lottery test button
+            Button(
+                onClick = {
+                    showLottery = true
+                }
+            ) {
+                Text("Lottery WIP")
+            }
+
+            // Original image upload test button
+            Button(
+                onClick = {
+                    showImageUpload = true
+                }
+            ) {
+                Text("Image Upload Test Screen")
+            }
+
+            // New QR functionality
+            Button(
+                onClick = onOpenOwnerCampsites
+            ) {
+                Text("My Campsites")
+            }
+
+            Button(
+                onClick = onOpenQRScanner
+            ) {
+                Text("Scan QR Code")
+            }
+
+            // Original back button
+            Button(
+                onClick = onBack
+            ) {
+                Text("Back to welcome")
+            }
+        }
     }
 }
