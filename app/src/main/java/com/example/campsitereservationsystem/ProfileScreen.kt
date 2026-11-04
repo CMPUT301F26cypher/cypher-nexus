@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -21,8 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun profileScreen(
+fun ProfileScreen(
     user: User,
     onSave: (User) -> Unit,
     onDelete: () -> Unit,
@@ -57,7 +59,7 @@ fun profileScreen(
                 isError = nameError,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp)))
+            Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -77,10 +79,10 @@ fun profileScreen(
 
             Button(
                 onClick = {
-                    onSave(user.copy(name = name, email = email, phone = phone))),
+                    onSave(user.copy(name = name, email = email, phone = phone))
                     onBack() // go back to home screen
                 },
-                enable = canSave,
+                enabled = canSave,
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Save Changes") }
 
@@ -101,7 +103,6 @@ fun profileScreen(
                 TextButton(
                     onClick = {
                         onDelete()
-                        onBack()
                     }
                 ) { Text("Delete") }
             },
