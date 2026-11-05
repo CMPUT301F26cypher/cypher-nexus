@@ -9,7 +9,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 import com.example.campsitereservationsystem.ui.theme.CampsiteReservationSystemTheme
 
@@ -108,6 +112,10 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
+
+                var user by remember { mutableStateOf<User?>(null) }
+                var showAccount by remember { mutableStateOf(startScreen == "account") }
+                var showPolicy by remember { mutableStateOf(false) }
 
                 // ==========================================
                 // SCREEN NAVIGATION
@@ -218,7 +226,23 @@ class MainActivity : ComponentActivity() {
 
                     else -> {
 
-                        if (showAvailability) {
+                        // To create an account and view app policy & guidelines
+                        if (showAccount) {
+                            AccountTest(
+                                user = user,
+                                campsites = campsites,
+                                onUserChange = { user = it },
+                                onExit = { showAccount = false }
+                            )
+                        }
+                        else if (showPolicy) {
+                            PolicyScreen(
+                                onBack = { showPolicy = false }
+                            )
+                        }
+
+                        // made else if
+                        else if (showAvailability) {
 
                             AvailabilityScreen(
                                 schedule = savedSchedule,
@@ -241,6 +265,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onOpenQRScanner = {
                                     currentQRScreen = "scanner"
+                                },
+                                onOpenAccount = {
+                                    showAccount = true
                                 }
                             )
 
@@ -255,12 +282,9 @@ class MainActivity : ComponentActivity() {
                                     showAvailability = true
                                 },
 
+                                // Finsihed showPolicy, so added it here
                                 onPolicyClick = {
-                                    Toast.makeText(
-                                        this,
-                                        "The policy page is not connected yet.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    showPolicy = true
                                 },
 
                                 onOpenTestMenu = {
@@ -283,7 +307,8 @@ class MainActivity : ComponentActivity() {
 fun MainMenuManager(
     onBack: () -> Unit,
     onOpenOwnerCampsites: () -> Unit = {},
-    onOpenQRScanner: () -> Unit = {}
+    onOpenQRScanner: () -> Unit = {},
+    onOpenAccount: () -> Unit = {}  // new
 ) {
 
     var showLottery by remember {
@@ -345,6 +370,13 @@ fun MainMenuManager(
             verticalArrangement = Arrangement.Center
         ) {
 
+            // Account & Profile functionality
+            Button(
+                onClick = onOpenAccount
+            ) {
+                Text("Account")
+            }
+
             // Team lottery functionality
             Button(
                 onClick = {
@@ -386,3 +418,4 @@ fun MainMenuManager(
         }
     }
 }
+
