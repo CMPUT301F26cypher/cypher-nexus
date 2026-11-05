@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Declares permission for notification pop-ups on Android 13+.
+         Only needed if testing is done on a new android system.
+         Could possibly take out if we confirm same system is being used
+    -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
