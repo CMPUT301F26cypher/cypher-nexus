@@ -45,6 +45,7 @@ import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
  */
 class MainActivity : ComponentActivity() {
 
+    /** Opens the existing team screens and keeps the local booking session together. */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -65,6 +66,7 @@ class MainActivity : ComponentActivity() {
                 // "schedule" -> Availability Calendar
                 // "test"     -> Lottery and Image Upload
                 // "welcome"  -> Welcome Screen
+                // "booking"  -> Entrant booking demo
 
                 // ==========================================
                 // TEAM NAVIGATION
@@ -78,8 +80,26 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(startScreen == "schedule")
                 }
 
-                var savedSchedule by remember {
-                    mutableStateOf(AvailabilitySchedule())
+                var showEntrantBooking by remember {
+                    mutableStateOf(startScreen == "booking")
+                }
+
+                // Use the reservation-domain model for the owner's existing sample calendar.
+                val bookingSite = remember {
+                    com.example.campsitereservationsystem.Campsite(
+                        campsiteID = "SAMPLE_SPRUCE_RIDGE",
+                        ownerID = "sample-owner",
+                        location = "Jasper area, Alberta",
+                        description = "The sample campsite used by the availability calendar.",
+                        rules = "Keep the site clean. Quiet hours are 10 pm to 7 am."
+                    )
+                }
+
+                // Both sides read the same local repository; no Firebase request is made here.
+                val reservationStore = remember {
+                    val localStore = ReservationRepository(localOnly = true)
+                    localStore.saveAvailabilitySchedule(bookingSite.campsiteID, AvailabilitySchedule())
+                    localStore
                 }
 
                 // ==========================================
@@ -116,6 +136,21 @@ class MainActivity : ComponentActivity() {
                 var user by remember { mutableStateOf<User?>(null) }
                 var showAccount by remember { mutableStateOf(startScreen == "account") }
                 var showPolicy by remember { mutableStateOf(false) }
+
+                // Reuse the team's device identity when a profile has not been opened yet.
+                val deviceGuest = remember { User(id = DeviceId.get(this)) }
+                val bookingGuest = user ?: deviceGuest
+                val bookingController = remember(bookingGuest.id) {
+                    ReservationController(
+                        campsite = bookingSite,
+                        campsiteName = "Spruce Ridge",
+                        cancellationPolicy = "Contact the owner about changes. Cancellation is not available in this prototype.",
+                        winnerId = bookingGuest.id,
+                        repository = reservationStore,
+                        // Test menu fixture only. Replace this with the real lottery result later.
+                        isWinner = true
+                    )
+                }
 
                 // ==========================================
                 // SCREEN NAVIGATION
@@ -241,13 +276,23 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
+                        // Entrant booking is separate from the team's QR and profile screens.
+                        else if (showEntrantBooking) {
+                            EntrantBookingScreen(
+                                controller = bookingController,
+                                guest = bookingGuest,
+                                onBack = { showEntrantBooking = false }
+                            )
+                        }
+
                         // made else if
                         else if (showAvailability) {
 
                             AvailabilityScreen(
-                                schedule = savedSchedule,
+                                schedule = reservationStore.localSchedule(bookingSite.campsiteID)
+                                    ?: AvailabilitySchedule(),
                                 onSave = {
-                                    savedSchedule = it
+                                    reservationStore.saveAvailabilitySchedule(bookingSite.campsiteID, it)
                                 },
                                 onBack = {
                                     showAvailability = false
@@ -268,6 +313,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onOpenAccount = {
                                     showAccount = true
+                                },
+                                onOpenEntrantBooking = {
+                                    showEntrantBooking = true
                                 }
                             )
 
@@ -301,14 +349,15 @@ class MainActivity : ComponentActivity() {
 
 /**
  * Original team test menu.
- * Includes temporary navigation to QR features.
+ * Includes temporary navigation to QR features and the entrant booking demo.
  */
 @Composable
 fun MainMenuManager(
     onBack: () -> Unit,
     onOpenOwnerCampsites: () -> Unit = {},
     onOpenQRScanner: () -> Unit = {},
-    onOpenAccount: () -> Unit = {}  // new
+    onOpenAccount: () -> Unit = {},  // new
+    onOpenEntrantBooking: () -> Unit = {}
 ) {
 
     var showLottery by remember {
@@ -407,6 +456,11 @@ fun MainMenuManager(
                 onClick = onOpenQRScanner
             ) {
                 Text("Scan QR Code")
+            }
+
+            // Open only our local winning-opportunity prototype.
+            Button(onClick = onOpenEntrantBooking) {
+                Text("Entrant booking demo")
             }
 
             // Back to welcome
