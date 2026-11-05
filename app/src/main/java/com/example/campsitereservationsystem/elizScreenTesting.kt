@@ -52,9 +52,9 @@ fun AccountTest(
             PolicyScreen(onContinue = { policyRead = true })
         }
         else {
-            CreateAccountScreen { name, email, phone ->
+            CreateAccountScreen { name, email, phone, password ->
                 onUserChange(
-                    User(id = DeviceId.get(context), name = name, email = email, phone = phone)
+                    User(id = DeviceId.get(context), name = name, email = email, phone = phone, password = password)
                 )
             }
         }

@@ -2,7 +2,6 @@ package com.example.campsitereservationsystem
 
 import android.content.Context
 import android.provider.Settings
-import com.example.campsitereservationsystem.Role.ENTRANT
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -11,6 +10,10 @@ object DeviceId {
     fun get(context: Context): String =
         Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 }
+
+// Safely store user's password
+// will complete after halfway
+
 // Info about user
 data class User (
     val id: String = "", // device ID
@@ -18,7 +21,8 @@ data class User (
     val email: String = "",
     val phone: String = "",
     val roles: Set<Role> = setOf(Role.ENTRANT), // bc default role is entrant
-    val notificationsEnabled: Boolean = true
+    val notificationsEnabled: Boolean = true,
+    val password: String = ""
 )
 
 class UserRepository(
