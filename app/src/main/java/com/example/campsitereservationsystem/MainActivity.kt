@@ -3,11 +3,12 @@ package com.example.campsitereservationsystem
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.compose.BackHandler
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,56 +19,28 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import android.widget.Toast
+import androidx.compose.ui.unit.dp
 import com.example.campsitereservationsystem.ui.theme.CampsiteReservationSystemTheme
 
-/** Opens the welcome page and keeps the existing feature test menu reachable. */
 class MainActivity : ComponentActivity() {
+
+    // private val repo = UserRepository()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
         setContent {
             CampsiteReservationSystemTheme {
-                var showTestMenu by remember { mutableStateOf(false) }
-                var showAvailability by remember { mutableStateOf(false) }
-
-                // Keep saved dates here while moving between welcome and the calendar.
-                var savedSchedule by remember { mutableStateOf(AvailabilitySchedule()) }
-
-                if (showAvailability) {
-                    AvailabilityScreen(
-                        schedule = savedSchedule,
-                        onSave = { savedSchedule = it },
-                        onBack = { showAvailability = false }
-                    )
-                } else if (showTestMenu) {
-                    MainMenuManager(onBack = { showTestMenu = false })
-                } else {
-                    WelcomeScreen(
-                        onFindCampsite = {
-                            Toast.makeText(this, "The entrant page is not connected yet.",
-                                Toast.LENGTH_SHORT).show()
-                        },
-                        onManageCampsites = {
-                            showAvailability = true
-                        },
-                        onPolicyClick = {
-                            Toast.makeText(this, "The policy page is not connected yet.",
-                                Toast.LENGTH_SHORT).show()
-                        },
-                        onOpenTestMenu = { showTestMenu = true }
-                    )
-                }
+               TestApp()
             }
         }
     }
 }
+
 /*
 The main menu, if need be later we modify how exactly this works to account for different user types
  */
 @Composable
-fun MainMenuManager(onBack: () -> Unit){
+fun MainMenuManager(){
     var showLottery by remember { mutableStateOf(false) }
     var showImageUpload by remember {mutableStateOf(false)}
     var lotteryTestArray1 = remember {mutableStateListOf(
@@ -77,16 +50,6 @@ fun MainMenuManager(onBack: () -> Unit){
     var lotteryTestArray2 = remember {mutableStateListOf(
         "John Man", "Jane Woman", "Petey Person"
     )}
-
-    BackHandler {
-        if (showLottery) {
-            showLottery = false
-        } else if (showImageUpload) {
-            showImageUpload = false
-        } else {
-            onBack()
-        }
-    }
 
     //doing it this way avoid the "calling a composable function from
     // outside a composable function" error
@@ -121,9 +84,41 @@ fun MainMenuManager(onBack: () -> Unit){
             ) {
                 Text("Image Upload Test Screen")
             }
-            Button(onClick = onBack) {
-                Text("Back to welcome")
-            }
         }
     }
 }
+
+// For testing the create profile screen and editing the profile details
+@Composable
+fun TestApp() {
+    var user by remember { mutableStateOf<User?>(null) } // null meaning no profile yet
+    var showProfile by remember { mutableStateOf(false) }
+    val current = user
+
+    when {
+        //
+        current == null -> CreateAccountScreen { name, email, phone ->
+            user = User(id = "test-device", name = name, email = email, phone = phone)
+        }
+
+        showProfile -> ProfileScreen(
+            user = current,
+            onSave = { updated -> user = updated },
+            onDelete = { user = null; showProfile = false },
+            onBack = { showProfile = false }
+        )
+
+        else -> Column(
+            modifier = Modifier.fillMaxSize().padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Welcome, ${current.name}")
+            Text("Email: ${current.email.ifBlank { "(none)" }}")
+            Text("Phone: ${current.phone.ifBlank { "(none)" }}")
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { showProfile = true }) { Text("View Profile") }
+        }
+    }
+}
+

@@ -1,0 +1,26 @@
+package com.example.campsitereservationsystem
+
+enum class Action {
+    // Entrant
+    BROWSE_CAMPSITES,
+    JOIN_WAITLIST,
+    LEAVE_WAITLIST,
+    RATE_CAMPSITE,
+    RESERVE_CAMPSITE,
+    CANCEL_RESERVATION,
+
+    // Owner
+    REGISTER_CAMPSITE,
+    EDIT_CAMPSITE,
+    VIEW_WAITLIST,
+    CREATE_LOTTERY,
+    SEND_NOTIFICATION,
+    REJECT_RESERVATION,
+
+    // Admin
+    REMOVE_CAMPSITE,
+    REMOVE_PROFILE,
+    REMOVE_IMAGE,
+    REMOVE_OWNER,
+    VIEW_LOGS
+}
