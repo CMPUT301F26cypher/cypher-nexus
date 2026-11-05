@@ -26,6 +26,8 @@ via a push notification
 fun LotteryScreen(onBack: () -> Unit, entrants: List<String>) {
     var drawLottery by remember {mutableStateOf(false)}
     var numLotteryWinners by remember {mutableStateOf("0")}
+    var startDate by remember {mutableStateOf("")}
+    var endDate by remember {mutableStateOf("")}
 
     if(drawLottery){
         val drawnEntrants = LotteryDraw(entrants, numLotteryWinners)
@@ -66,6 +68,18 @@ fun LotteryScreen(onBack: () -> Unit, entrants: List<String>) {
             Button(onClick = onBack) {
                 Text("Back")
             }
+        }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ){
+            OutlinedTextField(
+                value = startDate,
+                onValueChange = {startDate = it},
+                label = { Text("Please write in the format. Month Day Year: Time in 24 clock") }
+            )
+
         }
     }
 }
