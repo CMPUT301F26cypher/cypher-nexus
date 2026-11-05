@@ -52,9 +52,9 @@ fun AccountTest(
             PolicyScreen(onContinue = { policyRead = true })
         }
         else {
-            CreateAccountScreen { name, email, phone, password ->
+            CreateAccountScreen { name, email, phone, password, role ->
                 onUserChange(
-                    User(id = DeviceId.get(context), name = name, email = email, phone = phone, password = password)
+                    User(id = DeviceId.get(context), name = name, email = email, phone = phone, password = password, roles = setOf(role))
                 )
             }
         }
@@ -65,6 +65,19 @@ fun AccountTest(
         newScreen == "policy" -> PolicyScreen(onBack = { newScreen = "home" })
         newScreen == "admin" -> AdminCampsiteBrowseScreen(
             campsites = campsites,
+            onBack = { newScreen = "home" }
+        )
+
+        newScreen == "waitlist" && Role.OWNER in user.roles -> OwnerWaitingListScreen(
+            campsites = campsites,
+            // test values
+            entrantsFor = { campsite ->
+                listOf(
+                    User(id = "1", name = "Johnny Test", email = "jt@email.ca"),
+                    User(id = "2", name = "Jane Test", email = "jet@email.ca"),
+                    User(id = "3", name = "Jim Test", email = "jim@email.ca")
+                )
+            },
             onBack = { newScreen = "home" }
         )
 
@@ -83,7 +96,9 @@ fun AccountTest(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // User's profile information
             Text("Welcome, ${user.name}")
+            Text("Role: ${user.roles}")
             Text("Email: ${user.email.ifBlank { "(none)" }}")
             Text("Phone: ${user.phone.ifBlank { "(none)" }}")
 
@@ -91,6 +106,12 @@ fun AccountTest(
 
             Button(onClick = { showProfile = true }) { Text("Profile Settings") }
             Button(onClick = { newScreen = "policy" }) { Text("App Policy & Guidelines") }
+
+            // US 02.09.01
+            // As a campsite owner, I want to view a list of entrants who have joined the waiting list for my campsite lottery.
+            if (Role.OWNER in user.roles) {
+                Button(onClick = { newScreen = "waitlist" }) { Text("View Waiting List") }
+            }
 
             // US 03.04.01
             // As an admin, I want to browse campsites.

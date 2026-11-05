@@ -13,10 +13,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CreateAccountScreen(onCreate: (name: String, email: String, phone: String, password: String) -> Unit) {
+fun CreateAccountScreen(onCreate: (name: String, email: String, phone: String, password: String, role: Role) -> Unit) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+
+    // Added option to choose different role when you create an account
+    var accRole by remember { mutableStateOf(Role.ENTRANT) }
+
 
     // Added password fields
     // When the user types their password, it will be hidden and they can toggle to check their password
@@ -103,10 +107,29 @@ fun CreateAccountScreen(onCreate: (name: String, email: String, phone: String, p
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth()
         )
+        // Role selction
+        Spacer(modifier = Modifier.height(12.dp))
+        Text("Select Role:")
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedButton(
+                onClick = { accRole = Role.ENTRANT },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Entrant")
+                }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(
+                onClick = { accRole = Role.OWNER },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Owner")
+            }
+        }
 
+        // Confirm create account
         Spacer(modifier = Modifier.height(24.dp))
         Button(
-            onClick = { onCreate(name, email, phone, password) },
+            onClick = { onCreate(name, email, phone, password, accRole) },
             enabled = name.isNotBlank() && email.isNotBlank() && phone.isNotBlank()
                     && password.isNotBlank() && confirmPassword.isNotBlank()
                     && !passwordTooShort && !mismatch && password == confirmPassword,
