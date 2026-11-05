@@ -39,6 +39,9 @@ import com.example.campsitereservationsystem.qr.QRCodeScreen
 import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
 import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
 
+//Notification Functionality
+import androidx.compose.ui.platform.LocalContext
+
 /**
  * Main activity with temporary navigation for testing.
  * Preserves the team's screens and QR functionality.
@@ -368,6 +371,23 @@ fun MainMenuManager(
         mutableStateOf(false)
     }
 
+    //Notification Test
+    val user = remember {
+        User(
+            id = "Testuser123",
+            name = "Test user",
+            email = "testDevice123",
+            phone = "",
+            roles = setOf(Role.ENTRANT),
+            profileImage = "",
+            notificationsEnabled = true
+        )
+    }
+    val context = LocalContext.current
+    val notificationController = remember(user.id){
+        NotificationController(user, context)
+    }
+
     // Original test arrays
     val lotteryTestArray1 = remember {
         mutableStateListOf(
@@ -406,9 +426,9 @@ fun MainMenuManager(
     } else if (showImageUpload) {
 
         ImageUploadTestScreen(
-            onBack = {
-                showImageUpload = false
-            }
+            onBack = { showImageUpload = false },
+            notificationController = notificationController,
+            user = user
         )
 
     } else {

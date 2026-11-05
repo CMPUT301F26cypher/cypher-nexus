@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -53,6 +54,14 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     //Coil Compose Library, newer versions do not work because compiler is older than new kotlin library
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+
+
+    implementation("androidx.compose.material:material-icons-extended")
+
+    //QR CODE LIBRARY
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
 
     implementation(platform("androidx.compose:compose-bom:2024.09.00"))
     implementation("androidx.compose.material3:material3")
