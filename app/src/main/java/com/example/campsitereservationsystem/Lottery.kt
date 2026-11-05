@@ -5,5 +5,6 @@ data class Lottery (
     val capacity: Int,
     val startDate: String,
     val endDate: String,
-    val campsite: Campsite
+    val campsite: Campsite,
+    val waitingList: MutableList<Entrant> = mutableListOf()
 )
