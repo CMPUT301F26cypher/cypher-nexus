@@ -12,6 +12,7 @@ object DeviceId {
         Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 }
 // Info about user
+/*
 data class User (
     val id: String = "", // device ID
     val name: String = "",
@@ -20,7 +21,7 @@ data class User (
     val roles: Set<Role> = setOf(Role.ENTRANT), // bc default role is entrant
     val notificationsEnabled: Boolean = true
 )
-
+*/
 class UserRepository(
     db: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
