@@ -8,7 +8,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.example.campsitereservationsystem.campsite.Campsite
 
-
+/*
 data class User(
     val id: String = "", // Device ID
     var name: String = "",
@@ -19,6 +19,8 @@ data class User(
     val profileImage: String = "",
     val deviceId: String = ""
 )
+
+ */
 
 // Gets the device's ID
 // US 01.09.01
