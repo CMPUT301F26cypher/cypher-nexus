@@ -28,10 +28,12 @@ class LotteryRepository {
         lotteriesRef.document(oldLottery.campsiteID).set(updatedLottery)
     }
 
-    //can be used for Waiting list and winners list
-    //listType options are:
-    //waitingList
-    //winners
+    /*
+    updates either a waitingList or a list of winners
+    listType options are: waitingList and winners
+
+    also converts from to a list type firebase can use
+    */
     fun updateList(
         lottery: Lottery,
         list: List<User>,
@@ -63,7 +65,6 @@ class LotteryRepository {
     fun deleteLottery(lottery: Lottery){
         lotteriesRef.document(lottery.campsiteID).delete()
     }
-
     fun convertToFirebaseTimestamp(
         month: String,
         day: String,

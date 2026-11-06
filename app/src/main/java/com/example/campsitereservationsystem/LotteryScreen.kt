@@ -147,6 +147,7 @@ fun LotteryScreen(
 
             Button(
                 onClick = {
+                    newLottery.status = "OPEN"
                     newLottery.numWinners = numLotteryWinners.toIntOrNull() ?: 0
                     newLottery.endTimestamp = lotteryRepository.convertToFirebaseTimestamp(
                         month = endMonth,
