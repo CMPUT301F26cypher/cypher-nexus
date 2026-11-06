@@ -25,6 +25,17 @@ import androidx.compose.ui.unit.dp
 
 import com.example.campsitereservationsystem.campsite.Campsite
 
+/*
+    OwnerWaitingListScreen.kt
+
+    Campsite owners can pick one of their campsites and see
+    the entrants who joined its waiting list.
+    The screen does not know where entrants
+    come from; they are supplied through the 'entrantsFor' function.
+
+
+ */
+
 // US 02.09.01
 // As a campsite owner, I want to view a list of entrants who have joined the waiting list for my campsite lottery.
 

@@ -19,6 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/*
+    AdminCampsiteBrowseScreen.kt
+
+    Read-only list of campsites for admins.
+    Only available if the user is an admin.
+ */
 
 // US 03.04.01
 @Composable

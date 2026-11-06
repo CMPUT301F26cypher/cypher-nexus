@@ -8,10 +8,13 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.example.campsitereservationsystem.campsite.Campsite
 
+/*
+    UserRepository.kt
+
+ */
 
 
-
-// Gets the device's ID
+// Gets the device ID of the current device
 // US 01.09.01
 //  // As an entrant, I want to be identified by my device, so that I do not have to use a username and password.
 object DeviceId {
@@ -24,6 +27,8 @@ object DeviceId {
     Keeps track of user's data.
     Can log them in without username or password.
     It remembers the user's Device ID.
+
+    Reads and writes users in Firestore and keeps the signed-in user up to date.
  */
 
 class UserRepository(
@@ -100,6 +105,8 @@ class UserRepository(
     }
 
     // Logging in and Registering
+    // Creates a new user
+    // Checks if the email is already in use
     fun register(
         user: User,
         password: String,
@@ -130,6 +137,7 @@ class UserRepository(
 
     }
 
+    // Finds a user by email and remembers this device
     fun login(
         email: String,
         password: String,
@@ -157,16 +165,18 @@ class UserRepository(
             .addOnFailureListener { onError() }
     }
 
-    // Stop listening, but still remeber the device ID for next time
+    // Stop listening, but still remember the device ID for next time
     fun logout(user: User) {
         stopListening()
     }
 
+    // Deletes the users document and stops interacting with fire base
     fun delete(user: User) {
         stopListening()
         usersRef.document(user.id).delete()
     }
 
+    // Saves changes to an existing user
     fun updateUser(user: User) {
         usersRef.document(user.id).set(toMap(user))
     }

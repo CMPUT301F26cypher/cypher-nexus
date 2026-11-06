@@ -26,6 +26,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/*
+    ProfileScreen.kt
+
+    Lets a user edit their name, email, and phone number. US 01.07.03
+    Also lets them delete their account. US 01.08.01
+
+    NOTE: Does not check if an edited email is unique.
+    Deleting a profile might not remove it from the waitlist.
+
+ */
+
 @Composable
 fun ProfileScreen(
     user: User,
