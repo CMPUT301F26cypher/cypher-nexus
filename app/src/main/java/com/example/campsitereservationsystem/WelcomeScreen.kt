@@ -1,3 +1,5 @@
+// Showing the app’s entry points for scanning, browsing, availability, policy, and the test menu.
+
 package com.example.campsitereservationsystem
 
 import androidx.compose.foundation.BorderStroke
@@ -35,7 +37,9 @@ import androidx.compose.ui.unit.sp
 
 /** The opening page for choosing the entrant or owner area. */
 @Composable
+// Receiving the four button actions from the app graph.
 fun WelcomeScreen(
+    // Accepting the entrant and owner actions as callbacks.
     onFindCampsite: () -> Unit,
     onManageCampsites: () -> Unit,
     onPolicyClick: () -> Unit,
@@ -47,22 +51,27 @@ fun WelcomeScreen(
     val textColor = Color(0xFF1C2330)
     val smallTextColor = Color(0xFF59616B)
 
+    // Filling the page with the Welcome background and respecting the scaffold padding.
     Scaffold(containerColor = background) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                // Applying the system padding before the page’s own margins.
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Placing the campsite illustration above the title and fitting it into a fixed-height area.
             Image(
                 painter = painterResource(R.drawable.campsite_welcome),
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth().height(200.dp),
+                // Keeping the entire illustration in view by fitting it within the available width and height.
                 contentScale = ContentScale.Fit
             )
 
+            // Showing the app name as a centred heading.
             Text(
                 text = "Campsite Reservations",
                 modifier = Modifier.padding(bottom = 32.dp),
@@ -73,12 +82,14 @@ fun WelcomeScreen(
             )
 
             Text(
+                // Introducing the choices with a short heading before asking the visitor how to continue.
                 text = "Welcome",
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
             )
             Text(
+                // Leaving room below the prompt to separate the introduction from the two actions.
                 text = "How would you like to continue?",
                 modifier = Modifier.padding(bottom = 28.dp),
                 fontSize = 16.sp,
@@ -86,12 +97,15 @@ fun WelcomeScreen(
                 textAlign = TextAlign.Center
             )
 
+            // Presenting the entrant action as the filled primary button.
             Button(
+                // Connecting the filled button directly to the entrant action supplied by the app graph.
                 onClick = onFindCampsite,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = green,
+                    // Using a light label and icon on the dark green button for contrast.
                     contentColor = Color.White
                 )
             ) {
@@ -100,10 +114,12 @@ fun WelcomeScreen(
                     contentDescription = null,
                     modifier = Modifier.size(24.dp)
                 )
+                // Separating the icon from the text without reducing the button’s overall tap area.
                 Spacer(modifier = Modifier.width(12.dp))
                 Text("Find a campsite", fontSize = 18.sp)
             }
             Text(
+                // Placing a short explanation below the entrant action.
                 text = "Search campsites and enter lotteries.",
                 modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
                 fontSize = 14.sp,
@@ -111,6 +127,7 @@ fun WelcomeScreen(
                 textAlign = TextAlign.Center
             )
 
+            // Presenting the owner action as an outlined button with the same size as the entrant action.
             OutlinedButton(
                 onClick = onBrowseCampsites,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
@@ -130,6 +147,7 @@ fun WelcomeScreen(
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = green)
             ) {
                 Icon(
+                    // Using the tent icon to distinguish the owner choice.
                     painter = painterResource(R.drawable.welcome_tent),
                     contentDescription = null,
                     modifier = Modifier.size(24.dp)
@@ -139,12 +157,14 @@ fun WelcomeScreen(
             }
             Text(
                 text = "Register campsites and manage bookings.",
+                // Leaving more space after the main choices so the policy and test menu links read as a separate group.
                 modifier = Modifier.padding(top = 8.dp, bottom = 40.dp),
                 fontSize = 14.sp,
                 color = smallTextColor,
                 textAlign = TextAlign.Center
             )
 
+            // Opening the app policy from Welcome.
             TextButton(onClick = onPolicyClick) {
                 Text(
                     text = "App policy & guidelines",

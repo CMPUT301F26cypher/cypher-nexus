@@ -10,7 +10,6 @@ import com.example.campsitereservationsystem.campsite.Campsite
 
 
 
-
 // Gets the device's ID
 // US 01.09.01
 //  // As an entrant, I want to be identified by my device, so that I do not have to use a username and password.
