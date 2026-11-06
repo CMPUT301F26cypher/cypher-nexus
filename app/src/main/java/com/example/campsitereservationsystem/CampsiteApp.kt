@@ -41,6 +41,11 @@ fun CampsiteApp() {
     val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
     var signedInCamper by remember { mutableStateOf<User?>(null) }
 
+    // User repository. Firestore updates flow into signInCamper
+    val userRepo = remember {
+        UserRepository(onUserChanged = { updated: User? -> signedInCamper = updated })
+    }
+
     // Reusing sample campsite for the availability and booking demos.
     val sampleCamp = remember {
         Campsite(
@@ -137,6 +142,7 @@ fun CampsiteApp() {
             AccountTest(
                 user = signedInCamper,
                 campsites = ownerSites,
+                repo = userRepo,
                 onUserChange = { signedInCamper = it },
                 onExit = { navController.closePage(page) }
             )

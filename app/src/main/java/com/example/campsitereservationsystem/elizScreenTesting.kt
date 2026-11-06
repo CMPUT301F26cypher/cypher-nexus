@@ -1,5 +1,6 @@
 package com.example.campsitereservationsystem
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+
 
 import com.example.campsitereservationsystem.campsite.Campsite
 
@@ -38,6 +40,7 @@ fun AccountTest(
     var newScreen by remember { mutableStateOf("home") }
     var creatingProfile by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+
 
 
     BackHandler {
