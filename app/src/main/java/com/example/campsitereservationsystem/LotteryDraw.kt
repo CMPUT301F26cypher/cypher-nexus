@@ -10,25 +10,51 @@ if given size of lottery is bigger than numLotteryWinners just select all entran
 otherwise randomly select numLotteryWinners amount of winners from entrants
 and return it in a new array
  */
-fun LotteryDraw(entrants: List<User>, lottery: Lottery, lotteryRepository: LotteryRepository): List<User>{
-    //need to convert num from string to int
+fun LotteryDraw(
+    entrants: List<User>,
+    lottery: Lottery,
+    lotteryRepository: LotteryRepository,
+    notificationController: NotificationController
+): List<User>{
 
-    if (entrants.size < lottery.numWinners){
-        //simply select all entrants, so simply return entrants
-        //********need to add winners to firestore here *******
-        lotteryRepository.updateList(lottery, entrants, "winners")
+    /*should check if Lottery is already being drawn*/
 
-        return entrants
-    }else{
-        val selectedEntrants = entrants.shuffled().take(lottery.numWinners)
-        //generate 5 DIFFERENT random numbers in the range of 0 to size
-        //********need to add winners to firestore here *******
-        lotteryRepository.updateList(lottery, selectedEntrants, "winners")
-        return selectedEntrants
+    //select winners
+    val selectedEntrants = if (entrants.size <= lottery.numWinners) {
+        entrants
+    } else {
+        entrants.shuffled().take(lottery.numWinners)
     }
 
-    //the notification part of it
+    // Save winners to Firestore
+    lotteryRepository.updateList(
+        lottery,
+        selectedEntrants,
+        "winners"
+    )
 
-    //general idea is you make the winners list, then make the losers list
-    // then send notifications down the line
+    // Notify everyone on the waiting list
+    entrants.forEach { entrant ->
+
+        if (selectedEntrants.any { winner -> winner.id == entrant.id }) {
+
+            // User won
+            notificationController.sendNotification(
+                receiverID = entrant.id,
+                message = "Congratulations ${entrant.name}! You have won the campsite lottery!"
+            )
+
+        } else {
+
+            // User lost
+            notificationController.sendNotification(
+                receiverID = entrant.id,
+                message = "Unfortunately ${entrant.name}, you were not selected in this campsite lottery. Better luck next time!"
+            )
+        }
+    }
+
+    notificationController.stopNotifications()
+
+    return selectedEntrants
 }

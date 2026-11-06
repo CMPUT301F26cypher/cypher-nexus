@@ -58,6 +58,7 @@ fun CampsiteApp() {
         }
     }
     val deviceCamper = remember(deviceId) { User(id = deviceId) }
+    val currentUser = signedInCamper ?: deviceCamper //used for lotteryScreen testing
     val bookingCamper by rememberUpdatedState(signedInCamper ?: deviceCamper)
     val bookingController = remember(bookingCamper.id) {
         ReservationController(
@@ -126,7 +127,8 @@ fun CampsiteApp() {
                 onBack = { navController.closePage(page) },
                 entrants = listOf("John Man", "Jane Woman", "Petey Person"),
                 campsite = sampleCamp,
-                lotteryRepository = lotteryRepository
+                lotteryRepository = lotteryRepository,
+                currentUser
             )
         }
         composable(IMAGE_TEST) { page ->

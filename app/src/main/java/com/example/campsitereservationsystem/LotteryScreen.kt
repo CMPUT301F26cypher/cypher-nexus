@@ -22,6 +22,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import kotlin.String
+import androidx.compose.ui.platform.LocalContext
+
 
 /*
 Manages the Screen for Lottery
@@ -35,8 +37,18 @@ fun LotteryScreen(
     onBack: () -> Unit,
     entrants: List<String>,
     campsite: Campsite,
-    lotteryRepository: LotteryRepository
+    lotteryRepository: LotteryRepository,
+    currentUser: User
 ) {
+    val context = LocalContext.current
+
+    val notificationController = remember(currentUser.id) {
+        NotificationController(
+            user = currentUser,
+            context = context
+        )
+    }
+
     var drawLottery by remember {mutableStateOf(false)}
     var numLotteryWinners by remember {mutableStateOf("0")}
     var startDate by remember {mutableStateOf("")}
@@ -174,7 +186,7 @@ fun LotteryScreen(
 
 
     if(drawLottery){
-        val drawnEntrants = LotteryDraw(testUserList, newLottery, lotteryRepository)
+        val drawnEntrants = LotteryDraw(testUserList, newLottery, lotteryRepository, notificationController)
         Column (
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -202,6 +214,7 @@ fun LotteryScreen(
             )
 
             Spacer(modifier = Modifier.width(16.dp))
+            Text("End Date (use digits)")
 
             FlowRow(
                 modifier = Modifier
@@ -210,22 +223,24 @@ fun LotteryScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ){
-                Text("End Date (use digits)")
 
                 OutlinedTextField(
                     value = endMonth,
                     onValueChange = {endMonth = it},
-                    label = { Text("Month") }
+                    label = { Text("Month") },
+                    modifier = Modifier.width(90.dp)
                 )
                 OutlinedTextField(
                     value = endDate,
                     onValueChange = {endDate = it},
-                    label = { Text("Date") }
+                    label = { Text("Date") },
+                    modifier = Modifier.width(90.dp)
                 )
                 OutlinedTextField(
                     value = endYear,
                     onValueChange = {endYear = it},
-                    label = { Text("Year") }
+                    label = { Text("Year") },
+                    modifier = Modifier.width(90.dp)
                 )
                 OutlinedTextField(
                     value = endTime,
