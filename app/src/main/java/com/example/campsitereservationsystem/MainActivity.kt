@@ -8,12 +8,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,9 +48,23 @@ import androidx.compose.ui.platform.LocalContext
 class MainActivity : ComponentActivity() {
 
     /** Opens the existing team screens and keeps the local booking session together. */
+    private var user by mutableStateOf<User?>(null)
+    private var userLoaded by mutableStateOf(false)
+
+    private val userRepo =  UserRepository(onUserChanged = { updated: User? -> user = updated })
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        userRepo.findByDeviceId(
+            deviceId = DeviceId.get(this),
+            onResult = { found: User? ->
+                user = found
+                userLoaded = true
+            },
+            onError = { userLoaded = true }
+        )
 
         setContent {
             CampsiteReservationSystemTheme {
@@ -143,7 +156,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-                var user by remember { mutableStateOf<User?>(null) }
                 var showAccount by remember { mutableStateOf(startScreen == "account") }
                 var showPolicy by remember { mutableStateOf(false) }
 
@@ -273,12 +285,20 @@ class MainActivity : ComponentActivity() {
 
                         // To create an account and view app policy & guidelines
                         if (showAccount) {
-                            AccountTest(
-                                user = user,
-                                campsites = campsites,
-                                onUserChange = { user = it },
-                                onExit = { showAccount = false }
-                            )
+                            if (!userLoaded) {
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                            else {
+                                AccountTest(
+                                    user = user,
+                                    campsites = campsites,
+                                    repo = userRepo,
+                                    onUserChange = { user = it },
+                                    onExit = { showAccount = false }
+                                )
+                            }
                         }
                         else if (showPolicy) {
                             PolicyScreen(
@@ -355,6 +375,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        userRepo.stopListening()
     }
 }
 
