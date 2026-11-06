@@ -64,20 +64,117 @@ fun LotteryScreen(
         )
     }
 
-    var newUserForWaitingList = remember {
+    var newUserForWaitingList = remember{
         User(
-            id = "010101", // Device ID
-            name = "John Test",
-            email = "John Test @ test.com",
-            phone = "780-testnumber",
+            id = "010100", // Device ID
+            name = "Test",
+            email = "Test @ test.com",
+            phone = "780-test",
             notificationsEnabled = true
+        )
+    }
+
+    var testUserList = remember{
+        listOf(
+            User(
+                id = "010101", // Device ID
+                name = "John Test",
+                email = "John Test @ test.com",
+                phone = "780-testnumber",
+                notificationsEnabled = true
+            ),
+            User(
+            id = "010102",
+            name = "Jane Test",
+            email = "Jane Test @ test.com",
+            phone = "780-testnumber2",
+            notificationsEnabled = true
+            ),
+            User(
+            id = "010103",
+            name = "Bob Test",
+            email = "Bob Test @ test.com",
+            phone = "780-testnumber3",
+            notificationsEnabled = false
+            ),
+            User(
+                id = "010104",
+                name = "Alice Johnson",
+                email = "alice.johnson@test.com",
+                phone = "780-555-0104",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010105",
+                name = "Michael Smith",
+                email = "michael.smith@test.com",
+                phone = "780-555-0105",
+                notificationsEnabled = false
+            ),
+            User(
+                id = "010106",
+                name = "Sarah Williams",
+                email = "sarah.williams@test.com",
+                phone = "780-555-0106",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010107",
+                name = "David Brown",
+                email = "david.brown@test.com",
+                phone = "780-555-0107",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010108",
+                name = "Emily Davis",
+                email = "emily.davis@test.com",
+                phone = "780-555-0108",
+                notificationsEnabled = false
+            ),
+            User(
+                id = "010109",
+                name = "James Wilson",
+                email = "james.wilson@test.com",
+                phone = "780-555-0109",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010110",
+                name = "Olivia Martinez",
+                email = "olivia.martinez@test.com",
+                phone = "780-555-0110",
+                notificationsEnabled = false
+            ),
+            User(
+                id = "010111",
+                name = "Daniel Anderson",
+                email = "daniel.anderson@test.com",
+                phone = "780-555-0111",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010112",
+                name = "Sophia Taylor",
+                email = "sophia.taylor@test.com",
+                phone = "780-555-0112",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010113",
+                name = "Matthew Thomas",
+                email = "matthew.thomas@test.com",
+                phone = "780-555-0113",
+                notificationsEnabled = false
+            )
         )
     }
 
 
 
+
     if(drawLottery){
-        val drawnEntrants = LotteryDraw(entrants, numLotteryWinners)
+        val drawnEntrants = LotteryDraw(testUserList, newLottery, lotteryRepository)
         Column (
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,

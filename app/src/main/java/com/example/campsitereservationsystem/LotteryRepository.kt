@@ -30,14 +30,13 @@ class LotteryRepository {
 
     /*
     updates either a waitingList or a list of winners
-    listType options are: waitingList and winners
 
     also converts from to a list type firebase can use
     */
     fun updateList(
         lottery: Lottery,
         list: List<User>,
-        listType: String
+        listType: String //listType options are: waitingList or winners
     ) {
         // Convert User objects into Firestore-compatible Maps
         val firestoreList = list.map { user ->
