@@ -62,17 +62,16 @@ internal fun NavGraphBuilder.campsiteRoutes(
     navController: NavHostController,
     campsiteRepository: CampsiteRepository,
     campsiteController: com.example.campsitereservationsystem.campsite.CampsiteController,
+    reservationRepository: ReservationRepository,
     ownerId: String,
     ownerSites: MutableList<Campsite>
 ) {
-<<<<<<< Updated upstream
     // Using the same repository for the controller and route lookups.
-    val campsiteController = CampsiteController(campsiteRepository)
+    val campsiteController = CampsiteController(campsiteRepository, reservationRepository)
     // Holding the last checked scan alongside its ID.
-    var lastScan: Pair<String, OwnerCampsite>? = null
-=======
+    //var lastScan: Pair<String, OwnerCampsite>? = null
+
     var lastScan: Pair<String, Campsite>? = null
->>>>>>> Stashed changes
 
     // Reusing a campsite already loaded for the owner list.
     fun knownOwnerSite(page: NavBackStackEntry): Campsite? {
@@ -306,12 +305,8 @@ private fun CampsiteFormPage(
             }
 
             // Keeping the original ID, owner, and image when editing existing details.
-<<<<<<< Updated upstream
-            val blankOrExisting = originalSite ?: OwnerCampsite(ownerId = ownerId)
             // Turning form input into the campsite model while retaining fields already on the selected campsite.
-=======
             val blankOrExisting = originalSite ?: Campsite(ownerId = ownerId)
->>>>>>> Stashed changes
             val updatedSite = blankOrExisting.copy(
                 name = name.trim(),
                 location = location.trim(),
@@ -366,12 +361,9 @@ private fun CampsitePage(
     content: @Composable (Campsite) -> Unit
 ) {
     val campsiteId = page.arguments?.getString(CAMPSITE_ID)
-<<<<<<< Updated upstream
     // Keeping the loaded record and message tied to the route ID.
-    var loadedSite by remember(campsiteId) { mutableStateOf<OwnerCampsite?>(null) }
-=======
+    //var loadedSite by remember(campsiteId) { mutableStateOf<OwnerCampsite?>(null) }
     var loadedSite by remember(campsiteId) { mutableStateOf<Campsite?>(null) }
->>>>>>> Stashed changes
     var message by remember(campsiteId) { mutableStateOf("Loading campsite…") }
 
     // Loading from the repository only when the owner list or last scan has not supplied the record.
