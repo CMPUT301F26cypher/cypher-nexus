@@ -27,15 +27,30 @@ import coil3.compose.AsyncImage // coil version 3.3.0 and newer
  *
  */
 @Composable
-fun ImageUploadTestScreen(onBack: ()-> Unit){
+fun ImageUploadTestScreen(
+    onBack: ()-> Unit,
+    notificationController: NotificationController,
+    user: User
+){
     var pickedImageURI by remember { mutableStateOf<Uri?>(null)} // holds image address
 
 
     Column(
-        modifier = Modifier.padding(12.dp)
+        modifier = Modifier.padding(30.dp)
     ){
         Button(onClick = onBack){
             Text("Back")
+        }
+
+        Button(
+            onClick = {
+                notificationController.sendNotification(
+                    receiverID = user.id,
+                    message = "Test Notification"
+                )
+            }
+        ) {
+            Text("Send Notification")
         }
 
         ImagePickerButton(
