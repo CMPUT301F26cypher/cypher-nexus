@@ -31,6 +31,8 @@ Allows Owners to setup a lottery. Determining amount of lottery winners and
 how long it's open. After the lottery registration closes winners are
 automatically randomly selected and winners and losers are notified on their result
 via a push notification
+(currently the automatic selection is not implemented and the
+owner must manually do it themselves)
  */
 @Composable
 fun LotteryScreen(
@@ -48,9 +50,8 @@ fun LotteryScreen(
         )
     }
 
-    //var drawLottery by remember {mutableStateOf(false)}
 
-    //ERROR MESSAGES
+    //ERROR MESSAGE TRIGGERS
     var showDateError by remember { mutableStateOf(false) }
     var showLotteryError by remember { mutableStateOf(false) }
 
@@ -189,6 +190,7 @@ fun LotteryScreen(
             )
         )
     }
+
     //Error popup on incorrect lottery dates
     if (showDateError) {
         AlertDialog(
@@ -211,6 +213,7 @@ fun LotteryScreen(
                 }
             }
         )
+    //Error popup on incorrect lottery status
     }else if (showLotteryError) {
         AlertDialog(
             onDismissRequest = {
@@ -233,28 +236,6 @@ fun LotteryScreen(
             }
         )
     }
-
-    //displays lottery results, only here for testing purposes
-    /*
-    if(drawLottery){
-        val drawnEntrants = LotteryDraw(testUserList, newLottery, lotteryRepository, notificationController)
-        Column (
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
-            Text(drawnEntrants.joinToString(separator = ", "))
-        }
-        Button(
-            onClick = {
-                drawLottery = false
-            }
-        ){
-            Text("Continue")
-        }
-
-     */
-   //}else {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -383,35 +364,20 @@ fun LotteryScreen(
                         newLottery.status = "DRAWING"
                         lotteryRepository.updateStatus(newLottery, newLottery.status)
 
+                        //testUserList is just for testing purposes replace it with the campsites waiting list for the actual app
                         LotteryDraw(testUserList, newLottery, lotteryRepository, notificationController)
                     }else{
                         showLotteryError = true
                     }
-                    //drawLottery = true
                 }
             ) {
                 Text("Run lottery right now")
             }
 
-            /*this button is here to test adding users to a waitinglist on firebase
-            Button(
-                onClick = {
-                    newLottery.waitingList.add(newUserForWaitingList)
-                    lotteryRepository.updateList(
-                        newLottery,
-                        newLottery.waitingList,
-                        "waitingList")
-                }
-            ) {
-                Text("Add user to waiting list on firebase")
-            }
-
-             */
             Button(onClick = onBack) {
                 Text("Back")
             }
 
 
         }
-    //}
 }

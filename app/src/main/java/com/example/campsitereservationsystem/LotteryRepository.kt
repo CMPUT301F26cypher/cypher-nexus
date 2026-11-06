@@ -105,4 +105,25 @@ class LotteryRepository {
             null
         }
     }
+
+    fun getLotteryByCampsiteID(
+        campsiteID: String,
+        onResult: (Lottery?) -> Unit
+    ) {
+        lotteriesRef.document(campsiteID)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val lottery = document.toObject(Lottery::class.java)
+                    onResult(lottery)
+                } else {
+                    println("No lottery found for campsite $campsiteID")
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener { exception ->
+                println("Error retrieving lottery: ${exception.message}")
+                onResult(null)
+            }
+    }
 }
