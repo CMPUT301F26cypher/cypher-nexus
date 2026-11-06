@@ -17,7 +17,7 @@ class ReservationRepository(val localOnly: Boolean = false) {
     private val schedulesRef = db?.collection("availabilitySchedules")
 
     private val storedReservations = mutableStateListOf<Reservation>()
-    private val storedSchedules = mutableStateListOf<AvailabilitySchedule>()
+    private val storedSchedules = mutableStateMapOf<String, AvailabilitySchedule>()
     private val localCalendars = mutableStateMapOf<String, AvailabilitySchedule>()
 
     val reservations: List<Reservation>
@@ -28,7 +28,7 @@ class ReservationRepository(val localOnly: Boolean = false) {
             if (localOnly) {
                 return localCalendars.values.toList()
             }
-            return storedSchedules
+            return storedSchedules.values.toList()
         }
 
     init {
@@ -55,26 +55,41 @@ class ReservationRepository(val localOnly: Boolean = false) {
         }
     }
 
-    /** Preserves the existing schedule listener; its Firebase mapping is still team work. */
+    /** Use campsiteId as documentId to load schedules*/
     private fun watchSchedules() {
         schedulesRef?.addSnapshotListener { snapshot, error ->
             if (error == null) {
                 storedSchedules.clear()
                 if (snapshot != null) {
                     for (document in snapshot.documents) {
-                        val schedule = document.toObject(AvailabilitySchedule::class.java)
-                        if (schedule != null) {
-                            // Existing team TODO: connect the stored schedule to its campsite.
+                        val available = (document.get("availableDays") as? List<*>).orEmpty()
+                        val booked = (document.get("bookedDays") as? List<*>).orEmpty()
+                        val schedule = AvailabilitySchedule(
+                            availableDays = available.map { day ->
+                                (day as Number).toInt()
+                            }.toSet(),
+                            bookedDays = booked.map { day ->
+                                (day as Number).toInt()
+                            }.toSet()
+                        )
+                        storedSchedules[document.id] = schedule
                         }
                     }
                 }
             }
         }
-    }
+
 
     /** Gets the local calendar for one campsite. */
     fun localSchedule(campsiteId: String): AvailabilitySchedule? {
         return localCalendars[campsiteId]
+    }
+
+    fun scheduleFor(campsiteId: String): AvailabilitySchedule? {
+        if (localOnly) {
+            return localCalendars[campsiteId]
+        }
+        return storedSchedules[campsiteId]
     }
 
     /** Saves dates locally for the demo, or uses the existing Firebase write. */
@@ -82,7 +97,11 @@ class ReservationRepository(val localOnly: Boolean = false) {
         if (localOnly) {
             localCalendars[documentId] = schedule
         } else {
-            schedulesRef?.document(documentId)?.set(schedule)
+            val data = mapOf(
+                "availableDays" to schedule.availableDays.toList(),
+                "bookedDays" to schedule.bookedDays.toList()
+            )
+            schedulesRef?.document(documentId)?.set(data)
         }
     }
 
