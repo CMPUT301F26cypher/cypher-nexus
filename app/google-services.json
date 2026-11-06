@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "992334872118",
+    "project_id": "cypher-nexus-3cf6b",
+    "storage_bucket": "cypher-nexus-3cf6b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:992334872118:android:1df5c72b07e89f1599e297",
+        "android_client_info": {
+          "package_name": "com.example.campsitereservationsystem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD19hcjVdfpsRytTkaf4eu4SmOckm08fdQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

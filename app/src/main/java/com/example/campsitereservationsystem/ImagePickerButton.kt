@@ -14,7 +14,7 @@ import androidx.compose.material3.Text
  *
  * Utilize uri - address of selected photo
  * Photopicker reuses same lines just going to make
- * a helper function to open photo picker and return uri address of photo
+ * a helper function to open photo picker and return uri of photo
  *
  * Can add parameters in future if I need to add different button design
  * for specific pages

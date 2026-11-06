@@ -1,0 +1,222 @@
+// Connecting the existing screens and sharing one local session for the calendar and booking demos.
+
+package com.example.campsitereservationsystem
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.campsitereservationsystem.campsite.CampsiteRepository
+import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
+
+private const val WELCOME = "welcome"
+private const val POLICY = "policy"
+private const val TEST_MENU = "test_menu"
+private const val AVAILABILITY = "availability"
+private const val BOOKING = "booking"
+private const val LOTTERY = "lottery"
+private const val IMAGE_TEST = "image_test"
+private const val ACCOUNT = "account"
+
+/** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
+@Composable
+fun CampsiteApp() {
+    // Keeping one controller for the app’s back stack.
+    val navController = rememberNavController()
+    val context = LocalContext.current
+    // Using the existing device ID for the owner list and the demo guest.
+    val deviceId = remember(context) { DeviceId.get(context) }
+    // Passing this repository to the campsite routes.
+    val campsiteRepository = remember { CampsiteRepository() }
+    val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
+    // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
+    var signedInCamper by remember { mutableStateOf<User?>(null) }
+
+    // Reusing sample campsite for the availability and booking demos.
+    // Using the sample campsite ID as the key for the schedule shared by both screens.
+    val sampleCamp = remember {
+        Campsite(
+            campsiteID = "SAMPLE_SPRUCE_RIDGE",
+            ownerID = "sample-owner",
+            location = "Jasper area, Alberta",
+            description = "The sample campsite used by the availability calendar.",
+            rules = "Keep the site clean. Quiet hours are 10 pm to 7 am."
+        )
+    }
+    // Sharing the same sample dates across both screens as the user moves around.
+    // Remembering the local store above the destinations so opening a screen does not seed a new schedule.
+    val demoNights = remember {
+        ReservationRepository(localOnly = true).apply {
+            // Seeding the sample schedule when the store is created, before either route tries to read it.
+            saveAvailabilitySchedule(sampleCamp.campsiteID, AvailabilitySchedule())
+        }
+    }
+    val deviceCamper = remember(deviceId) { User(id = deviceId) }
+    // Using the account profile when one exists and the device profile otherwise.
+    val bookingCamper by rememberUpdatedState(signedInCamper ?: deviceCamper)
+    // Keeping the same controller while the guest stays the same.
+    val bookingController = remember(bookingCamper.id) {
+        ReservationController(
+            campsite = sampleCamp,
+            campsiteName = "Spruce Ridge",
+            cancellationPolicy = "Contact the owner about changes. Cancellation is not available in this prototype.",
+            winnerId = bookingCamper.id,
+            repository = demoNights,
+            // Supplying the sample winning opportunity for the demo.
+            isWinner = true
+        )
+    }
+    // Making the current controller available to the registered route after a change of guest.
+    val currentBookingController by rememberUpdatedState(bookingController)
+    val lotteryRepository = remember { LotteryRepository() }
+
+    // Keeping the same button destinations that the team wired up in MainActivity.
+    // Starting at Welcome and registering the other screens on the same stack.
+    NavHost(navController = navController, startDestination = WELCOME) {
+        composable(WELCOME) { page ->
+            // Opening Welcome screen and its original four actions.
+            // Keeping the original Welcome actions.
+            WelcomeScreen(
+                onFindCampsite = { navController.openPage(page, SCAN_CAMPSITE_ROUTE) },
+                onManageCampsites = { navController.openPage(page, AVAILABILITY) },
+                onPolicyClick = { navController.openPage(page, POLICY) },
+                onOpenTestMenu = { navController.openPage(page, TEST_MENU) }
+            )
+        }
+        composable(POLICY) { page ->
+            // Showing efarr's existing policy screen (0af9fa9).
+            // Using the existing policy content and closing this entry when Back is pressed.
+            PolicyScreen(onBack = { navController.closePage(page) })
+        }
+        composable(TEST_MENU) { page ->
+            // Connecting the old test menu buttons to routes.
+            TestMenu(
+                onAccount = { navController.openPage(page, ACCOUNT) },
+                onLottery = { navController.openPage(page, LOTTERY) },
+                onImages = { navController.openPage(page, IMAGE_TEST) },
+                onOwnerCampsites = { navController.openPage(page, OWNER_CAMPSITES_ROUTE) },
+                onScan = { navController.openPage(page, SCAN_CAMPSITE_ROUTE) },
+                onBooking = { navController.openPage(page, BOOKING) },
+                onBack = { navController.closePage(page) }
+            )
+        }
+
+        // Registering jmrojas17's owner campsite and QR screens (e8087bc).
+        // Registering the owner and QR screens on this graph with the same repository and owner list used above.
+        campsiteRoutes(navController, campsiteRepository, deviceId, ownerSites)
+
+        composable(AVAILABILITY) { page ->
+            // Opening my existing calendar (9b13916).
+            AvailabilityScreen(
+                // Reading the current sample schedule when the owner route is shown.
+                schedule = demoNights.localSchedule(sampleCamp.campsiteID) ?: AvailabilitySchedule(),
+                onSave = { schedule ->
+                    // Saving changes under the sample ID shared by the calendar and booking screens.
+                    demoNights.saveAvailabilitySchedule(sampleCamp.campsiteID, schedule)
+                },
+                onBack = { navController.closePage(page) }
+            )
+        }
+        composable(BOOKING) { page ->
+            // Opening my entrant booking demo with the shared dates (9df1603, 9f24e48).
+            // Passing the current guest and controller into the booking screen.
+            EntrantBookingScreen(
+                controller = currentBookingController,
+                guest = bookingCamper,
+                onBack = { navController.closePage(page) }
+            )
+        }
+        composable(LOTTERY) { page ->
+            // Passing the original test entrants to aboogabingbong's lottery screen (83f3b25).
+            // Giving the existing lottery screen its test entrants, sample campsite, and repository.
+            LotteryScreen(
+                onBack = { navController.closePage(page) },
+                entrants = listOf("John Man", "Jane Woman", "Petey Person"),
+                campsite = sampleCamp,
+                lotteryRepository = lotteryRepository
+            )
+        }
+        composable(IMAGE_TEST) { page ->
+            // Giving the image test its own route so its listener has a clear lifecycle.
+            ImageTestRoute(onBack = { navController.closePage(page) })
+        }
+        composable(ACCOUNT) { page ->
+            // Keeping efarr's existing account and profile flow inside AccountTest (0af9fa9).
+            // Passing profile changes back to the shared account state.
+            AccountTest(
+                user = signedInCamper,
+                campsites = ownerSites,
+                onUserChange = { signedInCamper = it },
+                onExit = { navController.closePage(page) }
+            )
+        }
+    }
+}
+
+/** Showing the same buttons as the team's original test menu. */
+@Composable
+private fun TestMenu(
+    onAccount: () -> Unit,
+    onLottery: () -> Unit,
+    onImages: () -> Unit,
+    onOwnerCampsites: () -> Unit,
+    onScan: () -> Unit,
+    onBooking: () -> Unit,
+    onBack: () -> Unit
+) {
+    // Keeping the test menu in its original order with one callback per button.
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = onAccount) { Text("Account") }
+        Button(onClick = onLottery) { Text("Lottery WIP") }
+        Button(onClick = onImages) { Text("Image Upload Test Screen") }
+        // Keeping the real owner list separate from the sample availability button on Welcome.
+        Button(onClick = onOwnerCampsites) { Text("My Campsites") }
+        Button(onClick = onScan) { Text("Scan QR Code") }
+        Button(onClick = onBooking) { Text("Entrant booking demo") }
+        Button(onClick = onBack) { Text("Back to welcome") }
+    }
+}
+
+/** Reusing dcreyes1's image upload and notifications test (a2114fc, 5cb3df6). */
+@Composable
+private fun ImageTestRoute(onBack: () -> Unit) {
+    val context = LocalContext.current
+    // Preparing the existing test profile for the image and notification screen.
+    val demoCamper = remember {
+        User(id = "Testuser123", name = "Test user", email = "testDevice123")
+    }
+    // Creating the notification controller for this destination and test profile.
+    val notifications = remember(context, demoCamper.id) {
+        NotificationController(demoCamper, context)
+    }
+
+    // Stopping the notification listener when the user leaves this test screen.
+    DisposableEffect(notifications) {
+        // Releasing the existing listener as the route leaves composition.
+        onDispose { notifications.stopNotifications() }
+    }
+    ImageUploadTestScreen(
+        onBack = onBack,
+        notificationController = notifications,
+        user = demoCamper
+    )
+}

@@ -27,6 +27,7 @@ import com.example.campsitereservationsystem.campsite.Campsite
 fun AccountTest(
     user: User?,
     campsites: List<Campsite>,
+    repo: UserRepository,
     onUserChange: (User?) -> Unit,
     onExit: () -> Unit
 ) {
@@ -35,28 +36,81 @@ fun AccountTest(
     var showProfile by remember { mutableStateOf(false) }
     var policyRead by remember { mutableStateOf(false) }
     var newScreen by remember { mutableStateOf("home") }
+    var creatingProfile by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
 
     BackHandler {
         when {
             newScreen != "home" -> newScreen = "home"
             showProfile -> showProfile = false
-            user == null && policyRead -> policyRead = false
+            user == null && policyRead && creatingProfile -> policyRead = false
+            user == null && creatingProfile -> creatingProfile = false
             else -> onExit()
         }
     }
 
-    // US 01.11.01 (As an entrant, I want to see the app policy and guidelines.)
-    // if there is no profile yet, read policy and show create profile screen
+    // Login if they already have an account
     if (user == null) {
-        if (!policyRead) {
+        if (!creatingProfile) {
+            LoginScreen(
+                error = error,
+                onLogin = { email, password ->
+                    error = null
+                    repo.login(
+                        email, password, DeviceId.get(context),
+                        onResult = { u ->
+                            if (user == null) error = "Inccorect email or password!"
+                            else onUserChange(user)
+                        },
+                        onError = { error = "Something went wrong! Please try again." }
+                    )
+                }, onDeviceLogin = {
+                    error = null
+                    repo.findByDeviceId(
+                        deviceId = DeviceId.get(context),
+                        onResult = { u ->
+                            if (u == null) {
+                                error = "No account found for this device!"
+                            }
+                            else {
+                                repo.startListening(u.id)
+                                onUserChange(u)
+                            }
+                        },
+                        onError = { error = "Something went wrong! Please try again." }
+                    )
+                },
+                onCreateAccount = { creatingProfile = true; error = null }
+            )
+        }
+
+        // US 01.11.01 (As an entrant, I want to see the app policy and guidelines.)
+        // if there is no profile yet, read policy and show create profile screen
+        else if (!policyRead) {
             PolicyScreen(onContinue = { policyRead = true })
         }
         else {
-            CreateAccountScreen { name, email, phone ->
-                onUserChange(
-                    User(id = DeviceId.get(context), name = name, email = email, phone = phone)
-                )
-            }
+            CreateAccountScreen(
+                error = error,
+                onGoToLogin = { creatingProfile = false; error = null },
+                onCreate = { name, email, phone, password, accRole ->
+                    error = null
+                    repo.register(
+                        User(
+                            name = name,
+                            email = email,
+                            phone = phone,
+                            roles = setOf(accRole),
+                            deviceId = DeviceId.get(context)
+                        ),
+                        password,
+                        onSuccess = { onUserChange(it) },
+                        onEmailTaken = { error = "Email already in use!" },
+                        onError = { error = "Something went wrong! Please try again." }
+                    )
+                }
+            )
         }
         return
     }
@@ -70,13 +124,20 @@ fun AccountTest(
 
         showProfile -> ProfileScreen(
             user = user,
-            onSave = { updated -> onUserChange(updated) },
+            onSave = { updated ->
+                repo.updateUser(updated)
+                onUserChange(updated)
+            },
             onDelete = {
+                repo.delete(user)
                 onUserChange(null)
                 showProfile = false
+                creatingProfile = false
                 policyRead = false
             },
-            onBack = { showProfile = false }
+            onBack = {
+                showProfile = false
+            }
         )
         else -> Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -98,12 +159,29 @@ fun AccountTest(
                 Button(onClick = { newScreen = "admin" }) { Text("Browse Campsites") }
             }
             // temp button for testing if admin functionality works
+            // Updated the button so it works with user repo + firestore
             Button(
-                onClick = { onUserChange(user.copy(roles = user.roles + Role.ADMIN))}
+                onClick = {
+                    val updated = user.copy(roles = user.roles + Role.ADMIN)
+                    repo.updateUser(updated)
+                    onUserChange(updated)
+                }
             ) { Text("Become an Admin") }
 
+            // New logout button
+            // Forgets device and logs out
+            Button(
+                onClick = {
+                    repo.logout(user)
+                    onUserChange(null)
+                    creatingProfile = false
+                }
+            ) {
+                Text("Log out")
+            }
+
+            // Exit button
             Button(onClick = onExit) { Text("Exit") }
         }
     }
-
 }

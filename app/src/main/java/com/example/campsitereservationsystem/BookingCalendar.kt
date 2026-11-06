@@ -1,3 +1,5 @@
+// Showing the May 2027 calendar and passing the entrant’s date choices to the booking screen.
+
 package com.example.campsitereservationsystem
 
 import androidx.compose.foundation.background
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun BookingCalendar(
+    // Receiving the latest schedule and both selected dates from the parent.
     schedule: AvailabilitySchedule,
     checkIn: Int?,
     checkOut: Int?,
@@ -39,6 +42,7 @@ fun BookingCalendar(
 
     Text("May 2027", style = MaterialTheme.typography.titleMedium)
 
+    // Lining up the weekday labels with the seven calendar columns.
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -57,6 +61,7 @@ fun BookingCalendar(
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
         modifier = Modifier.fillMaxWidth().height(308.dp),
+        // Giving vertical scrolling to the booking page.
         userScrollEnabled = false,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -65,13 +70,16 @@ fun BookingCalendar(
             val calendarDay = square - 5 + 1
 
             if (calendarDay !in 1..31) {
+                // Filling the unused slots with a spacer instead of making them clickable.
                 Spacer(modifier = Modifier.height(48.dp))
             } else {
+                // Starting each valid date with the unavailable style.
                 var boxColor = colors.surfaceVariant
                 var textColor = colors.onSurfaceVariant
                 var statusSymbol = "–"
                 var status = "Unavailable night"
 
+                // Showing the schedule’s existing bookings before applying the entrant’s highlights.
                 if (calendarDay in schedule.bookedDays) {
                     statusSymbol = "B"
                     status = "Booked night"
@@ -82,6 +90,7 @@ fun BookingCalendar(
                     status = "Available night"
                 }
 
+                // Highlighting a range only after both ends have been chosen.
                 if (checkIn != null && checkOut != null) {
                     // Highlight overnight dates; check-out is shown separately.
                     if (calendarDay in checkIn until checkOut) {
@@ -92,6 +101,7 @@ fun BookingCalendar(
                     }
                 }
 
+                // Giving the two ends distinct markers after colouring the range.
                 if (calendarDay == checkIn) {
                     boxColor = colors.primary
                     textColor = colors.onPrimary
@@ -100,16 +110,20 @@ fun BookingCalendar(
                 } else if (calendarDay == checkOut) {
                     boxColor = colors.secondaryContainer
                     textColor = colors.onSecondaryContainer
+                    // Marking check-out separately because it does not occupy that night.
                     statusSymbol = "OUT"
                     status = "Check-out, not an occupied night"
                 }
 
+                // Keeping each date as one tap target with a consistent height.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                         .background(boxColor, RoundedCornerShape(8.dp))
+                        // Passing each tap back so the booking screen can validate the chosen day.
                         .clickable { onDatePicked(calendarDay) }
+                        // Announcing the day and its status together for screen readers.
                         .semantics(mergeDescendants = true) {
                             contentDescription = "$calendarDay May 2027, $status"
                         },
@@ -124,6 +138,7 @@ fun BookingCalendar(
         }
     }
 
+    // Explaining the date symbols below the grid.
     Text("A = Available   B = Booked   – = Unavailable   IN / OUT = Your dates",
         style = MaterialTheme.typography.bodySmall)
     Text("Only overnight dates must be available. A booked date can be your check-out.",
