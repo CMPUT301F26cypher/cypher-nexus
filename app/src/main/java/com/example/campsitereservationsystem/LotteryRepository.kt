@@ -61,6 +61,18 @@ class LotteryRepository {
             }
     }
 
+    fun updateStatus(lottery: Lottery, newStatus: String) {
+        lotteriesRef.document(lottery.campsiteID)
+            .update("status", newStatus)
+            .addOnSuccessListener {
+                lottery.status = newStatus
+                println("Successfully updated lottery status to $newStatus")
+            }
+            .addOnFailureListener { exception ->
+                println("Failed to update lottery status: ${exception.message}")
+            }
+    }
+
     fun deleteLottery(lottery: Lottery){
         lotteriesRef.document(lottery.campsiteID).delete()
     }

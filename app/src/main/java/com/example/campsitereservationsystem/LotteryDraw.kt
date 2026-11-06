@@ -56,5 +56,7 @@ fun LotteryDraw(
 
     notificationController.stopNotifications()
 
+    lottery.status = "COMPLETED"
+    lotteryRepository.updateStatus(lottery, lottery.status)
     return selectedEntrants
 }

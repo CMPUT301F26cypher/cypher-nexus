@@ -125,7 +125,6 @@ fun CampsiteApp() {
             // Passing the original test entrants to aboogabingbong's lottery screen (83f3b25).
             LotteryScreen(
                 onBack = { navController.closePage(page) },
-                entrants = listOf("John Man", "Jane Woman", "Petey Person"),
                 campsite = sampleCamp,
                 lotteryRepository = lotteryRepository,
                 currentUser
