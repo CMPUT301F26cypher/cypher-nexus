@@ -1,5 +1,6 @@
 package com.example.campsitereservationsystem
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,7 @@ private const val BOOKING = "booking"
 private const val LOTTERY = "lottery"
 private const val IMAGE_TEST = "image_test"
 private const val ACCOUNT = "account"
+private const val OWNER_WAITLIST = "owner_waitlist"
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
 @Composable
@@ -85,7 +87,11 @@ fun CampsiteApp() {
                 onFindCampsite = { navController.openPage(page, SCAN_CAMPSITE_ROUTE) },
                 onManageCampsites = { navController.openPage(page, AVAILABILITY) },
                 onPolicyClick = { navController.openPage(page, POLICY) },
-                onOpenTestMenu = { navController.openPage(page, TEST_MENU) }
+                onOpenTestMenu = { navController.openPage(page, TEST_MENU) },
+                onBrowseCampsites = {
+                    // TODO: replace with the teammate's browse route
+                    Toast.makeText(context, "Browse campsites coming soon", Toast.LENGTH_SHORT).show()
+                }
             )
         }
         composable(POLICY) { page ->
@@ -144,8 +150,24 @@ fun CampsiteApp() {
                 campsites = ownerSites,
                 repo = userRepo,
                 onUserChange = { signedInCamper = it },
-                onExit = { navController.closePage(page) }
+                onExit = { navController.closePage(page) },
+                onOpenWaitingList = { navController.openPage(page, OWNER_WAITLIST) }
             )
+        }
+        composable(OWNER_WAITLIST) { page ->
+            val owner = signedInCamper
+            if (owner != null && Role.OWNER in owner.roles) {
+                OwnerWaitingListScreen(
+                    campsites = ownerSites,
+                    entrantsFor = { campsite ->
+                        listOf(
+                            User(name = "John Man", email = "john.mclean@examplepetstore.com", phone = "1234567890", roles = setOf(Role.ENTRANT)),
+                            User(name = "Jane Woman", email = "james.moore.wayne@example-pet-store.com", phone = "1234567890", roles = setOf(Role.ENTRANT))
+                        )
+                    },
+                    onBack = { navController.closePage(page) }
+                )
+            }
         }
     }
 }

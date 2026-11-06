@@ -31,7 +31,8 @@ fun AccountTest(
     campsites: List<Campsite>,
     repo: UserRepository,
     onUserChange: (User?) -> Unit,
-    onExit: () -> Unit
+    onExit: () -> Unit,
+    onOpenWaitingList: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -160,6 +161,10 @@ fun AccountTest(
             // As an admin, I want to browse campsites.
             if (Role.ADMIN in user.roles) {
                 Button(onClick = { newScreen = "admin" }) { Text("Browse Campsites") }
+            }
+
+            if (Role.OWNER in user.roles) {
+                Button(onClick = onOpenWaitingList) { Text("View Waiting List") }
             }
             // temp button for testing if admin functionality works
             // Updated the button so it works with user repo + firestore
