@@ -36,11 +36,12 @@ fun ProfileScreen(
     var name by remember { mutableStateOf(user.name) }
     var email by remember { mutableStateOf(user.email) }
     var phone by remember { mutableStateOf(user.phone) }
+
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    var nameError = name.isBlank()
-    var emailError = email.isBlank()
-    var phoneError = phone.isBlank()
+    val nameError = name.isBlank()
+    val emailError = email.isBlank()
+    val phoneError = phone.isBlank()
     val canSave = !nameError && !emailError && !phoneError
 
 
@@ -53,7 +54,7 @@ fun ProfileScreen(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = onBack) { Text("Back") }
-            Text("Profile", style = MaterialTheme.typography.titleLarge) // ????
+            Text("Profile", style = MaterialTheme.typography.titleLarge)
         }
         Spacer(Modifier.height(8.dp))
 

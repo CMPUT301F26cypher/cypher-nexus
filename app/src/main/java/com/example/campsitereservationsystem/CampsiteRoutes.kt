@@ -1,3 +1,5 @@
+// Opening the owner and QR screens. The entrant’s waiting-list action is still a placeholder.
+
 package com.example.campsitereservationsystem
 
 import android.content.Context
@@ -27,7 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.campsitereservationsystem.campsite.AddCampsiteScreen
-import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
+import com.example.campsitereservationsystem.campsite.Campsite
 import com.example.campsitereservationsystem.campsite.CampsiteController
 import com.example.campsitereservationsystem.campsite.CampsiteRepository
 import com.example.campsitereservationsystem.campsite.OwnerCampsiteDetailsScreen
@@ -49,6 +51,7 @@ private const val SHOW_QR_ROUTE = "show_qr"
 private const val ENTRANT_DETAILS_ROUTE = "entrant_details"
 private const val CAMPSITE_ID = "campsiteId"
 
+// Declaring the campsite ID as a route argument so a restored page can identify which campsite it is meant to show.
 private val campsiteArguments = listOf(navArgument(CAMPSITE_ID) { type = NavType.StringType })
 
 /**
@@ -58,19 +61,28 @@ private val campsiteArguments = listOf(navArgument(CAMPSITE_ID) { type = NavType
 internal fun NavGraphBuilder.campsiteRoutes(
     navController: NavHostController,
     campsiteRepository: CampsiteRepository,
+    campsiteController: com.example.campsitereservationsystem.campsite.CampsiteController,
     ownerId: String,
-    ownerSites: MutableList<OwnerCampsite>
+    ownerSites: MutableList<Campsite>
 ) {
+<<<<<<< Updated upstream
+    // Using the same repository for the controller and route lookups.
     val campsiteController = CampsiteController(campsiteRepository)
+    // Holding the last checked scan alongside its ID.
     var lastScan: Pair<String, OwnerCampsite>? = null
+=======
+    var lastScan: Pair<String, Campsite>? = null
+>>>>>>> Stashed changes
 
     // Reusing a campsite already loaded for the owner list.
-    fun knownOwnerSite(page: NavBackStackEntry): OwnerCampsite? {
+    fun knownOwnerSite(page: NavBackStackEntry): Campsite? {
         val campsiteId = page.arguments?.getString(CAMPSITE_ID)
+        // Looking for the owner’s record in the list already loaded.
         return ownerSites.firstOrNull { it.id == campsiteId }
     }
 
     composable(OWNER_CAMPSITES_ROUTE) { page ->
+        // Observing whether the owner list is at the top of the stack.
         val currentPage by navController.currentBackStackEntryAsState()
         OwnerListPage(
             campsiteRepository = campsiteRepository,
@@ -78,16 +90,20 @@ internal fun NavGraphBuilder.campsiteRoutes(
             ownerId = ownerId,
             ownerSites = ownerSites,
             showingList = currentPage == page,
+            // Opening a blank form for Add and passing an ID for existing campsite actions.
             onAdd = { navController.openPage(page, ADD_CAMPSITE_ROUTE) },
             onView = { site -> navController.openPage(page, siteRoute(OWNER_DETAILS_ROUTE, site.id)) },
             onEdit = { site -> navController.openPage(page, siteRoute(EDIT_CAMPSITE_ROUTE, site.id)) }
         )
     }
 
+    // Opening the existing form without a campsite so it starts with empty fields.
     composable(ADD_CAMPSITE_ROUTE) { page ->
+        // Sharing the list with the form so a saved campsite can be reflected immediately when the owner returns.
         CampsiteFormPage(campsiteController, ownerId, ownerSites, onBack = { navController.closePage(page) })
     }
 
+    // Opening the same form with the requested campsite.
     composable("$EDIT_CAMPSITE_ROUTE/{$CAMPSITE_ID}", arguments = campsiteArguments) { page ->
         val goBack = { navController.closePage(page) }
         CampsitePage(page, campsiteRepository, knownOwnerSite(page), goBack) { site ->
@@ -100,12 +116,14 @@ internal fun NavGraphBuilder.campsiteRoutes(
         CampsitePage(page, campsiteRepository, knownOwnerSite(page), goBack) { site ->
             OwnerCampsiteDetailsScreen(
                 campsite = site,
+                // Starting the QR route from this specific details entry so Back can show the same campsite again.
                 onViewQRCode = { navController.openPage(page, siteRoute(SHOW_QR_ROUTE, site.id)) },
                 onBack = goBack
             )
         }
     }
 
+    // Using the existing QR screen for the campsite on this route.
     composable("$SHOW_QR_ROUTE/{$CAMPSITE_ID}", arguments = campsiteArguments) { page ->
         val goBack = { navController.closePage(page) }
         CampsitePage(page, campsiteRepository, knownOwnerSite(page), goBack) { site ->
@@ -113,16 +131,21 @@ internal fun NavGraphBuilder.campsiteRoutes(
         }
     }
 
+    // Using one scanner destination for Welcome and the test menu.
     composable(SCAN_CAMPSITE_ROUTE) { page ->
         val context = LocalContext.current
+        // Keeping the lookup in the scanner’s scope so it can stop when the screen is closed.
         val scope = rememberCoroutineScope()
         val qrReader = remember { QRCodeManager() }
         val goBack = { navController.closePage(page) }
         var checkingCode by remember { mutableStateOf(false) }
 
         QRCodeScannerScreen(
+            // Handling scan results in the route while the scanner screen continues to own the camera interaction.
             onQRCodeScanned = scanned@{ code ->
+                // Ignoring a result that arrives after leaving the scanner or while another lookup is running.
                 if (navController.currentBackStackEntry != page || checkingCode) return@scanned
+                // Reading the campsite ID with the team’s QR decoder.
                 val campsiteId = qrReader.decodeQRCode(code)
                 if (campsiteId == null) {
                     context.showCampsiteMessage("Invalid QR code")
@@ -130,9 +153,11 @@ internal fun NavGraphBuilder.campsiteRoutes(
                 }
 
                 // Checking that the scanned campsite exists before leaving the scanner.
+                // Marking the lookup as active before another scan can start.
                 checkingCode = true
                 scope.launch {
                     try {
+                        // Looking up the scanned campsite before moving forward.
                         val site = campsiteRepository.getById(campsiteId)
                         if (navController.currentBackStackEntry != page) return@launch
                         if (site == null) {
@@ -141,15 +166,18 @@ internal fun NavGraphBuilder.campsiteRoutes(
                         }
 
                         // Carrying the checked record into the details screen.
+                        // Passing the encoded ID through the route as well so a restored page can reload the campsite.
                         lastScan = campsiteId to site
                         navController.openPage(page, siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId))
                     } catch (cancelled: CancellationException) {
+                        // Letting cancellation leave this coroutine instead of showing it as a lookup error.
                         throw cancelled
                     } catch (error: Exception) {
                         if (navController.currentBackStackEntry == page) {
                             context.showCampsiteMessage(error.message ?: "Error loading campsite", long = true)
                         }
                     } finally {
+                        // Clearing the lookup flag so the next scan can be handled.
                         checkingCode = false
                     }
                 }
@@ -161,12 +189,14 @@ internal fun NavGraphBuilder.campsiteRoutes(
     composable("$ENTRANT_DETAILS_ROUTE/{$CAMPSITE_ID}", arguments = campsiteArguments) { page ->
         val goBack = { navController.closePage(page) }
         val campsiteId = page.arguments?.getString(CAMPSITE_ID)
+        // Reusing the scan result only when its key matches the entrant details route.
         val knownSite = lastScan?.takeIf { it.first == campsiteId }?.second
         CampsitePage(page, campsiteRepository, knownSite, goBack) { site ->
             EntrantCampsiteDetailsScreen(
                 campsite = site,
                 // Keeping the existing demo behavior until the waiting list is connected.
                 isLotteryActive = true,
+                // Keeping the existing placeholder for the waiting list button.
                 onJoinWaitingList = { println("Join Waiting List clicked") },
                 onBack = goBack
             )
@@ -180,16 +210,18 @@ private fun OwnerListPage(
     campsiteRepository: CampsiteRepository,
     campsiteController: CampsiteController,
     ownerId: String,
-    ownerSites: MutableList<OwnerCampsite>,
+    ownerSites: MutableList<Campsite>,
     showingList: Boolean,
     onAdd: () -> Unit,
-    onView: (OwnerCampsite) -> Unit,
-    onEdit: (OwnerCampsite) -> Unit
+    onView: (Campsite) -> Unit,
+    onEdit: (Campsite) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    // Tracking the owner’s delete request until it finishes so a second request cannot start in the same list screen.
     var deletingSite by remember { mutableStateOf(false) }
 
+    // Refreshing the owner list when its identity changes or it returns to the foreground.
     LaunchedEffect(ownerId, showingList) {
         if (!showingList) return@LaunchedEffect
         try {
@@ -206,6 +238,7 @@ private fun OwnerListPage(
         onCampsiteClick = onView,
         onAddCampsite = onAdd,
         onEditCampsite = onEdit,
+        // Checking ownership before sending a delete request.
         onDeleteCampsite = delete@{ site ->
             if (site.ownerId != ownerId) {
                 context.showCampsiteMessage("You cannot delete this campsite")
@@ -217,6 +250,7 @@ private fun OwnerListPage(
             deletingSite = true
             scope.launch {
                 try {
+                    // Waiting for the existing delete operation before removing the row.
                     campsiteController.deleteCampsite(site.id)
                     ownerSites.removeAll { it.id == site.id }
                     reloadOwnerSites(campsiteRepository, ownerId, ownerSites)
@@ -224,6 +258,7 @@ private fun OwnerListPage(
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (error: Exception) {
+                    // Showing the reported error when the delete flow fails, with a general message as a fallback.
                     context.showCampsiteMessage(error.message ?: "Failed to delete campsite", long = true)
                 } finally {
                     deletingSite = false
@@ -236,8 +271,9 @@ private fun OwnerListPage(
 private suspend fun reloadOwnerSites(
     campsiteRepository: CampsiteRepository,
     ownerId: String,
-    ownerSites: MutableList<OwnerCampsite>
+    ownerSites: MutableList<Campsite>
 ) {
+    // Replacing the contents only after the read succeeds.
     val freshSites = campsiteRepository.getByOwner(ownerId)
     ownerSites.clear()
     ownerSites.addAll(freshSites)
@@ -248,30 +284,39 @@ private suspend fun reloadOwnerSites(
 private fun CampsiteFormPage(
     campsiteController: CampsiteController,
     ownerId: String,
-    ownerSites: MutableList<OwnerCampsite>,
-    originalSite: OwnerCampsite? = null,
+    ownerSites: MutableList<Campsite>,
+    originalSite: Campsite? = null,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    // Tracking a save while the existing form stays visible.
     var savingSite by remember { mutableStateOf(false) }
 
     AddCampsiteScreen(
         campsite = originalSite,
+        // Returning from the form without submitting its values when the owner cancels.
         onCancel = onBack,
         onSave = save@{ name, location, description, amenities, occupancy, latitude, longitude, tags ->
             if (savingSite) return@save
+            // Checking the owner of an existing record before editing.
             if (originalSite != null && originalSite.ownerId != ownerId) {
                 context.showCampsiteMessage("You cannot edit this campsite")
                 return@save
             }
 
             // Keeping the original ID, owner, and image when editing existing details.
+<<<<<<< Updated upstream
             val blankOrExisting = originalSite ?: OwnerCampsite(ownerId = ownerId)
+            // Turning form input into the campsite model while retaining fields already on the selected campsite.
+=======
+            val blankOrExisting = originalSite ?: Campsite(ownerId = ownerId)
+>>>>>>> Stashed changes
             val updatedSite = blankOrExisting.copy(
                 name = name.trim(),
                 location = location.trim(),
                 description = description.trim(),
+                // Converting comma-separated form entries into lists.
                 amenities = amenities.commaSeparatedItems(),
                 maxOccupancy = occupancy.toIntOrNull() ?: 0,
                 latitude = latitude.toDoubleOrNull(),
@@ -279,23 +324,28 @@ private fun CampsiteFormPage(
                 tags = tags.commaSeparatedItems()
             )
 
+            // Marking the form busy before launching the request.
             savingSite = true
             scope.launch {
                 try {
+                    // Registering a new record when the form opened empty.
                     if (originalSite == null) {
                         val newId = campsiteController.registerCampsite(updatedSite)
                         ownerSites.add(updatedSite.copy(id = newId))
                         context.showCampsiteMessage("Campsite saved successfully!")
                     } else {
+                        // Saving an edit under the existing campsite ID.
                         campsiteController.updateCampsite(updatedSite)
                         val row = ownerSites.indexOfFirst { it.id == updatedSite.id }
                         if (row >= 0) ownerSites[row] = updatedSite
                         context.showCampsiteMessage("Campsite updated successfully!")
                     }
+                    // Closing the form after a successful save.
                     onBack()
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (error: Exception) {
+                    // Keeping the form open after an error and reporting whether registration or editing was attempted.
                     val fallback = if (originalSite == null) "Failed to save campsite" else "Failed to update campsite"
                     context.showCampsiteMessage(error.message ?: fallback, long = true)
                 } finally {
@@ -311,21 +361,29 @@ private fun CampsiteFormPage(
 private fun CampsitePage(
     page: NavBackStackEntry,
     campsiteRepository: CampsiteRepository,
-    knownSite: OwnerCampsite?,
+    knownSite: Campsite?,
     onBack: () -> Unit,
-    content: @Composable (OwnerCampsite) -> Unit
+    content: @Composable (Campsite) -> Unit
 ) {
     val campsiteId = page.arguments?.getString(CAMPSITE_ID)
+<<<<<<< Updated upstream
+    // Keeping the loaded record and message tied to the route ID.
     var loadedSite by remember(campsiteId) { mutableStateOf<OwnerCampsite?>(null) }
+=======
+    var loadedSite by remember(campsiteId) { mutableStateOf<Campsite?>(null) }
+>>>>>>> Stashed changes
     var message by remember(campsiteId) { mutableStateOf("Loading campsite…") }
 
+    // Loading from the repository only when the owner list or last scan has not supplied the record.
     LaunchedEffect(campsiteId, knownSite) {
         if (knownSite != null) return@LaunchedEffect
+        // Showing the missing record state immediately when the route does not contain a usable ID.
         if (campsiteId.isNullOrBlank()) {
             message = "Campsite not found"
             return@LaunchedEffect
         }
         try {
+            // Filling in a restored destination with the stored campsite.
             loadedSite = campsiteRepository.getById(campsiteId)
             if (loadedSite == null) message = "Campsite not found"
         } catch (cancelled: CancellationException) {
@@ -335,7 +393,9 @@ private fun CampsitePage(
         }
     }
 
+    // Using the already-known campsite when possible, and the fetched record otherwise.
     val site = knownSite ?: loadedSite
+    // Keeping Back available while loading or after a lookup error.
     if (site == null) {
         // Giving a restored destination a way back while its campsite is unavailable.
         Column(Modifier.fillMaxSize().safeDrawingPadding().padding(16.dp)) {
@@ -353,17 +413,20 @@ private fun siteRoute(route: String, campsiteId: String) = "$route/${Uri.encode(
 // Checking the current entry before following callbacks from an outgoing screen.
 internal fun NavHostController.openPage(page: NavBackStackEntry, route: String) {
     if (currentBackStackEntry == page) {
+        // Opening the destination only from the entry that started the action.
         navigate(route) { launchSingleTop = true }
     }
 }
 
 internal fun NavHostController.closePage(page: NavBackStackEntry) {
     if (currentBackStackEntry == page) {
+        // Removing just the current entry so Back returns to the actual caller.
         popBackStack()
     }
 }
 
 private fun String.commaSeparatedItems(): List<String> {
+    // Trimming list entries and dropping blanks caused by extra commas.
     return split(",").map { it.trim() }.filter { it.isNotEmpty() }
 }
 

@@ -1,4 +1,4 @@
-package com.example.campsitereservationsystem
+package com.example.campsitereservationsystem.duplicates
 
 data class Campsite(
     val campsiteID: String = "",
@@ -6,5 +6,6 @@ data class Campsite(
     val location: String = "",
     val description: String = "",
     val rules: String = "",
-    val campsiteImages: List<String> = emptyList()
+    val campsiteImages: List<String> = emptyList(),
+    val maxGuests: Int = 0
 )

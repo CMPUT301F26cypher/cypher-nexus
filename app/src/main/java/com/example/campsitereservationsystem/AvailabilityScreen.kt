@@ -1,3 +1,5 @@
+// Showing the owner’s May 2027 calendar and saving edits for the current demo session.
+
 package com.example.campsitereservationsystem
 
 import androidx.activity.compose.BackHandler
@@ -46,36 +48,46 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun AvailabilityScreen(
+    // Receiving the saved schedule from the caller.
     schedule: AvailabilitySchedule,
     onSave: (AvailabilitySchedule) -> Unit,
     onBack: () -> Unit
 ) {
+    // Keeping edits in a draft so the entrant calendar continues to use the saved dates.
     var draftSchedule by remember(schedule) { mutableStateOf(schedule) }
+    // Starting in read-only mode.
     var editing by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
+    // Holding selected days separately from the schedule.
     val selectedDays = remember { mutableStateListOf<Int>() }
 
+    // Using the same exit action for system Back and the screen button.
     BackHandler(onBack = onBack)
 
+    // Applying the scaffold padding to keep the calendar below the system bars.
     Scaffold { pagePadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(pagePadding)
+                // Keeping the page scroll position while date selections change.
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Leaving the editor through the callback supplied by the navigation graph.
             TextButton(onClick = onBack) {
                 Text("Back to welcome")
             }
 
+            // Identifying the sample campsite and month before showing the dates.
             Text("Availability", style = MaterialTheme.typography.headlineMedium)
             Text("OWNER · SAMPLE CAMPSITE", style = MaterialTheme.typography.labelMedium)
             Text("Spruce Ridge", style = MaterialTheme.typography.titleLarge)
             Text("Jasper area, Alberta")
             Text("May 2027", style = MaterialTheme.typography.titleMedium)
 
+            // Drawing from the draft so the owner can preview changes immediately.
             OwnerCalendar(
                 schedule = draftSchedule,
                 selectedDays = selectedDays,
@@ -90,13 +102,16 @@ fun AvailabilityScreen(
                 }
             )
 
+            // Explaining the calendar symbols alongside the colours.
             Text("A = Available   B = Booked   – = Unavailable   ✓ = Selected",
                 style = MaterialTheme.typography.bodySmall)
             Text("Booked nights cannot be edited. Check-out is not an occupied night.",
                 style = MaterialTheme.typography.bodySmall)
+            // Counting nights from the draft so the totals reflect the edits currently shown in the grid.
             Text("${draftSchedule.availableDays.size} available nights · " +
                     "${draftSchedule.bookedDays.size} booked nights")
 
+            // Showing edit controls only after the owner has chosen to edit the schedule.
             if (editing) {
                 Text("Tap dates, then choose Available or Unavailable.")
                 Text("${selectedDays.size} dates selected")
@@ -104,10 +119,12 @@ fun AvailabilityScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(
                         onClick = {
+                            // Opening the selected nights on a copy of the schedule.
                             draftSchedule = draftSchedule.withAvailability(selectedDays, makeAvailable = true)
                             selectedDays.clear()
                             message = "Marked available. Save changes when ready."
                         },
+                        // Keeping the status action disabled while there is no selection to apply it to.
                         enabled = selectedDays.isNotEmpty(),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -116,6 +133,7 @@ fun AvailabilityScreen(
 
                     OutlinedButton(
                         onClick = {
+                            // Closing the selected nights by removing them from availability.
                             draftSchedule = draftSchedule.withAvailability(selectedDays, makeAvailable = false)
                             selectedDays.clear()
                             message = "Marked unavailable. Save changes when ready."
@@ -127,6 +145,7 @@ fun AvailabilityScreen(
                     }
                 }
 
+                // Prompting the owner to apply a status before saving.
                 if (selectedDays.isNotEmpty()) {
                     Text("Choose a status for the selected dates before saving.",
                         style = MaterialTheme.typography.bodySmall)
@@ -134,10 +153,12 @@ fun AvailabilityScreen(
 
                 Button(
                     onClick = {
+                        // Saving the finished draft so both calendars can use the updated dates.
                         onSave(draftSchedule)
                         editing = false
                         message = "Availability saved for this demo session."
                     },
+                    // Enabling Save only when the dates changed and there is no unfinished selection.
                     enabled = draftSchedule != schedule && selectedDays.isEmpty(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -146,6 +167,7 @@ fun AvailabilityScreen(
 
                 OutlinedButton(
                     onClick = {
+                        // Restoring the last saved schedule when the owner cancels.
                         draftSchedule = schedule
                         selectedDays.clear()
                         editing = false
@@ -160,6 +182,7 @@ fun AvailabilityScreen(
                     onClick = {
                         draftSchedule = schedule
                         selectedDays.clear()
+                        // Starting a fresh edit with the saved dates and an empty selection.
                         editing = true
                         message = ""
                     },
@@ -187,6 +210,7 @@ private fun OwnerCalendar(
     editing: Boolean,
     onDateClick: (Int) -> Unit
 ) {
+    // Aligning each weekday label with a column of the Monday-first grid.
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -198,6 +222,7 @@ private fun OwnerCalendar(
     }
 
     // Six rows of 48 dp cells with five 4 dp gaps. May starts on Saturday.
+    // Keeping the calendar at a fixed height inside the scrolling page.
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
         modifier = Modifier.fillMaxWidth().height(308.dp),
@@ -205,9 +230,12 @@ private fun OwnerCalendar(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
+        // Making a six-week grid so each row has seven cells.
         items(42) { cell ->
+            // Converting the grid index into a day number.
             val day = cell - 5 + 1
             if (day in 1..31) {
+                // Passing the date’s saved status and its temporary selection as separate values.
                 DayBox(
                     day = day,
                     available = day in schedule.availableDays,
@@ -217,6 +245,7 @@ private fun OwnerCalendar(
                     onClick = { onDateClick(day) }
                 )
             } else {
+                // Leaving the out-of-month cells empty while keeping their height aligned with the actual dates.
                 Spacer(modifier = Modifier.height(48.dp))
             }
         }
@@ -233,12 +262,15 @@ private fun DayBox(
     editing: Boolean,
     onClick: () -> Unit
 ) {
+    // Choosing colours from the same theme as the rest of the screen.
     val colors = MaterialTheme.colorScheme
+    // Starting with the unavailable style for days outside both lists.
     var status = "Unavailable"
     var statusSymbol = "–"
     var boxColor = colors.surface
     var textColor = colors.onSurface
 
+    // Giving a booked night its own label and colours.
     if (booked) {
         status = "Booked"
         statusSymbol = "B"
@@ -251,6 +283,7 @@ private fun DayBox(
         textColor = colors.onPrimaryContainer
     }
 
+    // Applying the check mark after setting the base status.
     if (selected) {
         statusSymbol = "✓"
         boxColor = colors.primary
@@ -262,14 +295,17 @@ private fun DayBox(
             .fillMaxWidth()
             .height(48.dp)
             .background(boxColor, RoundedCornerShape(8.dp))
+            // Accepting taps only in edit mode and only for nights that are free to change.
             .clickable(enabled = editing && !booked, onClick = onClick)
             .semantics(mergeDescendants = true) {
                 contentDescription = "$day May 2027, $status"
+                // Announcing the selection separately from whether the date is open, unavailable, or booked.
                 stateDescription = if (selected) "Selected" else "Not selected"
             },
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Centring the labels inside the cell so the number and symbol are easy to scan.
             Text("$day", color = textColor, fontWeight = FontWeight.SemiBold)
             Text(statusSymbol, color = textColor, fontSize = 10.sp)
         }

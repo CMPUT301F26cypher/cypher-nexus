@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.String
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.AlertDialog
+import com.example.campsitereservationsystem.campsite.Campsite
 
 
 /*
@@ -79,7 +80,7 @@ fun LotteryScreen(
             startTimestamp = null,
             endTimestamp = null,
             campsite = campsite,
-            campsiteID = campsite.campsiteID, //this will be the same campsiteID from campsite
+            campsiteID = campsite.id, //this will be the same campsiteID from campsite
             waitingList = mutableStateListOf<User>(),
             winners = mutableStateListOf<User>()
         )
@@ -105,18 +106,18 @@ fun LotteryScreen(
                 notificationsEnabled = true
             ),
             User(
-            id = "010102",
-            name = "Jane Test",
-            email = "Jane Test @ test.com",
-            phone = "780-testnumber2",
-            notificationsEnabled = true
+                id = "010102",
+                name = "Jane Test",
+                email = "Jane Test @ test.com",
+                phone = "780-testnumber2",
+                notificationsEnabled = true
             ),
             User(
-            id = "010103",
-            name = "Bob Test",
-            email = "Bob Test @ test.com",
-            phone = "780-testnumber3",
-            notificationsEnabled = false
+                id = "010103",
+                name = "Bob Test",
+                email = "Bob Test @ test.com",
+                phone = "780-testnumber3",
+                notificationsEnabled = false
             ),
             User(
                 id = "010104",
@@ -213,7 +214,7 @@ fun LotteryScreen(
                 }
             }
         )
-    //Error popup on incorrect lottery status
+        //Error popup on incorrect lottery status
     }else if (showLotteryError) {
         AlertDialog(
             onDismissRequest = {
@@ -236,148 +237,148 @@ fun LotteryScreen(
             }
         )
     }
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            OutlinedTextField(
-                value = numLotteryWinners,
-                onValueChange = {numLotteryWinners = it},
-                label = { Text("How many lottery winners do you want?") }
-            )
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        OutlinedTextField(
+            value = numLotteryWinners,
+            onValueChange = {numLotteryWinners = it},
+            label = { Text("How many lottery winners do you want?") }
+        )
 
-            Spacer(modifier = Modifier.width(16.dp))
-            Text("Start Date (use digits)")
-            Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(16.dp))
+        Text("Start Date (use digits)")
+        Spacer(modifier = Modifier.width(16.dp))
 
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ){
-
-                OutlinedTextField(
-                    value = startMonth,
-                    onValueChange = {startMonth = it},
-                    label = { Text("Month") },
-                    modifier = Modifier.width(90.dp)
-                )
-                OutlinedTextField(
-                    value = startDate,
-                    onValueChange = {startDate = it},
-                    label = { Text("Date") },
-                    modifier = Modifier.width(90.dp)
-                )
-                OutlinedTextField(
-                    value = startYear,
-                    onValueChange = {startYear = it},
-                    label = { Text("Year") },
-                    modifier = Modifier.width(90.dp)
-                )
-                OutlinedTextField(
-                    value = startTime,
-                    onValueChange = {startTime = it},
-                    label = { Text("Time in 24 hour clock") },
-                    modifier = Modifier.width(150.dp)
-
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-            Text("End Date (use digits)")
-            Spacer(modifier = Modifier.width(16.dp))
-
-            FlowRow(
-                modifier = Modifier
+        FlowRow(
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ){
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ){
 
-                OutlinedTextField(
-                    value = endMonth,
-                    onValueChange = {endMonth = it},
-                    label = { Text("Month") },
-                    modifier = Modifier.width(90.dp)
-                )
-                OutlinedTextField(
-                    value = endDate,
-                    onValueChange = {endDate = it},
-                    label = { Text("Date") },
-                    modifier = Modifier.width(90.dp)
-                )
-                OutlinedTextField(
-                    value = endYear,
-                    onValueChange = {endYear = it},
-                    label = { Text("Year") },
-                    modifier = Modifier.width(90.dp)
-                )
-                OutlinedTextField(
-                    value = endTime,
-                    onValueChange = {endTime = it},
-                    label = { Text("Time in 24 hour clock") },
-                    modifier = Modifier.width(150.dp)
+            OutlinedTextField(
+                value = startMonth,
+                onValueChange = {startMonth = it},
+                label = { Text("Month") },
+                modifier = Modifier.width(90.dp)
+            )
+            OutlinedTextField(
+                value = startDate,
+                onValueChange = {startDate = it},
+                label = { Text("Date") },
+                modifier = Modifier.width(90.dp)
+            )
+            OutlinedTextField(
+                value = startYear,
+                onValueChange = {startYear = it},
+                label = { Text("Year") },
+                modifier = Modifier.width(90.dp)
+            )
+            OutlinedTextField(
+                value = startTime,
+                onValueChange = {startTime = it},
+                label = { Text("Time in 24 hour clock") },
+                modifier = Modifier.width(150.dp)
 
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+        Text("End Date (use digits)")
+        Spacer(modifier = Modifier.width(16.dp))
+
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ){
+
+            OutlinedTextField(
+                value = endMonth,
+                onValueChange = {endMonth = it},
+                label = { Text("Month") },
+                modifier = Modifier.width(90.dp)
+            )
+            OutlinedTextField(
+                value = endDate,
+                onValueChange = {endDate = it},
+                label = { Text("Date") },
+                modifier = Modifier.width(90.dp)
+            )
+            OutlinedTextField(
+                value = endYear,
+                onValueChange = {endYear = it},
+                label = { Text("Year") },
+                modifier = Modifier.width(90.dp)
+            )
+            OutlinedTextField(
+                value = endTime,
+                onValueChange = {endTime = it},
+                label = { Text("Time in 24 hour clock") },
+                modifier = Modifier.width(150.dp)
+
+            )
+        }
+        Button(
+            onClick = {
+                newLottery.status = "OPEN"
+                newLottery.numWinners = numLotteryWinners.toIntOrNull() ?: 0
+                val startTimestamp = lotteryRepository.convertToFirebaseTimestamp(
+                    month = startMonth,
+                    day = startDate,
+                    year = startYear,
+                    time = startTime
                 )
-            }
-            Button(
-                onClick = {
+                val endTimestamp = lotteryRepository.convertToFirebaseTimestamp(
+                    month = endMonth,
+                    day = endDate,
+                    year = endYear,
+                    time = endTime
+                )
+                if (startTimestamp == null || endTimestamp == null) {
+                    showDateError = true
+                } else if (startTimestamp < endTimestamp) {
                     newLottery.status = "OPEN"
                     newLottery.numWinners = numLotteryWinners.toIntOrNull() ?: 0
-                    val startTimestamp = lotteryRepository.convertToFirebaseTimestamp(
-                        month = startMonth,
-                        day = startDate,
-                        year = startYear,
-                        time = startTime
-                    )
-                    val endTimestamp = lotteryRepository.convertToFirebaseTimestamp(
-                        month = endMonth,
-                        day = endDate,
-                        year = endYear,
-                        time = endTime
-                    )
-                    if (startTimestamp == null || endTimestamp == null) {
-                        showDateError = true
-                    } else if (startTimestamp < endTimestamp) {
-                        newLottery.status = "OPEN"
-                        newLottery.numWinners = numLotteryWinners.toIntOrNull() ?: 0
-                        newLottery.startTimestamp = startTimestamp
-                        newLottery.endTimestamp = endTimestamp
+                    newLottery.startTimestamp = startTimestamp
+                    newLottery.endTimestamp = endTimestamp
 
-                        lotteryRepository.addLottery(newLottery)
-                    } else {
-                        showDateError = true
-                    }
+                    lotteryRepository.addLottery(newLottery)
+                } else {
+                    showDateError = true
                 }
-            ) {
-                Text("Create Lottery")
             }
-            Button(
-                onClick = {
-                    //check if lottery has been drawn already,
-                    // if not set as being drawn and then draw lottery
-                    if (newLottery.status == "OPEN" || newLottery.status == "FULL"){
-                        newLottery.status = "DRAWING"
-                        lotteryRepository.updateStatus(newLottery, newLottery.status)
-
-                        //testUserList is just for testing purposes replace it with the campsites waiting list for the actual app
-                        LotteryDraw(testUserList, newLottery, lotteryRepository, notificationController)
-                    }else{
-                        showLotteryError = true
-                    }
-                }
-            ) {
-                Text("Run lottery right now")
-            }
-
-            Button(onClick = onBack) {
-                Text("Back")
-            }
-
-
+        ) {
+            Text("Create Lottery")
         }
+        Button(
+            onClick = {
+                //check if lottery has been drawn already,
+                // if not set as being drawn and then draw lottery
+                if (newLottery.status == "OPEN" || newLottery.status == "FULL"){
+                    newLottery.status = "DRAWING"
+                    lotteryRepository.updateStatus(newLottery, newLottery.status)
+
+                    //testUserList is just for testing purposes replace it with the campsites waiting list for the actual app
+                    LotteryDraw(testUserList, newLottery, lotteryRepository, notificationController)
+                }else{
+                    showLotteryError = true
+                }
+            }
+        ) {
+            Text("Run lottery right now")
+        }
+
+        Button(onClick = onBack) {
+            Text("Back")
+        }
+
+
+    }
 }

@@ -16,7 +16,7 @@ data class Lottery (
     var capacity: Int = 0,  //this is for final checkpoint, currently all values will be 0 and will not be considered
     var startTimestamp: Timestamp? = null,
     var endTimestamp: Timestamp? = null,
-    var campsite: Campsite? = null,
+    var campsite: com.example.campsitereservationsystem.campsite.Campsite? = null,
     var campsiteID: String = "", //this will be the same campsiteID from campsite
 
     //to add to the following lists use LotteryName.waitingList.add(User)
