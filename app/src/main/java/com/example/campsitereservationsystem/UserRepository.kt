@@ -7,7 +7,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.example.campsitereservationsystem.campsite.Campsite
-
+/* Just commented out data class as we have another separate data class
 
 data class User(
     val id: String = "", // Device ID
@@ -19,7 +19,7 @@ data class User(
     val profileImage: String = "",
     val deviceId: String = ""
 )
-
+*/
 
 
 // Gets the device's ID

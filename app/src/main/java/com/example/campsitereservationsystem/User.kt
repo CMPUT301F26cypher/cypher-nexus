@@ -6,8 +6,9 @@ data class User(
     var email: String = "",
     var phone: String = "",
     val roles: Set<Role> = setOf(Role.ENTRANT),
-    var notificationsEnabled: Boolean = true,
-    var profileImage: String = ""
+    val notificationsEnabled: Boolean = true,
+    val profileImage: String = "",
+    val deviceId: String = ""
 )
 
 
