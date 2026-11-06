@@ -2,6 +2,7 @@
 
 package com.example.campsitereservationsystem
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ private const val BOOKING = "booking"
 private const val LOTTERY = "lottery"
 private const val IMAGE_TEST = "image_test"
 private const val ACCOUNT = "account"
+private const val OWNER_WAITLIST = "owner_waitlist"
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
 @Composable
@@ -46,6 +48,11 @@ fun CampsiteApp() {
     val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
     var signedInCamper by remember { mutableStateOf<User?>(null) }
+
+    // User repository. Firestore updates flow into signInCamper
+    val userRepo = remember {
+        UserRepository(onUserChanged = { updated: User? -> signedInCamper = updated })
+    }
 
     // Reusing sample campsite for the availability and booking demos.
     // Using the sample campsite ID as the key for the schedule shared by both screens.
@@ -95,7 +102,8 @@ fun CampsiteApp() {
                 onFindCampsite = { navController.openPage(page, SCAN_CAMPSITE_ROUTE) },
                 onManageCampsites = { navController.openPage(page, AVAILABILITY) },
                 onPolicyClick = { navController.openPage(page, POLICY) },
-                onOpenTestMenu = { navController.openPage(page, TEST_MENU) }
+                onOpenTestMenu = { navController.openPage(page, TEST_MENU) },
+                // onBrowseCampsites needs to be here
             )
         }
         composable(POLICY) { page ->
@@ -161,9 +169,26 @@ fun CampsiteApp() {
             AccountTest(
                 user = signedInCamper,
                 campsites = ownerSites,
+                repo = userRepo,
                 onUserChange = { signedInCamper = it },
-                onExit = { navController.closePage(page) }
+                onExit = { navController.closePage(page) },
+                onOpenWaitingList = { navController.openPage(page, OWNER_WAITLIST) }
             )
+        }
+        composable(OWNER_WAITLIST) { page ->
+            val owner = signedInCamper
+            if (owner != null && Role.OWNER in owner.roles) {
+                OwnerWaitingListScreen(
+                    campsites = ownerSites,
+                    entrantsFor = { campsite ->
+                        listOf(
+                            User(name = "John Man", email = "john.mclean@examplepetstore.com", phone = "1234567890", roles = setOf(Role.ENTRANT)),
+                            User(name = "Jane Woman", email = "james.moore.wayne@example-pet-store.com", phone = "1234567890", roles = setOf(Role.ENTRANT))
+                        )
+                    },
+                    onBack = { navController.closePage(page) }
+                )
+            }
         }
     }
 }

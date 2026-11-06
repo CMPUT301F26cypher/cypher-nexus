@@ -1,5 +1,6 @@
 package com.example.campsitereservationsystem
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 
+
 import com.example.campsitereservationsystem.campsite.Campsite
 
 // For testing the create profile screen and editing the profile details
@@ -29,7 +31,8 @@ fun AccountTest(
     campsites: List<Campsite>,
     repo: UserRepository,
     onUserChange: (User?) -> Unit,
-    onExit: () -> Unit
+    onExit: () -> Unit,
+    onOpenWaitingList: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -38,6 +41,7 @@ fun AccountTest(
     var newScreen by remember { mutableStateOf("home") }
     var creatingProfile by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+
 
 
     BackHandler {
@@ -157,6 +161,10 @@ fun AccountTest(
             // As an admin, I want to browse campsites.
             if (Role.ADMIN in user.roles) {
                 Button(onClick = { newScreen = "admin" }) { Text("Browse Campsites") }
+            }
+
+            if (Role.OWNER in user.roles) {
+                Button(onClick = onOpenWaitingList) { Text("View Waiting List") }
             }
             // temp button for testing if admin functionality works
             // Updated the button so it works with user repo + firestore
