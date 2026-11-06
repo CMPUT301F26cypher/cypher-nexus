@@ -78,6 +78,13 @@ class MainActivity : ComponentActivity() {
                 // "booking"  -> Entrant booking demo
 
                 // ==========================================
+                // REPOSITORIES
+                // ==========================================
+                val lotteryRepository = remember {
+                    LotteryRepository()
+                }
+
+                // ==========================================
                 // TEAM NAVIGATION
                 // ==========================================
 
@@ -501,6 +508,7 @@ class MainActivity : ComponentActivity() {
                                 onBack = {
                                     showTestMenu = false
                                 },
+                                lotteryRepository = lotteryRepository,
                                 onOpenOwnerCampsites = {
                                     currentQRScreen = "list"
                                 },
@@ -550,6 +558,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainMenuManager(
     onBack: () -> Unit,
+    lotteryRepository: LotteryRepository,
     onOpenOwnerCampsites: () -> Unit = {},
     onOpenQRScanner: () -> Unit = {},
     onOpenAccount: () -> Unit = {},  // new
@@ -597,6 +606,15 @@ fun MainMenuManager(
         )
     }
 
+    //fake campsites for testing Lottery firebase
+    val fakeCampsite =  Campsite(
+                campsiteID = "SAMPLE_SPRUCE_RIDGE",
+                ownerID = "sample-owner",
+                location = "Jasper area, Alberta",
+                description = "The sample campsite used by the availability calendar.",
+                rules = "Keep the site clean. Quiet hours are 10 pm to 7 am."
+    )
+
     BackHandler {
         if (showLottery) {
             showLottery = false
@@ -613,7 +631,9 @@ fun MainMenuManager(
             onBack = {
                 showLottery = false
             },
-            lotteryTestArray2
+            entrants = lotteryTestArray2,
+            campsite = fakeCampsite,
+            lotteryRepository = lotteryRepository
         )
 
     } else if (showImageUpload) {
