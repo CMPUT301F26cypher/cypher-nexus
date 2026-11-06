@@ -11,6 +11,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+/*
+    CreateAccountScreen:
+    Allows users to create an account.
+    They must enter a name, email, phone, and password.
+    Password must be at least 8 characters long.
+
+    onGoToLogin() and error are used in elizScreenTesting.
+
+*/
 
 @Composable
 fun CreateAccountScreen(
@@ -27,7 +36,8 @@ fun CreateAccountScreen(
 
 
     // Added password fields
-    // When the user types their password, it will be hidden and they can toggle to check their password
+    // When the user types their password, it will be hidden and they can
+    // toggle to check if their passwords match
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }

@@ -65,7 +65,23 @@ fun AccountTest(
                         },
                         onError = { error = "Something went wrong! Please try again." }
                     )
-                }, onCreateAccount = { creatingProfile = true; error = null }
+                }, onDeviceLogin = {
+                    error = null
+                    repo.findByDeviceId(
+                        deviceId = DeviceId.get(context),
+                        onResult = { u ->
+                            if (u == null) {
+                                error = "No account found for this device!"
+                            }
+                            else {
+                                repo.startListening(u.id)
+                                onUserChange(u)
+                            }
+                        },
+                        onError = { error = "Something went wrong! Please try again." }
+                    )
+                },
+                onCreateAccount = { creatingProfile = true; error = null }
             )
         }
 
@@ -158,9 +174,10 @@ fun AccountTest(
                 onClick = {
                     repo.logout(user)
                     onUserChange(null)
+                    creatingProfile = false
                 }
             ) {
-                Text("Logout")
+                Text("Log out")
             }
 
             // Exit button

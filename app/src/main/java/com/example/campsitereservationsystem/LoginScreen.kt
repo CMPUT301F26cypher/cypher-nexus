@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 fun LoginScreen(
     error: String?,
     onLogin: (email: String, password: String) -> Unit,
+    onDeviceLogin: () -> Unit,
     onCreateAccount: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
@@ -76,6 +77,13 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Login")
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(
+            onClick = onDeviceLogin,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Login with Device ID")
         }
         TextButton(onClick = onCreateAccount) {
             Text("Create Account")

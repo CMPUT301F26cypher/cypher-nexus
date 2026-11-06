@@ -8,7 +8,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.example.campsitereservationsystem.campsite.Campsite
 
-/*
+
 data class User(
     val id: String = "", // Device ID
     var name: String = "",
@@ -20,7 +20,7 @@ data class User(
     val deviceId: String = ""
 )
 
- */
+
 
 // Gets the device's ID
 // US 01.09.01
@@ -101,11 +101,11 @@ class UserRepository(
             onResult(null)
             return
         }
+        // made some changes so the user can log in by their device ID
         usersRef.whereEqualTo("deviceId", deviceId).limit(1).get()
             .addOnSuccessListener { snapshot ->
+                onResult(snapshot.documents.firstOrNull()?.let { toUser(it) })
                 val user = snapshot.documents.firstOrNull()?.let { toUser(it) }
-                if (user != null) startListening(user.id)
-                onResult(user)
             }
             .addOnFailureListener { onError() }
     }
@@ -168,9 +168,8 @@ class UserRepository(
             .addOnFailureListener { onError() }
     }
 
-    // Forget the device and stop listening
+    // Stop listening, but still remeber the device ID for next time
     fun logout(user: User) {
-        usersRef.document(user.id).set(toMap(user.copy(deviceId = "")))
         stopListening()
     }
 
