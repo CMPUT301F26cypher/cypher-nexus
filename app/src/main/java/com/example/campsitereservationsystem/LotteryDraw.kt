@@ -39,18 +39,22 @@ fun LotteryDraw(
         if (selectedEntrants.any { winner -> winner.id == entrant.id }) {
 
             // User won
-            notificationController.sendNotification(
-                receiverID = entrant.id,
-                message = "Congratulations ${entrant.name}! You have won the campsite lottery!"
-            )
+            if (entrant.notificationsEnabled) {
+                notificationController.sendNotification(
+                    receiverID = entrant.id,
+                    message = "Congratulations ${entrant.name}! You have won the campsite lottery!"
 
+                )
+            }
         } else {
 
             // User lost
-            notificationController.sendNotification(
-                receiverID = entrant.id,
-                message = "Unfortunately ${entrant.name}, you were not selected in this campsite lottery. Better luck next time!"
-            )
+            if (entrant.notificationsEnabled) {
+                notificationController.sendNotification(
+                    receiverID = entrant.id,
+                    message = "Unfortunately ${entrant.name}, you were not selected in this campsite lottery. Better luck next time!"
+                )
+            }
         }
     }
 
