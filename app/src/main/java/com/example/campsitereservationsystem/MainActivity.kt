@@ -87,6 +87,14 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(startScreen == "booking")
                 }
 
+                var showCampsiteSearch by remember {
+                    mutableStateOf(false)
+                }
+
+                var searchController by remember {
+                    mutableStateOf<CampsiteController?>(null)
+                }
+
                 // Use the reservation-domain model for the owner's existing sample calendar.
                 val bookingSite = remember {
                     com.example.campsitereservationsystem.Campsite(
@@ -279,6 +287,16 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
+                        // Entrants can search campsites by location, dates and number of guests
+                        else if (showCampsiteSearch) {
+                            searchController?.let { controller ->
+                                CampsiteListScreen(
+                                    controller = controller,
+                                    onBack = { showCampsiteSearch = false }
+                                )
+                            }
+                        }
+
                         // Entrant booking is separate from the team's QR and profile screens.
                         else if (showEntrantBooking) {
                             EntrantBookingScreen(
@@ -340,6 +358,16 @@ class MainActivity : ComponentActivity() {
 
                                 onOpenTestMenu = {
                                     showTestMenu = true
+                                },
+
+                                onBrowseCampsites = {
+                                    if (searchController == null) {
+                                        searchController = CampsiteController(
+                                            campsiteRepository = CampsiteRepository(),
+                                            reservationRepository = ReservationRepository()
+                                        )
+                                    }
+                                    showCampsiteSearch = true
                                 }
                             )
                         }
