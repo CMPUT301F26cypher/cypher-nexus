@@ -29,7 +29,6 @@ import com.example.campsitereservationsystem.ui.theme.CampsiteReservationSystemT
 
 // Campsite functionality
 import com.example.campsitereservationsystem.campsite.Campsite
-import com.example.campsitereservationsystem.campsite.FakeCampsiteRepository
 import com.example.campsitereservationsystem.campsite.OwnerCampsitesScreen
 import com.example.campsitereservationsystem.campsite.OwnerCampsiteDetailsScreen
 
@@ -38,6 +37,13 @@ import com.example.campsitereservationsystem.qr.QRCodeManager
 import com.example.campsitereservationsystem.qr.QRCodeScreen
 import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
 import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
+
+import com.example.campsitereservationsystem.campsite.AddCampsiteScreen
+import com.example.campsitereservationsystem.campsite.CampsiteController
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.example.campsitereservationsystem.campsite.CampsiteRepository
+import androidx.compose.runtime.LaunchedEffect
 
 //Notification Functionality
 import androidx.compose.ui.platform.LocalContext
@@ -61,7 +67,7 @@ class MainActivity : ComponentActivity() {
                 // CHANGE ONLY THIS VALUE TO TEST SCREENS
                 // ==========================================
 
-                val startScreen = "schedule"
+                val startScreen = "qr"
 
                 // Available values:
                 // "list"     -> My Campsites
@@ -109,18 +115,23 @@ class MainActivity : ComponentActivity() {
                 // CAMPSITE AND QR DATA
                 // ==========================================
 
-                val repository = remember {
-                    FakeCampsiteRepository()
+                val firebaseRepository = remember {
+                    CampsiteRepository()
                 }
+
+                val campsiteController = remember {
+                    CampsiteController()
+                }
+
+                val scope = rememberCoroutineScope()
 
                 val qrCodeManager = remember {
                     QRCodeManager()
                 }
 
-                val campsites = remember(repository) {
-                    repository.getOwnerCampsites()
+                var campsites by remember {
+                    mutableStateOf<List<Campsite>>(emptyList())
                 }
-
                 var selectedCampsite by remember {
                     mutableStateOf<Campsite?>(null)
                 }
@@ -134,6 +145,21 @@ class MainActivity : ComponentActivity() {
                             else -> null
                         }
                     )
+                }
+                val ownerId = DeviceId.get(this@MainActivity)
+
+                LaunchedEffect(ownerId, currentQRScreen) {
+                    if (currentQRScreen == "list") {
+                        try {
+                            campsites = firebaseRepository.getByOwner(ownerId)
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                e.message ?: "Error loading campsites",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
                 }
 
                 var user by remember { mutableStateOf<User?>(null) }
@@ -165,11 +191,165 @@ class MainActivity : ComponentActivity() {
                     "list" -> {
                         OwnerCampsitesScreen(
                             campsites = campsites,
+
                             onCampsiteClick = { campsite ->
                                 selectedCampsite = campsite
                                 currentQRScreen = "details"
+                            },
+
+                            onAddCampsite = {
+                                selectedCampsite = null
+                                currentQRScreen = "addCampsite"
+                            },
+
+                            onEditCampsite = { campsite ->
+                                selectedCampsite = campsite
+                                currentQRScreen = "editCampsite"
+                            },
+
+                            onDeleteCampsite = { campsite ->
+                                if (campsite.ownerId != ownerId) {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "You cannot delete this campsite",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } else {
+                                    scope.launch {
+                                        try {
+                                            campsiteController.deleteCampsite(campsite.id)
+
+                                            campsites = firebaseRepository.getByOwner(ownerId)
+
+                                            Toast.makeText(
+                                                this@MainActivity,
+                                                "Campsite deleted successfully!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } catch (e: Exception) {
+                                            Toast.makeText(
+                                                this@MainActivity,
+                                                e.message ?: "Failed to delete campsite",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
+                                }
                             }
                         )
+                    }
+                    "addCampsite" -> {
+                        AddCampsiteScreen(
+                            onSave = { name, location, description, amenities,
+                                       maxOccupancy, latitude, longitude, tags ->
+
+                                val campsite = Campsite(
+                                    name = name.trim(),
+                                    location = location.trim(),
+                                    description = description.trim(),
+                                    amenities = amenities.split(",")
+                                        .map { it.trim() }
+                                        .filter { it.isNotEmpty() },
+                                    maxOccupancy = maxOccupancy.toIntOrNull() ?: 0,
+                                    latitude = latitude.toDoubleOrNull(),
+                                    longitude = longitude.toDoubleOrNull(),
+                                    tags = tags.split(",")
+                                        .map { it.trim() }
+                                        .filter { it.isNotEmpty() },
+                                    ownerId = DeviceId.get(this@MainActivity)
+                                )
+
+                                scope.launch {
+                                    try {
+                                        campsiteController.registerCampsite(campsite)
+
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Campsite saved successfully!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+
+                                        currentQRScreen = "list"
+
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            e.message ?: "Failed to save campsite",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
+                            },
+                            onCancel = {
+                                currentQRScreen = "list"
+                            }
+                        )
+                    }
+                    //It allows owner to edit the corresponding info of the campsite
+                    "editCampsite" -> {
+                        selectedCampsite?.let { campsite ->
+
+                            AddCampsiteScreen(
+                                campsite = campsite,
+
+                                onSave = { name, location, description, amenities,
+                                           maxOccupancy, latitude, longitude, tags ->
+
+                                    val updatedCampsite = campsite.copy(
+                                        name = name.trim(),
+                                        location = location.trim(),
+                                        description = description.trim(),
+
+                                        amenities = amenities.split(",")
+                                            .map { it.trim() }
+                                            .filter { it.isNotEmpty() },
+
+                                        maxOccupancy = maxOccupancy.toIntOrNull() ?: 0,
+
+                                        latitude = latitude.toDoubleOrNull(),
+                                        longitude = longitude.toDoubleOrNull(),
+
+                                        tags = tags.split(",")
+                                            .map { it.trim() }
+                                            .filter { it.isNotEmpty() }
+                                    )
+
+                                    if (campsite.ownerId != ownerId) {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "You cannot edit this campsite",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    } else {
+                                        scope.launch {
+                                            try {
+                                                campsiteController.updateCampsite(updatedCampsite)
+
+                                                selectedCampsite = updatedCampsite
+                                                currentQRScreen = "list"
+
+                                                Toast.makeText(
+                                                    this@MainActivity,
+                                                    "Campsite updated successfully!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+
+                                            } catch (e: Exception) {
+                                                Toast.makeText(
+                                                    this@MainActivity,
+                                                    e.message ?: "Failed to update campsite",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        }
+                                    }
+                                },
+
+                                onCancel = {
+                                    currentQRScreen = "list"
+                                }
+                            )
+                        }
                     }
 
                     // OWNER CAMPSITE DETAILS
@@ -201,42 +381,55 @@ class MainActivity : ComponentActivity() {
                     }
 
                     // QR CODE SCANNER
+
                     "scanner" -> {
                         QRCodeScannerScreen(
                             onQRCodeScanned = { content ->
 
-                                val campsiteId =
-                                    qrCodeManager.decodeQRCode(content)
+                                val campsiteId = qrCodeManager.decodeQRCode(content)
 
                                 if (campsiteId != null) {
 
-                                    val campsite =
-                                        repository.getCampsiteById(campsiteId)
+                                    scope.launch {
+                                        try {
+                                            val campsite =
+                                                firebaseRepository.getById(campsiteId)
 
-                                    if (campsite != null) {
-                                        selectedCampsite = campsite
-                                        currentQRScreen = "entrantDetails"
-                                    } else {
-                                        Toast.makeText(
-                                            this,
-                                            "Campsite not found",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                            if (campsite != null) {
+                                                selectedCampsite = campsite
+                                                currentQRScreen = "entrantDetails"
+                                            } else {
+                                                Toast.makeText(
+                                                    this@MainActivity,
+                                                    "Campsite not found",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+
+                                        } catch (e: Exception) {
+                                            Toast.makeText(
+                                                this@MainActivity,
+                                                e.message ?: "Error loading campsite",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
                                     }
 
                                 } else {
                                     Toast.makeText(
-                                        this,
+                                        this@MainActivity,
                                         "Invalid QR code",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             },
+
                             onBack = {
                                 currentQRScreen = null
                             }
                         )
                     }
+
 
                     // ENTRANT CAMPSITE DETAILS
                     "entrantDetails" -> {
