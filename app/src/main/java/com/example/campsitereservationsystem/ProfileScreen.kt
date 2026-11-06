@@ -36,7 +36,7 @@ fun ProfileScreen(
     var name by remember { mutableStateOf(user.name) }
     var email by remember { mutableStateOf(user.email) }
     var phone by remember { mutableStateOf(user.phone) }
-    var password by remember { mutableStateOf(user.password) }
+
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     val nameError = name.isBlank()
@@ -85,7 +85,7 @@ fun ProfileScreen(
 
         Button(
             onClick = {
-                onSave(user.copy(name = name, email = email, phone = phone, password = password))
+                onSave(user.copy(name = name, email = email, phone = phone))
                 onBack()
             },
             enabled = canSave,

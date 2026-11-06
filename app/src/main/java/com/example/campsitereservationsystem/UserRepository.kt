@@ -8,6 +8,18 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.example.campsitereservationsystem.campsite.Campsite
 
+
+data class User(
+    val id: String = "", // Device ID
+    var name: String = "",
+    var email: String = "",
+    var phone: String = "",
+    val roles: Set<Role> = setOf(Role.ENTRANT),
+    val notificationsEnabled: Boolean = true,
+    val profileImage: String = "",
+    val deviceId: String = ""
+)
+
 // Gets the device's ID
 // US 01.09.01
 //  // As an entrant, I want to be identified by my device, so that I do not have to use a username and password.
@@ -41,7 +53,8 @@ class UserRepository(
             email = doc.getString("email") ?: "",
             phone = doc.getString("phone") ?: "",
             roles = roles.ifEmpty { setOf(Role.ENTRANT) },
-            notificationsEnabled = doc.getBoolean("notificationsEnabled") ?: true
+            notificationsEnabled = doc.getBoolean("notificationsEnabled") ?: true,
+            profileImage = doc.getString("profileImage") ?: "",
             deviceId = doc.getString("deviceId") ?: ""
         )
     }
@@ -51,7 +64,8 @@ class UserRepository(
         "email" to user.email,
         "phone" to user.phone,
         "roles" to user.roles.map { it.name },
-        "notificationsEnabled" to user.notificationsEnabled
+        "notificationsEnabled" to user.notificationsEnabled,
+        "profileImage" to user.profileImage,
         "deviceId" to user.deviceId
     )
 

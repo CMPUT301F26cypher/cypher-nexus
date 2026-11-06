@@ -76,7 +76,7 @@ fun AccountTest(
         }
         else {
             CreateAccountScreen(
-                erorr = error,
+                error = error,
                 onGoToLogin = { creatingProfile = false; error = null },
                 onCreate = { name, email, phone, password, accRole ->
                     error = null
@@ -90,7 +90,7 @@ fun AccountTest(
                         ),
                         password,
                         onSuccess = { onUserChange(it) },
-                        onEmailTaken = { error = "Email already in use!" }
+                        onEmailTaken = { error = "Email already in use!" },
                         onError = { error = "Something went wrong! Please try again." }
                     )
                 }
