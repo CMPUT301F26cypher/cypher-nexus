@@ -1,4 +1,4 @@
-package com.example.campsitereservationsystem
+package com.example.campsitereservationsystem.duplicates
 
 import androidx.compose.runtime.mutableStateListOf
 import com.google.firebase.Firebase

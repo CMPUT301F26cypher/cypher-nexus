@@ -21,8 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.campsitereservationsystem.campsite.Campsite
+import com.example.campsitereservationsystem.campsite.CampsiteController
 import com.example.campsitereservationsystem.campsite.CampsiteRepository
-import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
+
 
 private const val WELCOME = "welcome"
 private const val POLICY = "policy"
@@ -32,6 +34,7 @@ private const val BOOKING = "booking"
 private const val LOTTERY = "lottery"
 private const val IMAGE_TEST = "image_test"
 private const val ACCOUNT = "account"
+private const val BROWSE_CAMPSITES = "browse_campsites"
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
 @Composable
@@ -43,18 +46,25 @@ fun CampsiteApp() {
     val deviceId = remember(context) { DeviceId.get(context) }
     // Passing this repository to the campsite routes.
     val campsiteRepository = remember { CampsiteRepository() }
+<<<<<<< Updated upstream
     val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
+=======
+    val campsiteController = remember(campsiteRepository) { CampsiteController(repository = campsiteRepository, reservationRepository = ReservationRepository()) }
+    val ownerSites = remember { mutableStateListOf<Campsite>() }
+>>>>>>> Stashed changes
     var signedInCamper by remember { mutableStateOf<User?>(null) }
 
     // Reusing sample campsite for the availability and booking demos.
     // Using the sample campsite ID as the key for the schedule shared by both screens.
     val sampleCamp = remember {
         Campsite(
-            campsiteID = "SAMPLE_SPRUCE_RIDGE",
-            ownerID = "sample-owner",
+            id = "SAMPLE_SPRUCE_RIDGE",
+            name = "Spruce Ridge",
+            ownerId = "sample-owner",
             location = "Jasper area, Alberta",
             description = "The sample campsite used by the availability calendar.",
+            maxOccupancy = 4,
             rules = "Keep the site clean. Quiet hours are 10 pm to 7 am."
         )
     }
@@ -62,8 +72,12 @@ fun CampsiteApp() {
     // Remembering the local store above the destinations so opening a screen does not seed a new schedule.
     val demoNights = remember {
         ReservationRepository(localOnly = true).apply {
+<<<<<<< Updated upstream
             // Seeding the sample schedule when the store is created, before either route tries to read it.
             saveAvailabilitySchedule(sampleCamp.campsiteID, AvailabilitySchedule())
+=======
+            saveAvailabilitySchedule(sampleCamp.id, AvailabilitySchedule())
+>>>>>>> Stashed changes
         }
     }
     val deviceCamper = remember(deviceId) { User(id = deviceId) }
@@ -95,9 +109,29 @@ fun CampsiteApp() {
                 onFindCampsite = { navController.openPage(page, SCAN_CAMPSITE_ROUTE) },
                 onManageCampsites = { navController.openPage(page, AVAILABILITY) },
                 onPolicyClick = { navController.openPage(page, POLICY) },
-                onOpenTestMenu = { navController.openPage(page, TEST_MENU) }
+                onOpenTestMenu = { navController.openPage(page, TEST_MENU) },
+                onBrowseCampsites = { navController.openPage(page, BROWSE_CAMPSITES) }
             )
         }
+
+        //Entrants can browse and filter camps
+        composable(BROWSE_CAMPSITES) { page ->
+            DisposableEffect(campsiteRepository) {
+                val listener = campsiteRepository.watchCampsites()
+
+                onDispose {
+                    listener.remove()
+                }
+            }
+
+            CampsiteListScreen(
+                controller = campsiteController,
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
         composable(POLICY) { page ->
             // Showing efarr's existing policy screen (0af9fa9).
             // Using the existing policy content and closing this entry when Back is pressed.
@@ -117,17 +151,34 @@ fun CampsiteApp() {
         }
 
         // Registering jmrojas17's owner campsite and QR screens (e8087bc).
+<<<<<<< Updated upstream
         // Registering the owner and QR screens on this graph with the same repository and owner list used above.
         campsiteRoutes(navController, campsiteRepository, deviceId, ownerSites)
+=======
+        campsiteRoutes(
+            navController = navController,
+            campsiteRepository = campsiteRepository,
+            campsiteController = campsiteController,
+            ownerId = deviceId,
+            ownerSites = ownerSites
+        )
+
+>>>>>>> Stashed changes
 
         composable(AVAILABILITY) { page ->
             // Opening my existing calendar (9b13916).
             AvailabilityScreen(
+<<<<<<< Updated upstream
                 // Reading the current sample schedule when the owner route is shown.
                 schedule = demoNights.localSchedule(sampleCamp.campsiteID) ?: AvailabilitySchedule(),
                 onSave = { schedule ->
                     // Saving changes under the sample ID shared by the calendar and booking screens.
                     demoNights.saveAvailabilitySchedule(sampleCamp.campsiteID, schedule)
+=======
+                schedule = demoNights.localSchedule(sampleCamp.id) ?: AvailabilitySchedule(),
+                onSave = { schedule ->
+                    demoNights.saveAvailabilitySchedule(sampleCamp.id, schedule)
+>>>>>>> Stashed changes
                 },
                 onBack = { navController.closePage(page) }
             )

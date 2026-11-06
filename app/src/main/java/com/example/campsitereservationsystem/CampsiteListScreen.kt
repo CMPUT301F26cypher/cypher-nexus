@@ -9,10 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
+import com.example.campsitereservationsystem.campsite.CampsiteController
+import com.example.campsitereservationsystem.campsite.Campsite
 
 @Composable
 fun CampsiteListScreen(
-    controller: CampsiteController,
+    controller: com.example.campsitereservationsystem.campsite.CampsiteController,
     onBack: () -> Unit
 ) {
     var location by remember { mutableStateOf("") }
@@ -107,11 +109,11 @@ fun CampsiteListScreen(
                     Text("No matching campsites")
                 }
             }
-            items(result, key = { it.campsiteID }) { campsite ->
+            items(result, key = { it.id }) { campsite ->
                 Column {
                     Text(campsite.location)
                     Text(campsite.description)
-                    Text(text = "Maximum guests: ${campsite.maxGuests}")
+                    Text(text = "Maximum guests: ${campsite.maxOccupancy}")
                 }
             }
         }
