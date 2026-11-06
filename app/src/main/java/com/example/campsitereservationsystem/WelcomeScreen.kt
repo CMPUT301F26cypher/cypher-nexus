@@ -39,7 +39,8 @@ fun WelcomeScreen(
     onFindCampsite: () -> Unit,
     onManageCampsites: () -> Unit,
     onPolicyClick: () -> Unit,
-    onOpenTestMenu: () -> Unit
+    onOpenTestMenu: () -> Unit,
+    onBrowseCampsites: () -> Unit
 ) {
     val green = Color(0xFF214F3D)
     val background = Color(0xFFFAF9F3)
@@ -109,6 +110,17 @@ fun WelcomeScreen(
                 color = smallTextColor,
                 textAlign = TextAlign.Center
             )
+
+            OutlinedButton(
+                onClick = onBrowseCampsites,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.5.dp, green),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = green)
+            ) {
+                Text("Browse and filter campsites", fontSize = 18.sp)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedButton(
                 onClick = onManageCampsites,
