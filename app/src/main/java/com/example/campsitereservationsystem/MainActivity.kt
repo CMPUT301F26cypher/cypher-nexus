@@ -1,3 +1,5 @@
+// Starting the app, applying its theme, and handing screen changes to CampsiteApp.
+
 package com.example.campsitereservationsystem
 
 import android.os.Bundle
@@ -8,17 +10,14 @@ import com.example.campsitereservationsystem.ui.theme.CampsiteReservationSystemT
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        // ==========================================
-        // ACTIVITY SETUP
-        // ==========================================
+        // Activity setup
+        // Letting Android finish activity setup before installing the Compose content.
         super.onCreate(savedInstanceState)
 
         // Drawing behind the system bars and letting each screen handle its padding.
         enableEdgeToEdge()
 
-        // ==========================================
-        // APP SCREENS
-        // ==========================================
+        // App screens
         setContent {
             // Keeping the same app theme around Welcome and the screens it opens.
             CampsiteReservationSystemTheme {

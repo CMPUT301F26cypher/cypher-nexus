@@ -8,10 +8,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.example.campsitereservationsystem.campsite.Campsite
 
-/*
-    UserRepository.kt
 
- */
 
 
 // Gets the device ID of the current device
@@ -27,8 +24,6 @@ object DeviceId {
     Keeps track of user's data.
     Can log them in without username or password.
     It remembers the user's Device ID.
-
-    Reads and writes users in Firestore and keeps the signed-in user up to date.
  */
 
 class UserRepository(
