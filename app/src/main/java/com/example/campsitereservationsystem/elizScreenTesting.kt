@@ -27,6 +27,7 @@ import com.example.campsitereservationsystem.campsite.Campsite
 fun AccountTest(
     user: User?,
     campsites: List<Campsite>,
+    repo: UserRepository,
     onUserChange: (User?) -> Unit,
     onExit: () -> Unit
 ) {
@@ -35,28 +36,65 @@ fun AccountTest(
     var showProfile by remember { mutableStateOf(false) }
     var policyRead by remember { mutableStateOf(false) }
     var newScreen by remember { mutableStateOf("home") }
+    var creatingProfile by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
 
     BackHandler {
         when {
             newScreen != "home" -> newScreen = "home"
             showProfile -> showProfile = false
-            user == null && policyRead -> policyRead = false
+            user == null && policyRead && creatingProfile -> policyRead = false
+            user == null && creatingProfile -> creatingProfile = false
             else -> onExit()
         }
     }
 
-    // US 01.11.01 (As an entrant, I want to see the app policy and guidelines.)
-    // if there is no profile yet, read policy and show create profile screen
+    // Login if they already have an account
     if (user == null) {
-        if (!policyRead) {
+        if (!creatingProfile) {
+            LoginScreen(
+                error = error,
+                onLogin = { email, password ->
+                    error = null
+                    repo.login(
+                        email, password, DeviceId.get(context),
+                        onResult = { u ->
+                            if (user == null) error = "Inccorect email or password!"
+                            else onUserChange(user)
+                        },
+                        onError = { error = "Something went wrong! Please try again." }
+                    )
+                }, onCreateAccount = { creatingProfile = true; error = null }
+            )
+        }
+
+        // US 01.11.01 (As an entrant, I want to see the app policy and guidelines.)
+        // if there is no profile yet, read policy and show create profile screen
+        else if (!policyRead) {
             PolicyScreen(onContinue = { policyRead = true })
         }
         else {
-            CreateAccountScreen { name, email, phone, password, role ->
-                onUserChange(
-                    User(id = DeviceId.get(context), name = name, email = email, phone = phone, password = password, roles = setOf(role))
-                )
-            }
+            CreateAccountScreen(
+                erorr = error,
+                onGoToLogin = { creatingProfile = false; error = null },
+                onCreate = { name, email, phone, password, accRole ->
+                    error = null
+                    repo.register(
+                        User(
+                            name = name,
+                            email = email,
+                            phone = phone,
+                            roles = setOf(accRole),
+                            deviceId = DeviceId.get(context)
+                        ),
+                        password,
+                        onSuccess = { onUserChange(it) },
+                        onEmailTaken = { error = "Email already in use!" }
+                        onError = { error = "Something went wrong! Please try again." }
+                    )
+                }
+            )
         }
         return
     }
@@ -68,37 +106,29 @@ fun AccountTest(
             onBack = { newScreen = "home" }
         )
 
-        newScreen == "waitlist" && Role.OWNER in user.roles -> OwnerWaitingListScreen(
-            campsites = campsites,
-            // test values
-            entrantsFor = { campsite ->
-                listOf(
-                    User(id = "1", name = "Johnny Test", email = "jt@email.ca"),
-                    User(id = "2", name = "Jane Test", email = "jet@email.ca"),
-                    User(id = "3", name = "Jim Test", email = "jim@email.ca")
-                )
-            },
-            onBack = { newScreen = "home" }
-        )
-
         showProfile -> ProfileScreen(
             user = user,
-            onSave = { updated -> onUserChange(updated) },
+            onSave = { updated ->
+                repo.updateUser(updated)
+                onUserChange(updated)
+            },
             onDelete = {
+                repo.delete(user)
                 onUserChange(null)
                 showProfile = false
+                creatingProfile = false
                 policyRead = false
             },
-            onBack = { showProfile = false }
+            onBack = {
+                showProfile = false
+            }
         )
         else -> Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // User's profile information
             Text("Welcome, ${user.name}")
-            Text("Role: ${user.roles}")
             Text("Email: ${user.email.ifBlank { "(none)" }}")
             Text("Phone: ${user.phone.ifBlank { "(none)" }}")
 
@@ -107,24 +137,34 @@ fun AccountTest(
             Button(onClick = { showProfile = true }) { Text("Profile Settings") }
             Button(onClick = { newScreen = "policy" }) { Text("App Policy & Guidelines") }
 
-            // US 02.09.01
-            // As a campsite owner, I want to view a list of entrants who have joined the waiting list for my campsite lottery.
-            if (Role.OWNER in user.roles) {
-                Button(onClick = { newScreen = "waitlist" }) { Text("View Waiting List") }
-            }
-
             // US 03.04.01
             // As an admin, I want to browse campsites.
             if (Role.ADMIN in user.roles) {
                 Button(onClick = { newScreen = "admin" }) { Text("Browse Campsites") }
             }
             // temp button for testing if admin functionality works
+            // Updated the button so it works with user repo + firestore
             Button(
-                onClick = { onUserChange(user.copy(roles = user.roles + Role.ADMIN))}
+                onClick = {
+                    val updated = user.copy(roles = user.roles + Role.ADMIN)
+                    repo.updateUser(updated)
+                    onUserChange(updated)
+                }
             ) { Text("Become an Admin") }
 
+            // New logout button
+            // Forgets device and logs out
+            Button(
+                onClick = {
+                    repo.logout(user)
+                    onUserChange(null)
+                }
+            ) {
+                Text("Logout")
+            }
+
+            // Exit button
             Button(onClick = onExit) { Text("Exit") }
         }
     }
-
 }

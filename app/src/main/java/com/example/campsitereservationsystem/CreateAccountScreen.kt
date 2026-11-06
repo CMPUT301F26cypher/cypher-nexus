@@ -13,7 +13,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CreateAccountScreen(onCreate: (name: String, email: String, phone: String, password: String, role: Role) -> Unit) {
+fun CreateAccountScreen(
+    error: String? = null,
+    onGoToLogin: () -> Unit = {},
+    onCreate: (name: String, email: String, phone: String, password: String, accRole: Role) -> Unit
+) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
