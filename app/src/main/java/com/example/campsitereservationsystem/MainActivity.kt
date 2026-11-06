@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import com.example.campsitereservationsystem.ui.theme.CampsiteReservationSystemTheme
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         // ==========================================
         // ACTIVITY SETUP
@@ -21,6 +20,7 @@ class MainActivity : ComponentActivity() {
         // APP SCREENS
         // ==========================================
         setContent {
+            // Keeping the same app theme around Welcome and the screens it opens.
             CampsiteReservationSystemTheme {
                 // Starting on Welcome through the NavHost in CampsiteApp.kt.
                 // Keeping the owner and QR routes together in CampsiteRoutes.kt.
