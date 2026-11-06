@@ -88,10 +88,7 @@ fun CampsiteApp() {
                 onManageCampsites = { navController.openPage(page, AVAILABILITY) },
                 onPolicyClick = { navController.openPage(page, POLICY) },
                 onOpenTestMenu = { navController.openPage(page, TEST_MENU) },
-                onBrowseCampsites = {
-                    // TODO: replace with the teammate's browse route
-                    Toast.makeText(context, "Browse campsites coming soon", Toast.LENGTH_SHORT).show()
-                }
+                // onBrowseCampsites needs to be here
             )
         }
         composable(POLICY) { page ->
