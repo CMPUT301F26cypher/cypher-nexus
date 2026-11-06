@@ -22,7 +22,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.campsitereservationsystem.campsite.CampsiteRepository
 import com.example.campsitereservationsystem.campsite.Campsite
 import com.example.campsitereservationsystem.campsite.CampsiteController
-import com.example.campsitereservationsystem.campsite.CampsiteRepository
 import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
 
 private const val WELCOME = "welcome"
@@ -44,11 +43,25 @@ fun CampsiteApp() {
     // Using the existing device ID for the owner list and the demo guest.
     val deviceId = remember(context) { DeviceId.get(context) }
     // Passing this repository to the campsite routes.
+
+
+    // REPOSITORIES
     val campsiteRepository = remember { CampsiteRepository() }
+    val userRepository = remember { UserRepository() }
+    val reservationRepository = remember { ReservationRepository() }
+
+    // Cleaning up the user listener when CampsiteApp leaves composition.
+    DisposableEffect(userRepository) {
+        onDispose {
+            userRepository.stopListening()
+        }
+    }
+
+
     val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
     val campsiteController = remember(campsiteRepository) { CampsiteController(repository = campsiteRepository, reservationRepository = ReservationRepository()) }
-    val ownerSites = remember { mutableStateListOf<Campsite>() }
+    //val ownerSites = remember { mutableStateListOf<Campsite>() }
     var signedInCamper by remember { mutableStateOf<User?>(null) }
 
     // Reusing sample campsite for the availability and booking demos.
@@ -66,7 +79,7 @@ fun CampsiteApp() {
     // Sharing the same sample dates across both screens as the user moves around.
     val demoNights = remember {
         ReservationRepository(localOnly = true).apply {
-            saveAvailabilitySchedule(sampleCamp.campsiteID, AvailabilitySchedule())
+            saveAvailabilitySchedule(sampleCamp.id, AvailabilitySchedule())
         }
     }
     val deviceCamper = remember(deviceId) { User(id = deviceId) }
@@ -142,6 +155,7 @@ fun CampsiteApp() {
             navController = navController,
             campsiteRepository = campsiteRepository,
             campsiteController = campsiteController,
+            reservationRepository,
             ownerId = deviceId,
             ownerSites = ownerSites
         )
@@ -181,6 +195,7 @@ fun CampsiteApp() {
             AccountTest(
                 user = signedInCamper,
                 campsites = ownerSites,
+                repo = userRepository,
                 onUserChange = { signedInCamper = it },
                 onExit = { navController.closePage(page) }
             )

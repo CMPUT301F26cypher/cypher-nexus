@@ -1,7 +1,7 @@
 package com.example.campsitereservationsystem
 
 class Permissions {
-    private val allowedActions: Map<Role, Set<Action> = mapOf(
+    private val allowedActions: Map<Role, Set<Action>> = mapOf(
         Role.ENTRANT to setOf(
             Action.BROWSE_CAMPSITES,
             Action.JOIN_WAITLIST,
