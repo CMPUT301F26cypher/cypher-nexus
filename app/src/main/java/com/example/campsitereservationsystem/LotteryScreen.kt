@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import kotlin.String
+import com.example.campsitereservationsystem.campsite.Campsite
 
 /*
 Manages the Screen for Lottery
@@ -61,7 +62,7 @@ fun LotteryScreen(
             endYear = endYear,
             endTime = endTime,
             campsite = campsite,
-            campsiteID = campsite.campsiteID, //this will be the same campsiteID from campsite
+            campsiteID = campsite.id, //this will be the same campsiteID from campsite
             waitingList = mutableStateListOf<User>(),
             winners = mutableStateListOf<User>()
         )

@@ -14,7 +14,7 @@ data class Lottery (
     var endDate: String = "",
     var endYear: String = "",
     var endTime: String = "",
-    var campsite: Campsite,
+    var campsite: com.example.campsitereservationsystem.campsite.Campsite,
     var campsiteID: String = "", //this will be the same campsiteID from campsite
 
     //to add to the following lists use LotteryName.waitingList.add(User)
