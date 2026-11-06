@@ -7,8 +7,19 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.example.campsitereservationsystem.campsite.Campsite
+/* Just commented out data class as we have another separate data class
 
-
+data class User(
+    val id: String = "", // Device ID
+    var name: String = "",
+    var email: String = "",
+    var phone: String = "",
+    val roles: Set<Role> = setOf(Role.ENTRANT),
+    val notificationsEnabled: Boolean = true,
+    val profileImage: String = "",
+    val deviceId: String = ""
+)
+*/
 
 
 // Gets the device's ID
@@ -90,11 +101,11 @@ class UserRepository(
             onResult(null)
             return
         }
+        // made some changes so the user can log in by their device ID
         usersRef.whereEqualTo("deviceId", deviceId).limit(1).get()
             .addOnSuccessListener { snapshot ->
+                onResult(snapshot.documents.firstOrNull()?.let { toUser(it) })
                 val user = snapshot.documents.firstOrNull()?.let { toUser(it) }
-                if (user != null) startListening(user.id)
-                onResult(user)
             }
             .addOnFailureListener { onError() }
     }
@@ -157,9 +168,8 @@ class UserRepository(
             .addOnFailureListener { onError() }
     }
 
-    // Forget the device and stop listening
+    // Stop listening, but still remeber the device ID for next time
     fun logout(user: User) {
-        usersRef.document(user.id).set(toMap(user.copy(deviceId = "")))
         stopListening()
     }
 

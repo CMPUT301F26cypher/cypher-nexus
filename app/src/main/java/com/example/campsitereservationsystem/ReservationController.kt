@@ -1,3 +1,5 @@
+// Checking booking rules and updating the sample winner’s calendar for the entrant demo.
+
 package com.example.campsitereservationsystem
 
 import androidx.compose.runtime.getValue
@@ -6,6 +8,7 @@ import androidx.compose.runtime.setValue
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.campsitereservationsystem.campsite.Campsite
 
 /**
  * Booking rules for one winning opportunity in the local May 2027 prototype.
@@ -20,8 +23,10 @@ class ReservationController(
     private val repository: ReservationRepository,
     val isWinner: Boolean = false
 ) {
+    // Using the app’s shared role checks when deciding whether the guest can reserve this campsite.
     private val permissions = Permissions()
 
+    // Keeping the decline state visible to the booking screen after confirmation.
     var hasDeclined by mutableStateOf(false)
         private set
 
@@ -29,15 +34,23 @@ class ReservationController(
         require(repository.localOnly) { "This prototype needs a local reservation repository." }
     }
 
-    /** Reads the latest dates, including changes made on the owner screen. */
+    /**
+     * Reads the latest dates, including changes saved on the owner screen.
+     *
+     * @return The campsite’s local schedule, or `null` if it has not been loaded.
+     */
     fun availability(): AvailabilitySchedule? {
-        return repository.localSchedule(campsite.campsiteID)
+        return repository.localSchedule(campsite.id)
     }
 
-    /** Finds the confirmed booking for this opportunity, if it has already been used. */
+    /**
+     * Finds the booking made with this winning opportunity.
+     *
+     * @return The confirmed stay for this winner and campsite, or `null`.
+     */
     fun confirmedStay(): Reservation? {
         for (stay in repository.reservations) {
-            if (stay.campsiteID == campsite.campsiteID && stay.entrantID == winnerId &&
+            if (stay.campsiteID == campsite.id && stay.entrantID == winnerId &&
                 stay.status == ReserveStatus.CONFIRMED) {
                 return stay
             }
@@ -45,7 +58,12 @@ class ReservationController(
         return null
     }
 
-    /** Returns an empty message when this user can use the winning opportunity. */
+    /**
+     * Checks the winner, the guest’s permission, and whether the offer is still open.
+     *
+     * @param guest The entrant trying to use the opportunity.
+     * @return An empty string if the guest can book, or a message explaining why they cannot.
+     */
     fun opportunityProblem(guest: User): String {
         if (!isWinner || guest.id.isBlank() || guest.id != winnerId) {
             return "There is no winning opportunity for this guest."
@@ -62,7 +80,13 @@ class ReservationController(
         return ""
     }
 
-    /** Checks every overnight date. Check-out itself is not an occupied night. */
+    /**
+     * Checks every night from check-in up to, but excluding, check-out.
+     *
+     * @param stayStart The check-in day in May 2027.
+     * @param stayEnd The check-out day in May 2027.
+     * @return An empty string for valid dates, or a message explaining the problem.
+     */
     fun dateProblem(stayStart: Int, stayEnd: Int): String {
         if (stayStart !in 1..31 || stayEnd !in 1..31) {
             return "Choose check-in and check-out within May 2027."
@@ -82,7 +106,15 @@ class ReservationController(
         return ""
     }
 
-    /** Confirms a valid stay, returning a message if the booking cannot be made. */
+    /**
+     * Confirms the stay and marks its nights as booked in the shared demo calendar.
+     *
+     * @param guest The entrant confirming the stay.
+     * @param stayStart The check-in day in May 2027.
+     * @param stayEnd The check-out day in May 2027.
+     * @param readRules Whether the guest accepted the rules and cancellation policy.
+     * @return An empty string when the booking is saved, or an error message.
+     */
     fun confirmBooking(guest: User, stayStart: Int, stayEnd: Int, readRules: Boolean): String {
         val opportunityNote = opportunityProblem(guest)
         if (opportunityNote.isNotEmpty()) {
@@ -96,25 +128,29 @@ class ReservationController(
             return dateNote
         }
 
+        // Keeping the schedule used for validation so the repository can check it before saving.
         val beforeBooking = availability() ?: return "Availability is not loaded yet."
         val openNights = beforeBooking.availableDays.toMutableSet()
         val takenNights = beforeBooking.bookedDays.toMutableSet()
+        // Moving only occupied nights from open to booked.
         for (night in stayStart until stayEnd) {
             openNights.remove(night)
             takenNights.add(night)
         }
 
         // Local receipt numbers only need to be unique within this demo session.
+        // Giving the new stay a receipt number within the demo session.
         val receiptNumber = "LOCAL-SR-${repository.reservations.size + 1}"
         val stay = Reservation(
             reservationID = receiptNumber,
-            campsiteID = campsite.campsiteID,
+            campsiteID = campsite.id,
             entrantID = guest.id,
             startDate = mayDate(stayStart),
             endDate = mayDate(stayEnd),
             status = ReserveStatus.CONFIRMED,
             rulesAcknowledged = true
         )
+        // Preparing a separate calendar so the current one changes only after a successful save.
         val afterBooking = beforeBooking.copy(
             availableDays = openNights.toSet(),
             bookedDays = takenNights.toSet()
@@ -122,7 +158,7 @@ class ReservationController(
 
         // Check the same calendar is still current before storing both changes.
         val saved = repository.saveLocalBooking(
-            campsite.campsiteID, beforeBooking, afterBooking, stay
+            campsite.id, beforeBooking, afterBooking, stay
         )
         if (!saved) {
             return "Availability changed. Please choose your dates again."
@@ -130,17 +166,29 @@ class ReservationController(
         return ""
     }
 
-    /** Declines the unused opportunity without creating or cancelling a reservation. */
+    /**
+     * Closes an unused winning opportunity and leaves the calendar alone.
+     *
+     * @param guest The entrant declining the offer.
+     * @return An empty string when the offer is declined, or an error message.
+     */
     fun declineOpportunity(guest: User): String {
         val problem = opportunityProblem(guest)
         if (problem.isNotEmpty()) {
             return problem
         }
+        // Closing the offer once eligibility has been checked.
         hasDeclined = true
         return ""
     }
 
-    /** Lists this guest's confirmed stays that have not reached their check-out date. */
+    /**
+     * Lists this guest’s confirmed stays whose check-out dates are after today.
+     *
+     * @param guest The entrant whose stays are being shown.
+     * @param today The comparison date in `yyyy-MM-dd` format. Defaults to the current date.
+     * @return The active reservations for the guest.
+     */
     fun activeReservations(guest: User, today: String = todayStamp()): List<Reservation> {
         val upcomingStays = mutableListOf<Reservation>()
         for (stay in repository.reservations) {

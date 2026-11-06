@@ -3,6 +3,9 @@ package com.example.campsitereservationsystem
 import androidx.compose.runtime.mutableStateListOf
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import com.google.firebase.Timestamp
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class LotteryRepository {
     private val db = Firebase.firestore
@@ -25,14 +28,15 @@ class LotteryRepository {
         lotteriesRef.document(oldLottery.campsiteID).set(updatedLottery)
     }
 
-    //can be used for Waiting list and winners list
-    //listType options are:
-    //waitingList
-    //winners
+    /*
+    updates either a waitingList or a list of winners
+
+    also converts from to a list type firebase can use
+    */
     fun updateList(
         lottery: Lottery,
         list: List<User>,
-        listType: String
+        listType: String //listType options are: waitingList or winners
     ) {
         // Convert User objects into Firestore-compatible Maps
         val firestoreList = list.map { user ->
@@ -57,7 +61,69 @@ class LotteryRepository {
             }
     }
 
+    fun updateStatus(lottery: Lottery, newStatus: String) {
+        lotteriesRef.document(lottery.campsiteID)
+            .update("status", newStatus)
+            .addOnSuccessListener {
+                lottery.status = newStatus
+                println("Successfully updated lottery status to $newStatus")
+            }
+            .addOnFailureListener { exception ->
+                println("Failed to update lottery status: ${exception.message}")
+            }
+    }
+
     fun deleteLottery(lottery: Lottery){
         lotteriesRef.document(lottery.campsiteID).delete()
+    }
+    fun convertToFirebaseTimestamp(
+        month: String,
+        day: String,
+        year: String,
+        time: String
+    ): Timestamp? {
+        return try {
+            val parts = time.split(":")
+
+            val hour = parts[0].toInt()
+            val minute = parts[1].toInt()
+
+            val dateTime = LocalDateTime.of(
+                year.toInt(),
+                month.toInt(),
+                day.toInt(),
+                hour,
+                minute
+            )
+
+            val instant = dateTime
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+
+            Timestamp(instant.epochSecond, instant.nano)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun getLotteryByCampsiteID(
+        campsiteID: String,
+        onResult: (Lottery?) -> Unit
+    ) {
+        lotteriesRef.document(campsiteID)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val lottery = document.toObject(Lottery::class.java)
+                    onResult(lottery)
+                } else {
+                    println("No lottery found for campsite $campsiteID")
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener { exception ->
+                println("Error retrieving lottery: ${exception.message}")
+                onResult(null)
+            }
     }
 }
