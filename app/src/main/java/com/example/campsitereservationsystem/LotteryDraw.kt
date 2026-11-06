@@ -11,8 +11,7 @@ otherwise randomly select numLotteryWinners amount of winners from entrants
 and return it in a new array
  */
 fun LotteryDraw(entrants: List<String>, numLotteryWinners: String): List<String>{
-    //need to convert num from string to int,
-    // also if there is an error with it send error back?
+    //need to convert num from string to int
     var intNumLotteryWinners = numLotteryWinners.toIntOrNull()
     if (intNumLotteryWinners == null){
         intNumLotteryWinners = 0

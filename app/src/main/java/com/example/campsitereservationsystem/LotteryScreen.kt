@@ -52,14 +52,11 @@ fun LotteryScreen(
     //============
     var newLottery = remember {
         Lottery(
-            open = true,
+            status = "CLOSED",
             numWinners = numLotteryWinners.toInt(),
             capacity = 0,
-            startDate = "Current Day",
-            endMonth = endMonth,
-            endDate = endDate,
-            endYear = endYear,
-            endTime = endTime,
+            startTimestamp = null,
+            endTimestamp = null,
             campsite = campsite,
             campsiteID = campsite.campsiteID, //this will be the same campsiteID from campsite
             waitingList = mutableStateListOf<User>(),
@@ -116,7 +113,7 @@ fun LotteryScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ){
-                Text("End Date")
+                Text("End Date (use digits)")
 
                 OutlinedTextField(
                     value = endMonth,
@@ -151,10 +148,12 @@ fun LotteryScreen(
             Button(
                 onClick = {
                     newLottery.numWinners = numLotteryWinners.toIntOrNull() ?: 0
-                    newLottery.endMonth = endMonth
-                    newLottery.endDate = endDate
-                    newLottery.endYear = endYear
-                    newLottery.endTime = endTime
+                    newLottery.endTimestamp = lotteryRepository.convertToFirebaseTimestamp(
+                        month = endMonth,
+                        day = endDate,
+                        year = endYear,
+                        time = endTime
+                    )
 
                     lotteryRepository.addLottery(newLottery)
                 }

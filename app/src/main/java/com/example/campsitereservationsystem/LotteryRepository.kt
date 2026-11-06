@@ -3,6 +3,9 @@ package com.example.campsitereservationsystem
 import androidx.compose.runtime.mutableStateListOf
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import com.google.firebase.Timestamp
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class LotteryRepository {
     private val db = Firebase.firestore
@@ -59,5 +62,35 @@ class LotteryRepository {
 
     fun deleteLottery(lottery: Lottery){
         lotteriesRef.document(lottery.campsiteID).delete()
+    }
+
+    fun convertToFirebaseTimestamp(
+        month: String,
+        day: String,
+        year: String,
+        time: String
+    ): Timestamp? {
+        return try {
+            val parts = time.split(":")
+
+            val hour = parts[0].toInt()
+            val minute = parts[1].toInt()
+
+            val dateTime = LocalDateTime.of(
+                year.toInt(),
+                month.toInt(),
+                day.toInt(),
+                hour,
+                minute
+            )
+
+            val instant = dateTime
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+
+            Timestamp(instant.epochSecond, instant.nano)
+        } catch (e: Exception) {
+            null
+        }
     }
 }
