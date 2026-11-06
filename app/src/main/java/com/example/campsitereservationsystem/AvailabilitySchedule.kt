@@ -1,3 +1,5 @@
+// Keeping the open and booked nights for the May 2027 sample calendar.
+
 package com.example.campsitereservationsystem
 
 /**
@@ -16,6 +18,7 @@ data class AvailabilitySchedule(
     val bookedDays: Set<Int> = setOf(14, 15, 21, 22, 28, 29)
 ) {
     init {
+        // Checking that every open night belongs to the sample month and is free of existing bookings.
         for (day in availableDays) {
             require(day in 1..31) { "The date must be in May." }
             require(day !in bookedDays) { "A booked night cannot be available." }
@@ -26,8 +29,16 @@ data class AvailabilitySchedule(
         }
     }
 
-    /** Returns an updated copy, ignoring selected dates that are already booked. */
+    /**
+     * Updates the selected nights while keeping existing bookings.
+     *
+     * @param days Day numbers in May 2027 to update.
+     * @param makeAvailable True to open the nights, false to close them.
+     * @return A copy of the schedule with the requested changes.
+     * @throws IllegalArgumentException If a day is outside the range 1 to 31.
+     */
     fun withAvailability(days: List<Int>, makeAvailable: Boolean): AvailabilitySchedule {
+        // Editing a separate set so the original schedule can still be used until the owner saves the draft.
         val changedDays = availableDays.toMutableSet()
 
         for (day in days) {
