@@ -41,6 +41,11 @@ fun QRCodeScannerScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Button(onClick = onBack) {
+            Text("← Back")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Scan QR Code")
 
         Spacer(modifier = Modifier.height(24.dp))

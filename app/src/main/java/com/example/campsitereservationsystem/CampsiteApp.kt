@@ -43,6 +43,7 @@ fun CampsiteApp() {
     val deviceId = remember(context) { DeviceId.get(context) }
     // Passing this repository to the campsite routes.
     val campsiteRepository = remember { CampsiteRepository() }
+    val userRepository = remember { UserRepository() }
     val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
     var signedInCamper by remember { mutableStateOf<User?>(null) }
@@ -95,7 +96,9 @@ fun CampsiteApp() {
                 onFindCampsite = { navController.openPage(page, SCAN_CAMPSITE_ROUTE) },
                 onManageCampsites = { navController.openPage(page, AVAILABILITY) },
                 onPolicyClick = { navController.openPage(page, POLICY) },
-                onOpenTestMenu = { navController.openPage(page, TEST_MENU) }
+                onOpenTestMenu = { navController.openPage(page, TEST_MENU) },
+                onBrowseCampsites = {}
+
             )
         }
         composable(POLICY) { page ->
@@ -161,6 +164,7 @@ fun CampsiteApp() {
             AccountTest(
                 user = signedInCamper,
                 campsites = ownerSites,
+                repo = userRepository,
                 onUserChange = { signedInCamper = it },
                 onExit = { navController.closePage(page) }
             )

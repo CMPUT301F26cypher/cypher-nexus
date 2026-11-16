@@ -45,6 +45,7 @@ fun WelcomeScreen(
     onPolicyClick: () -> Unit,
     onOpenTestMenu: () -> Unit,
     onBrowseCampsites: () -> Unit
+
 ) {
     val green = Color(0xFF214F3D)
     val background = Color(0xFFFAF9F3)

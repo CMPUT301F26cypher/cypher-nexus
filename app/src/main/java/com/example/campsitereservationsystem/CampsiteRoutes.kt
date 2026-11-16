@@ -85,6 +85,7 @@ internal fun NavGraphBuilder.campsiteRoutes(
             ownerId = ownerId,
             ownerSites = ownerSites,
             showingList = currentPage == page,
+            onBack = { navController.closePage(page) },
             // Opening a blank form for Add and passing an ID for existing campsite actions.
             onAdd = { navController.openPage(page, ADD_CAMPSITE_ROUTE) },
             onView = { site -> navController.openPage(page, siteRoute(OWNER_DETAILS_ROUTE, site.id)) },
@@ -207,6 +208,7 @@ private fun OwnerListPage(
     ownerId: String,
     ownerSites: MutableList<OwnerCampsite>,
     showingList: Boolean,
+    onBack: () -> Unit,
     onAdd: () -> Unit,
     onView: (OwnerCampsite) -> Unit,
     onEdit: (OwnerCampsite) -> Unit
@@ -233,6 +235,7 @@ private fun OwnerListPage(
         onCampsiteClick = onView,
         onAddCampsite = onAdd,
         onEditCampsite = onEdit,
+        onBack = onBack,
         // Checking ownership before sending a delete request.
         onDeleteCampsite = delete@{ site ->
             if (site.ownerId != ownerId) {
