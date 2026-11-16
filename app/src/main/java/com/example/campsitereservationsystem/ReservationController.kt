@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.campsitereservationsystem.campsite.Campsite
 
 /**
  * Booking rules for one winning opportunity in the local May 2027 prototype.
@@ -39,7 +40,7 @@ class ReservationController(
      * @return The campsite’s local schedule, or `null` if it has not been loaded.
      */
     fun availability(): AvailabilitySchedule? {
-        return repository.localSchedule(campsite.campsiteID)
+        return repository.localSchedule(campsite.id)
     }
 
     /**
@@ -49,7 +50,7 @@ class ReservationController(
      */
     fun confirmedStay(): Reservation? {
         for (stay in repository.reservations) {
-            if (stay.campsiteID == campsite.campsiteID && stay.entrantID == winnerId &&
+            if (stay.campsiteID == campsite.id && stay.entrantID == winnerId &&
                 stay.status == ReserveStatus.CONFIRMED) {
                 return stay
             }
@@ -142,7 +143,7 @@ class ReservationController(
         val receiptNumber = "LOCAL-SR-${repository.reservations.size + 1}"
         val stay = Reservation(
             reservationID = receiptNumber,
-            campsiteID = campsite.campsiteID,
+            campsiteID = campsite.id,
             entrantID = guest.id,
             startDate = mayDate(stayStart),
             endDate = mayDate(stayEnd),
@@ -157,7 +158,7 @@ class ReservationController(
 
         // Check the same calendar is still current before storing both changes.
         val saved = repository.saveLocalBooking(
-            campsite.campsiteID, beforeBooking, afterBooking, stay
+            campsite.id, beforeBooking, afterBooking, stay
         )
         if (!saved) {
             return "Availability changed. Please choose your dates again."

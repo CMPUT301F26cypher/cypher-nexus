@@ -27,5 +27,7 @@ data class Campsite(
     val imageUrl: String? = null,
 
     // Campsite categories
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
+    val rules: String = "",
+    val campsiteImages: List<String> = emptyList()
 )

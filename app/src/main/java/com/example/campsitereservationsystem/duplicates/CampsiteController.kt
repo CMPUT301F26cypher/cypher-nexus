@@ -1,4 +1,6 @@
-package com.example.campsitereservationsystem
+package com.example.campsitereservationsystem.duplicates
+
+import com.example.campsitereservationsystem.ReservationRepository
 
 class CampsiteController (
     private val campsiteRepository: CampsiteRepository,
