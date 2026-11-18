@@ -1,6 +1,12 @@
 
 package com.example.campsitereservationsystem.campsite
 
+/***
+ * Represents a campsite registered by an owner.
+ * This data class is part of the Model layer in MVC.
+ * It stores campsite information used by the owner and entrant screens
+ * and by the Firebase repository.
+ */
 data class Campsite(
     //Normal details for each campsite
     val id: String = "",
