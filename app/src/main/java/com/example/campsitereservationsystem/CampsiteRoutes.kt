@@ -64,7 +64,8 @@ internal fun NavGraphBuilder.campsiteRoutes(
     campsiteController: com.example.campsitereservationsystem.campsite.CampsiteController,
     reservationRepository: ReservationRepository,
     ownerId: String,
-    ownerSites: MutableList<Campsite>
+    ownerSites: MutableList<Campsite>,
+    recentlyViewedIds: MutableList<String>
 ) {
     // Using the same repository for the controller and route lookups.
     val campsiteController = CampsiteController(campsiteRepository, reservationRepository)
@@ -89,6 +90,7 @@ internal fun NavGraphBuilder.campsiteRoutes(
             ownerId = ownerId,
             ownerSites = ownerSites,
             showingList = currentPage == page,
+            onBack = { navController.closePage(page) },
             // Opening a blank form for Add and passing an ID for existing campsite actions.
             onAdd = { navController.openPage(page, ADD_CAMPSITE_ROUTE) },
             onView = { site -> navController.openPage(page, siteRoute(OWNER_DETAILS_ROUTE, site.id)) },
@@ -181,7 +183,27 @@ internal fun NavGraphBuilder.campsiteRoutes(
                     }
                 }
             },
-            onBack = goBack
+            onBack = goBack,
+            onCampsiteSelected = { campsiteId ->
+
+                // Avoid duplicate campsites
+                recentlyViewedIds.remove(campsiteId)
+
+                // Put the newest campsite first
+                recentlyViewedIds.add(0, campsiteId)
+
+                // Keep only the last 5 campsites
+                if (recentlyViewedIds.size > 5) {
+                    recentlyViewedIds.removeAt(recentlyViewedIds.lastIndex)
+                }
+
+                // Navigate to campsite details
+                navController.openPage(
+                    page,
+                    siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
+                )
+            },
+            recentlyViewedIds = recentlyViewedIds
         )
     }
 
@@ -211,6 +233,7 @@ private fun OwnerListPage(
     ownerId: String,
     ownerSites: MutableList<Campsite>,
     showingList: Boolean,
+    onBack: () -> Unit,
     onAdd: () -> Unit,
     onView: (Campsite) -> Unit,
     onEdit: (Campsite) -> Unit
@@ -237,6 +260,7 @@ private fun OwnerListPage(
         onCampsiteClick = onView,
         onAddCampsite = onAdd,
         onEditCampsite = onEdit,
+        onBack = onBack,
         // Checking ownership before sending a delete request.
         onDeleteCampsite = delete@{ site ->
             if (site.ownerId != ownerId) {
@@ -289,6 +313,7 @@ private fun CampsiteFormPage(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val imageRepository = remember { ImageRepository()}
     // Tracking a save while the existing form stays visible.
     var savingSite by remember { mutableStateOf(false) }
 
@@ -296,7 +321,7 @@ private fun CampsiteFormPage(
         campsite = originalSite,
         // Returning from the form without submitting its values when the owner cancels.
         onCancel = onBack,
-        onSave = save@{ name, location, description, amenities, occupancy, latitude, longitude, tags ->
+        onSave = save@{ imageUri, name, location, description, amenities, occupancy, latitude, longitude, tags ->
             if (savingSite) return@save
             // Checking the owner of an existing record before editing.
             if (originalSite != null && originalSite.ownerId != ownerId) {
@@ -326,11 +351,27 @@ private fun CampsiteFormPage(
                     // Registering a new record when the form opened empty.
                     if (originalSite == null) {
                         val newId = campsiteController.registerCampsite(updatedSite)
+                        //IMAGE
+                        if (imageUri != null) {
+                            val imageBytes = imageRepository.convertUriToBytes(context, imageUri)
+
+                            if (imageBytes != null) {
+                                imageRepository.saveCampsiteImage(newId, imageBytes)
+                            }
+                        }
                         ownerSites.add(updatedSite.copy(id = newId))
                         context.showCampsiteMessage("Campsite saved successfully!")
                     } else {
                         // Saving an edit under the existing campsite ID.
                         campsiteController.updateCampsite(updatedSite)
+                        //IMAGE
+                        if (imageUri != null) {
+                            val imageBytes = imageRepository.convertUriToBytes(context, imageUri)
+
+                            if (imageBytes != null) {
+                                imageRepository.saveCampsiteImage(updatedSite.id, imageBytes)
+                            }
+                        }
                         val row = ownerSites.indexOfFirst { it.id == updatedSite.id }
                         if (row >= 0) ownerSites[row] = updatedSite
                         context.showCampsiteMessage("Campsite updated successfully!")
