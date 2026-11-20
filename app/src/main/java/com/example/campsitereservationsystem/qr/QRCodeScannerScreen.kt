@@ -41,7 +41,9 @@ import androidx.compose.ui.text.font.FontWeight
 @Composable
 fun QRCodeScannerScreen(
     onQRCodeScanned: (String) ->Unit,
-    onBack:() ->Unit
+    onBack:() ->Unit,
+    onCampsiteSelected: (String) -> Unit,
+    recentlyViewedIds: List<String>
 ) {
     val context = LocalContext.current
     val scanner = remember(context) {
@@ -73,6 +75,9 @@ fun QRCodeScannerScreen(
                     ignoreCase = true
                 )
     }
+    val recentlyViewedCampsites = recentlyViewedIds.mapNotNull { id ->
+        repository.campsites.find { it.id == id }
+    }
 
     Column(
         modifier = Modifier
@@ -102,6 +107,43 @@ fun QRCodeScannerScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (searchQuery.isBlank() && recentlyViewedCampsites.isNotEmpty()) {
+
+            Text(
+                text = "Recently Viewed",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            recentlyViewedCampsites.forEach { campsite ->
+                Card(
+                    onClick = {
+                        onCampsiteSelected(campsite.id)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = campsite.name,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(text = "Location: ${campsite.location}")
+
+                        Text(
+                            text = "Maximum occupancy: ${campsite.maxOccupancy}"
+                        )
+                    }
+                }
+            }
+        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,7 +153,7 @@ fun QRCodeScannerScreen(
             items(filteredCampsites, key = { it.id }) { campsite ->
                 Card(
                     onClick = {
-                        // TODO: Navigate to campsite details
+                        onCampsiteSelected(campsite.id)
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -163,8 +205,6 @@ fun QRCodeScannerScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Scan QR Code")
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
