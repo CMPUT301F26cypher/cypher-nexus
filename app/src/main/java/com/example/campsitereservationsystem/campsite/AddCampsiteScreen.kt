@@ -8,17 +8,38 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import android.net.Uri
+import com.example.campsitereservationsystem.ImagePickerButton
+import coil3.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import com.example.campsitereservationsystem.ImageRepository
 
 @Composable
 fun AddCampsiteScreen(
     campsite: Campsite? = null,
     onSave: (
-        String, String, String, String,
+        Uri?, String, String, String, String,
         String, String, String, String
     ) -> Unit,
     onCancel: () -> Unit
 ) {
     val isEditing = campsite != null
+
+    val imageRepository = remember { ImageRepository() }
+    var savedImageBytes by remember(campsite){
+        mutableStateOf<ByteArray?>(null)
+    }
+    var selectedImageUri by remember(campsite){
+        mutableStateOf<Uri?>(null)
+    }
+
+    LaunchedEffect(campsite?.id) {
+        if(campsite != null){
+            imageRepository.getCampsiteImage(campsite.id){ bytes ->
+                savedImageBytes = bytes
+            }
+        }
+    }
 
     var name by remember(campsite) {
         mutableStateOf(campsite?.name ?: "")
@@ -59,11 +80,47 @@ fun AddCampsiteScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        Spacer(modifier = Modifier.height(24.dp))
+
         Text(
             text = if (isEditing) "Edit Campsite" else "Register Campsite",
             style = MaterialTheme.typography.headlineMedium
         )
 
+        if (selectedImageUri != null || savedImageBytes!= null){
+            AsyncImage(
+                model = selectedImageUri ?: savedImageBytes,
+                contentDescription = "Selected campsite image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            ImagePickerButton { uri ->
+                selectedImageUri = uri
+            }
+
+            if (selectedImageUri != null || savedImageBytes != null) {
+                Button(
+                    onClick = {
+                        if (selectedImageUri != null) {
+                            selectedImageUri = null
+                        } else if (campsite != null) {
+                            imageRepository.deleteCampsiteImage(campsite.id)
+                            savedImageBytes = null
+                        }
+                    }
+                ) {
+                    Text("Delete Image")
+                }
+            }
+        }
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
@@ -123,6 +180,7 @@ fun AddCampsiteScreen(
         Button(
             onClick = {
                 onSave(
+                    selectedImageUri,
                     name,
                     location,
                     description,

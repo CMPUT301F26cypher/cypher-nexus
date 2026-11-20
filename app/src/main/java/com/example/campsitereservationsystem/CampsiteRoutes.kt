@@ -313,6 +313,7 @@ private fun CampsiteFormPage(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val imageRepository = remember { ImageRepository()}
     // Tracking a save while the existing form stays visible.
     var savingSite by remember { mutableStateOf(false) }
 
@@ -320,7 +321,7 @@ private fun CampsiteFormPage(
         campsite = originalSite,
         // Returning from the form without submitting its values when the owner cancels.
         onCancel = onBack,
-        onSave = save@{ name, location, description, amenities, occupancy, latitude, longitude, tags ->
+        onSave = save@{ imageUri, name, location, description, amenities, occupancy, latitude, longitude, tags ->
             if (savingSite) return@save
             // Checking the owner of an existing record before editing.
             if (originalSite != null && originalSite.ownerId != ownerId) {
@@ -350,11 +351,27 @@ private fun CampsiteFormPage(
                     // Registering a new record when the form opened empty.
                     if (originalSite == null) {
                         val newId = campsiteController.registerCampsite(updatedSite)
+                        //IMAGE
+                        if (imageUri != null) {
+                            val imageBytes = imageRepository.convertUriToBytes(context, imageUri)
+
+                            if (imageBytes != null) {
+                                imageRepository.saveCampsiteImage(newId, imageBytes)
+                            }
+                        }
                         ownerSites.add(updatedSite.copy(id = newId))
                         context.showCampsiteMessage("Campsite saved successfully!")
                     } else {
                         // Saving an edit under the existing campsite ID.
                         campsiteController.updateCampsite(updatedSite)
+                        //IMAGE
+                        if (imageUri != null) {
+                            val imageBytes = imageRepository.convertUriToBytes(context, imageUri)
+
+                            if (imageBytes != null) {
+                                imageRepository.saveCampsiteImage(updatedSite.id, imageBytes)
+                            }
+                        }
                         val row = ownerSites.indexOfFirst { it.id == updatedSite.id }
                         if (row >= 0) ownerSites[row] = updatedSite
                         context.showCampsiteMessage("Campsite updated successfully!")
