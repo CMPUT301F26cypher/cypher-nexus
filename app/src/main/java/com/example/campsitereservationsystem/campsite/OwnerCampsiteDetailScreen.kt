@@ -18,13 +18,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 
-//IMAGE UPLOAD IMPORTS
-import com.example.campsitereservationsystem.ImageRepository
-import com.example.campsitereservationsystem.ImagePickerButton
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import coil3.compose.AsyncImage
 
 @Composable
 fun OwnerCampsiteDetailsScreen(
@@ -36,9 +29,6 @@ fun OwnerCampsiteDetailsScreen(
 
     //initializes imageRepository and stores campsite image uri
     //val imageRepository = remember{ ImageRepository() }
-    val imageUri by remember(campsite.id){
-        mutableStateOf(campsite.imageUrl ?: "")
-    }
 
     LazyColumn(
         modifier = Modifier
@@ -64,17 +54,6 @@ fun OwnerCampsiteDetailsScreen(
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
-        }
-            //Display Image if imageUri available
-        item {
-            if (imageUri.isNotEmpty()) {
-                AsyncImage(
-                    model = imageUri,
-                    contentDescription = "Campsite Image",
-                    modifier = Modifier.fillMaxWidth().height(150.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
         }
 
             //Campsite name

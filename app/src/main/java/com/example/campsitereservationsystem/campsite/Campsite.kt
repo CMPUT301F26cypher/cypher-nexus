@@ -1,6 +1,8 @@
 
 package com.example.campsitereservationsystem.campsite
 
+import com.google.firebase.firestore.Blob
+
 /***
  * Represents a campsite registered by an owner.
  * This data class is part of the Model layer in MVC.
@@ -24,10 +26,9 @@ data class Campsite(
     val longitude: Double? = null,
 
     // Optional campsite image
-    val imageUrl: String? = null,
+    val imageData: Blob? = null,
 
     // Campsite categories
     val tags: List<String> = emptyList(),
     val rules: String = "",
-    val campsiteImages: List<String> = emptyList()
 )
