@@ -64,7 +64,8 @@ internal fun NavGraphBuilder.campsiteRoutes(
     campsiteController: com.example.campsitereservationsystem.campsite.CampsiteController,
     reservationRepository: ReservationRepository,
     ownerId: String,
-    ownerSites: MutableList<Campsite>
+    ownerSites: MutableList<Campsite>,
+    recentlyViewedIds: MutableList<String>
 ) {
     // Using the same repository for the controller and route lookups.
     val campsiteController = CampsiteController(campsiteRepository, reservationRepository)
@@ -182,7 +183,27 @@ internal fun NavGraphBuilder.campsiteRoutes(
                     }
                 }
             },
-            onBack = goBack
+            onBack = goBack,
+            onCampsiteSelected = { campsiteId ->
+
+                // Avoid duplicate campsites
+                recentlyViewedIds.remove(campsiteId)
+
+                // Put the newest campsite first
+                recentlyViewedIds.add(0, campsiteId)
+
+                // Keep only the last 5 campsites
+                if (recentlyViewedIds.size > 5) {
+                    recentlyViewedIds.removeAt(recentlyViewedIds.lastIndex)
+                }
+
+                // Navigate to campsite details
+                navController.openPage(
+                    page,
+                    siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
+                )
+            },
+            recentlyViewedIds = recentlyViewedIds
         )
     }
 

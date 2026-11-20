@@ -47,6 +47,9 @@ fun CampsiteApp() {
 
     // REPOSITORIES
     val campsiteRepository = remember { CampsiteRepository() }
+    val recentlyViewedIds = remember {
+        mutableStateListOf<String>()
+    }
     val userRepository = remember { UserRepository() }
     val reservationRepository = remember { ReservationRepository() }
 
@@ -157,7 +160,8 @@ fun CampsiteApp() {
             campsiteController = campsiteController,
             reservationRepository,
             ownerId = deviceId,
-            ownerSites = ownerSites
+            ownerSites = ownerSites,
+            recentlyViewedIds = recentlyViewedIds
         )
 
         composable(AVAILABILITY) { page ->
