@@ -288,7 +288,7 @@ fun EntrantBookingScreen(
                 // Rendering one receipt per active stay and keeping the same receipt layout as confirmation.
                 for (stay in upcomingStays) {
                     // Using the display name for the known sample campsite.
-                    val campsiteName = if (stay.campsiteID == controller.campsite.campsiteID) {
+                    val campsiteName = if (stay.campsiteID == controller.campsite.id) {
                         controller.campsiteName
                     } else {
                         "Campsite ${stay.campsiteID}"

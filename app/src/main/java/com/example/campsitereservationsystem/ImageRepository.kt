@@ -1,7 +1,11 @@
 package com.example.campsitereservationsystem
 
+import android.content.Context
+import android.net.Uri
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.Blob
+import android.util.Log
 /**
  * API's/LIBRARIES NEEDED FOR GENERAL UPLOAD IMAGE FUNCTIONS:
  *  -Android Studio Picker
@@ -28,36 +32,60 @@ class ImageRepository {
     private val campsRef = db.collection("campsites")
     private val usersRef = db.collection("users")
 
+    private val imageMaxSize = 300_000 //Can change to anything under 900,000 (900KB)
+
+
     //Save profile image to firebase
-    fun saveProfileImage(userID: String, imageUri: String) {
-        usersRef.document(userID).update("profileImage", imageUri)
+    fun saveProfileImage(userID: String, imageBytes:ByteArray) {
+        if (imageBytes.size > imageMaxSize)
+            return
+
+        usersRef.document(userID).update(
+            "profileImage",
+            Blob.fromBytes(imageBytes))
     }
     //Delete profile image from firebase
     fun deleteProfileImage(userID: String) {
-        usersRef.document(userID).update("profileImage", "")
+        usersRef.document(userID).update("profileImage", null)
     }
     //save campsite image to firebase
-    fun saveCampsiteImage(campsiteID: String, imageUri: String){
-        campsRef.document(campsiteID).update("imageUrl", imageUri)
+    fun saveCampsiteImage(campsiteID: String, imageBytes: ByteArray) {
+
+        if (imageBytes.size > imageMaxSize) {
+            return
+        }
+
+        campsRef.document(campsiteID)
+            .update("imageData", Blob.fromBytes(imageBytes))
     }
     //Delete campsite image from firebase
     fun deleteCampsiteImage(campsiteID: String){
-        campsRef.document(campsiteID).update("imageUrl", "")
+        campsRef.document(campsiteID).update("imageData", null)
     }
     //Get profile image reference from firebase
-    fun getProfileImage(userID: String, onSuccess: (String?) -> Unit){
+    fun getProfileImage(userID: String, onSuccess: (ByteArray?) -> Unit){
         usersRef.document(userID).get()
             .addOnSuccessListener { document ->
-                onSuccess(document.getString("profileImage"))
+                onSuccess(document.getBlob("profileImage")?.toBytes())
             }
     }
 
     //Get campsite image reference from firebase
-    fun getCampsiteImage(campsiteID: String, onSuccess: (String?) -> Unit){
+    fun getCampsiteImage(campsiteID: String, onSuccess: (ByteArray?) -> Unit){
         campsRef.document(campsiteID).get()
             .addOnSuccessListener { document ->
-                onSuccess(document.getString("imageUrl"))
+                onSuccess(document.getBlob("imageData")?.toBytes())
             }
+    }
+
+    fun convertUriToBytes(context: Context, uri: Uri): ByteArray? {
+        val inputStream = context.contentResolver.openInputStream(uri)
+
+        val imageBytes = inputStream?.use {
+            it.readBytes()
+        }
+
+        return imageBytes
     }
 
 }

@@ -18,7 +18,8 @@ fun OwnerCampsitesScreen(
     onCampsiteClick: (Campsite) -> Unit,
     onAddCampsite: () -> Unit,
     onEditCampsite: (Campsite) -> Unit,
-    onDeleteCampsite: (Campsite) -> Unit
+    onDeleteCampsite: (Campsite) -> Unit,
+    onBack: () -> Unit
 ) {
     var campsiteToDelete by remember {
         mutableStateOf<Campsite?>(null)
@@ -29,6 +30,11 @@ fun OwnerCampsitesScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        TextButton(onClick = onBack) {
+            Text("← Back")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "My Campsites",
             fontSize = 24.sp,
