@@ -12,6 +12,29 @@ class LotteryRepository {
     private val lotteriesRef = db.collection("lotteries")
     private val lotteries = mutableStateListOf<Lottery>()
 
+    // Function for getting the waiting list as an Owner US 02.09.01
+    fun getWaitingList(
+        campsiteID: String,
+        onResult: (List<User>) -> Unit,
+        onError: () -> Unit = {}
+    ) {
+        lotteriesRef.document(campsiteID)
+            .get()
+            .addOnSuccessListener { document ->
+                val raw = document.get("waitingList") as? List<*> ?: emptyList<Any>()
+                onResult(raw.mapNotNull { item ->
+                    val entry = item as? Map<*, *> ?: return@mapNotNull null
+                    User(
+                        id = entry["id"] as? String ?: "",
+                        name = entry["name"] as? String ?: "",
+                        email = entry["email"] as? String ?: "",
+                        phone = entry["phone"] as? String ?: ""
+                    )
+                })
+            }
+            .addOnFailureListener { onError() }
+    }
+
 
     fun addLottery(lottery: Lottery) {
         lotteriesRef.document(lottery.campsiteID)

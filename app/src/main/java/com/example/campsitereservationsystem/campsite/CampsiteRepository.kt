@@ -63,6 +63,14 @@ class CampsiteRepository(
         }
     }
 
+    // Get all  campsites (for Admin Browsing US 03.04.01)
+    suspend fun getAll(): List<Campsite> {
+        val snapshot = col.get().await()
+        return snapshot.documents.mapNotNull { doc ->
+            doc.toObject(Campsite::class.java)?.copy(id = doc.id)
+        }
+    }
+
     // Update an existing campsite
     suspend fun update(campsite: Campsite) {
         require(campsite.id.isNotBlank()) {

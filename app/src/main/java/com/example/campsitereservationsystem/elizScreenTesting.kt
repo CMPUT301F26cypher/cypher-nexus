@@ -32,7 +32,9 @@ fun AccountTest(
     repo: UserRepository,
     onUserChange: (User?) -> Unit,
     onExit: () -> Unit,
-    onOpenWaitingList: () -> Unit = {}
+    imageRepo: ImageRepository = ImageRepository(),
+    onOpenWaitingList: () -> Unit = {},
+    loadAllCampsites: suspend () -> List<Campsite> = { campsites }
 ) {
     val context = LocalContext.current
 
@@ -121,13 +123,14 @@ fun AccountTest(
 
     when {
         newScreen == "policy" -> PolicyScreen(onBack = { newScreen = "home" })
-        newScreen == "admin" -> AdminCampsiteBrowseScreen(
-            campsites = campsites,
+        newScreen == "admin" && Role.ADMIN in user.roles -> AdminCampsiteBrowseScreen(
+            load = loadAllCampsites,
             onBack = { newScreen = "home" }
         )
 
         showProfile -> ProfileScreen(
             user = user,
+            imageRepo = imageRepo,
             onSave = { updated ->
                 repo.updateUser(updated)
                 onUserChange(updated)

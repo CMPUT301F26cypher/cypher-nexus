@@ -10,11 +10,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -29,38 +38,67 @@ import androidx.compose.ui.unit.dp
 // US 03.04.01
 @Composable
 fun AdminCampsiteBrowseScreen(
-    campsites: List<Campsite>,
+    load: suspend () -> List<Campsite>,
     onBack: () -> Unit
 ) {
+    var campsites by remember { mutableStateOf<List<Campsite>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var failed by remember { mutableStateOf(false) }
+    var attempt by remember { mutableStateOf(0) }
+
+    // Runs once, and again each time "Try again" changes attempt
+    LaunchedEffect(attempt) {
+        loading = true
+        failed = false
+        try {
+            campsites = load()
+        } catch (e: Exception) {
+            failed = true
+        }
+        loading = false
+    }
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier.fillMaxSize().statusBarsPadding().padding(16.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = onBack) { Text("Back") }
-            Text("Browse Campsites")
+            Text("Browse Campsites", style = MaterialTheme.typography.titleLarge)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (campsites.isEmpty()) {
-            Text("No campsites found.")
-        }
-        else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(campsites) { campsite ->
-                    Column(
-                        Modifier.fillMaxWidth().padding(vertical = 8.dp)
-                    ) {
-                        Text("Name: ${campsite.name}")
-                        Text("Campsite ID: ${campsite.id}")
-                        Text("Location: ${campsite.location}")
-                        Text("Description: ${campsite.description}")
+        when {
+            loading -> CircularProgressIndicator()
+
+            failed -> {
+                Text("Failed to load campsites.")
+                Button(onClick = { attempt++ }) {
+                    Text("Try again")
+                }
+            }
+
+            (campsites.isEmpty()) -> Text("No campsites found.")
+
+            else -> {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(campsites) { campsite ->
+                        Column(
+                            Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                        ) {
+                            Text(campsite.name, style = MaterialTheme.typography.titleMedium)
+                            Text("Owner: ${campsite.ownerId}")
+                            Text("Location: ${campsite.location}")
+                            Text("Max Occupancy: ${campsite.maxOccupancy}")
+                            Text("Description: ${campsite.description}")
+                        }
                     }
                 }
+
             }
         }
     }

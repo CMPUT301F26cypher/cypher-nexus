@@ -12,15 +12,19 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
 
 import com.example.campsitereservationsystem.campsite.Campsite
@@ -29,9 +33,12 @@ import com.example.campsitereservationsystem.campsite.Campsite
     OwnerWaitingListScreen.kt
 
     Campsite owners can pick one of their campsites and see
-    the entrants who joined its waiting list.
-    The screen does not know where entrants
-    come from; they are supplied through the 'entrantsFor' function.
+    the entrants who joined its lottery waiting list.
+    The entrants are loaded with the loadEntrants function that is passed in
+    (LotteryRepository.getWaitingList), so this screen does not know about Firebase.
+
+    NOTE: only shoes each entrant's name and email.
+    The list is empty until a lottery exists for the campsite.
 
 
  */
@@ -42,11 +49,24 @@ import com.example.campsitereservationsystem.campsite.Campsite
 @Composable
 fun OwnerWaitingListScreen(
     campsites: List<Campsite>,
-    entrantsFor: (Campsite) -> List<User>,
+    loadEntrants: (campsite: Campsite, onResult: (List<User>) -> Unit) -> Unit,
     onBack: () -> Unit
 ) {
     var selected by remember { mutableStateOf<Campsite?>(null) }
     val campsite = selected
+    var entrants by remember { mutableStateOf<List<User>>(emptyList()) }
+    var loading by remember { mutableStateOf(false) }
+
+    // Load the waiting list anytime a campsite is chosen
+    LaunchedEffect(campsite) {
+        if (campsite != null) {
+            loading = true
+            loadEntrants(campsite) { result ->
+                entrants = result
+                loading = false
+            }
+        }
+    }
 
     Column(
         Modifier.fillMaxSize().statusBarsPadding().padding(16.dp)
@@ -84,20 +104,21 @@ fun OwnerWaitingListScreen(
         }
         // Show waiting list for selected campsite
         else {
-            val entrants = entrantsFor(campsite)
-            Text(campsite.name)
-            Text(" ${entrants.size} people on the waiting list ")
-            Spacer(Modifier.height(16.dp))
+            Text(campsite.name, style = MaterialTheme.typography.titleMedium)
 
-            if (entrants.isEmpty()) {
-                Text("No entrants have joined yet!")
-            }
-            else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(entrants) { e ->
-                        Column(Modifier.fillMaxWidth()) {
-                            Text(e.name)
-                            Text(e.email)
+            when {
+                loading -> CircularProgressIndicator()
+                entrants.isEmpty() -> Text("No entrants have joined yet!")
+
+                else -> {
+                    Text(" ${entrants.size} people on the waiting list ")
+                    Spacer(Modifier.height(16.dp))
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(entrants) { e ->
+                            Column(Modifier.fillMaxWidth()) {
+                                Text(e.name)
+                                Text(e.email)
+                            }
                         }
                     }
                 }

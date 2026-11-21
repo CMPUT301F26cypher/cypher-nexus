@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.campsitereservationsystem.campsite.CampsiteRepository
 import com.example.campsitereservationsystem.campsite.Campsite
 import com.example.campsitereservationsystem.campsite.CampsiteController
+import kotlin.collections.emptyList
 import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
 
 private const val WELCOME = "welcome"
@@ -45,14 +46,20 @@ fun CampsiteApp() {
     val deviceId = remember(context) { DeviceId.get(context) }
     // Passing this repository to the campsite routes.
 
+    var signedInCamper by remember { mutableStateOf<User?>(null) }
+
 
     // REPOSITORIES
     val campsiteRepository = remember { CampsiteRepository() }
     val recentlyViewedIds = remember {
         mutableStateListOf<String>()
     }
-    val userRepository = remember { UserRepository() }
     val reservationRepository = remember { ReservationRepository() }
+    var userRepository = remember {
+        UserRepository(onUserChanged = { updated: User? -> signedInCamper = updated })
+    }
+    val imageRepository = remember { ImageRepository() }    // NEW: used for adding profile image US 01.08.02
+
 
     // Cleaning up the user listener when CampsiteApp leaves composition.
     DisposableEffect(userRepository) {
@@ -66,7 +73,6 @@ fun CampsiteApp() {
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
     val campsiteController = remember(campsiteRepository) { CampsiteController(repository = campsiteRepository, reservationRepository = ReservationRepository()) }
     //val ownerSites = remember { mutableStateListOf<Campsite>() }
-    var signedInCamper by remember { mutableStateOf<User?>(null) }
 
     // Reusing sample campsite for the availability and booking demos.
     val sampleCamp = remember {
@@ -205,18 +211,23 @@ fun CampsiteApp() {
                 repo = userRepository,
                 onUserChange = { signedInCamper = it },
                 onExit = { navController.closePage(page) },
-                onOpenWaitingList = { navController.openPage(page, OWNER_WAITLIST) }
+                imageRepo = imageRepository,
+                onOpenWaitingList = { navController.openPage(page, OWNER_WAITLIST) },
+                loadAllCampsites = { campsiteRepository.getAll() }
             )
         }
         composable(OWNER_WAITLIST) { page ->
             val owner = signedInCamper
             if (owner != null && Role.OWNER in owner.roles) {
+                // campsites can be owned by deivce ID or owner ID
+                val myCampsites = ownerSites.filter { it.ownerId == owner.id || it.ownerId == owner.deviceId }
                 OwnerWaitingListScreen(
-                    campsites = ownerSites,
-                    entrantsFor = { campsite ->
-                        listOf(
-                            User(name = "John Man", email = "john.mclean@examplepetstore.com", phone = "1234567890", roles = setOf(Role.ENTRANT)),
-                            User(name = "Jane Woman", email = "james.moore.wayne@example-pet-store.com", phone = "1234567890", roles = setOf(Role.ENTRANT))
+                    campsites = myCampsites,
+                    loadEntrants = {c, done ->
+                        lotteryRepository.getWaitingList(
+                            c.id,
+                            done,
+                            { done(emptyList())}
                         )
                     },
                     onBack = { navController.closePage(page) }
