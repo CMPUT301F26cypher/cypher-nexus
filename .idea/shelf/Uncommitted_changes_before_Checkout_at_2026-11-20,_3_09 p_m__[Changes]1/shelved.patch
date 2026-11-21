@@ -1,0 +1,96 @@
+Index: app/src/main/java/com/example/campsitereservationsystem/ProfileScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.campsitereservationsystem\n\nimport androidx.compose.foundation.layout.Column\nimport androidx.compose.foundation.layout.Row\nimport androidx.compose.foundation.layout.Spacer\nimport androidx.compose.foundation.layout.fillMaxSize\nimport androidx.compose.foundation.layout.fillMaxWidth\nimport androidx.compose.foundation.layout.height\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.foundation.layout.statusBarsPadding\nimport androidx.compose.foundation.rememberScrollState\nimport androidx.compose.foundation.verticalScroll\nimport androidx.compose.material3.AlertDialog\nimport androidx.compose.material3.Button\nimport androidx.compose.material3.MaterialTheme\nimport androidx.compose.material3.OutlinedButton\nimport androidx.compose.material3.OutlinedTextField\nimport androidx.compose.material3.Text\nimport androidx.compose.material3.TextButton\nimport androidx.compose.runtime.Composable\nimport androidx.compose.runtime.getValue\nimport androidx.compose.runtime.mutableStateOf\nimport androidx.compose.runtime.remember\nimport androidx.compose.runtime.setValue\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.unit.dp\n\n@Composable\nfun ProfileScreen(\n    user: User,\n    onSave: (User) -> Unit,\n    onDelete: () -> Unit,\n    onBack: () -> Unit\n) {\n    var name by remember { mutableStateOf(user.name) }\n    var email by remember { mutableStateOf(user.email) }\n    var phone by remember { mutableStateOf(user.phone) }\n\n    var showDeleteDialog by remember { mutableStateOf(false) }\n\n    val nameError = name.isBlank()\n    val emailError = email.isBlank()\n    val phoneError = phone.isBlank()\n    val canSave = !nameError && !emailError && !phoneError\n\n\n    Column(\n        modifier = Modifier\n            .fillMaxSize()\n            .statusBarsPadding()\n            .padding(16.dp)\n            .verticalScroll(rememberScrollState())\n    ) {\n        Row(verticalAlignment = Alignment.CenterVertically) {\n            TextButton(onClick = onBack) { Text(\"Back\") }\n            Text(\"Profile\", style = MaterialTheme.typography.titleLarge)\n        }\n        Spacer(Modifier.height(8.dp))\n\n        OutlinedTextField(\n            value = name,\n            onValueChange = { name = it },\n            label = { Text(\"Name\") },\n            isError = nameError,\n            modifier = Modifier.fillMaxWidth()\n        )\n        Spacer(Modifier.height(8.dp))\n        OutlinedTextField(\n            value = email,\n            onValueChange = { email = it },\n            label = { Text(\"Email\") },\n            isError = emailError,\n            modifier = Modifier.fillMaxWidth()\n        )\n        Spacer(Modifier.height(8.dp))\n        OutlinedTextField(\n            value = phone,\n            onValueChange = { phone = it },\n            label = { Text(\"Phone\") },\n            isError = phoneError,\n            modifier = Modifier.fillMaxWidth()\n        )\n        Spacer(Modifier.height(16.dp))\n\n        Button(\n            onClick = {\n                onSave(user.copy(name = name, email = email, phone = phone))\n                onBack()\n            },\n            enabled = canSave,\n            modifier = Modifier.fillMaxWidth()\n        ) { Text(\"Save Changes\") }\n\n        Spacer(Modifier.height(8.dp))\n\n        OutlinedButton(\n            onClick = { showDeleteDialog = true },\n            modifier = Modifier.fillMaxWidth()\n        ) { Text(\"Delete Profile\") }\n    }\n\n    if (showDeleteDialog) {\n        AlertDialog(\n            onDismissRequest = { showDeleteDialog = false },\n            title = { Text(\"Delete Profile\") },\n            text = { Text(\"Are you sure you want to delete your profile?\") },\n            confirmButton = {\n                TextButton(onClick = {\n                    showDeleteDialog = false\n                    onDelete()\n                }) { Text(\"Delete\") }\n            },\n            dismissButton = {\n                TextButton(\n                    onClick = { showDeleteDialog = false }\n                ) { Text(\"Cancel\") }\n            }\n        )\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/campsitereservationsystem/ProfileScreen.kt b/app/src/main/java/com/example/campsitereservationsystem/ProfileScreen.kt
+--- a/app/src/main/java/com/example/campsitereservationsystem/ProfileScreen.kt	(revision aed0bfc09084c1da23fabc5a53fa0dbcea061c7b)
++++ b/app/src/main/java/com/example/campsitereservationsystem/ProfileScreen.kt	(date 1795012904246)
+@@ -8,6 +8,7 @@
+ import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.layout.statusBarsPadding
++import androidx.compose.foundation.layout.width
+ import androidx.compose.foundation.rememberScrollState
+ import androidx.compose.foundation.verticalScroll
+ import androidx.compose.material3.AlertDialog
+@@ -26,6 +27,7 @@
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.unit.dp
+ 
++// NEW CHANGES : Changed all modifider padding to 16.dp so it looks less cluttered
+ @Composable
+ fun ProfileScreen(
+     user: User,
+@@ -36,6 +38,7 @@
+     var name by remember { mutableStateOf(user.name) }
+     var email by remember { mutableStateOf(user.email) }
+     var phone by remember { mutableStateOf(user.phone) }
++    var accRole by remember { mutableStateOf(Role.ENTRANT) }
+ 
+     var showDeleteDialog by remember { mutableStateOf(false) }
+ 
+@@ -56,7 +59,7 @@
+             TextButton(onClick = onBack) { Text("Back") }
+             Text("Profile", style = MaterialTheme.typography.titleLarge)
+         }
+-        Spacer(Modifier.height(8.dp))
++        Spacer(Modifier.height(16.dp))
+ 
+         OutlinedTextField(
+             value = name,
+@@ -65,7 +68,7 @@
+             isError = nameError,
+             modifier = Modifier.fillMaxWidth()
+         )
+-        Spacer(Modifier.height(8.dp))
++        Spacer(Modifier.height(16.dp))
+         OutlinedTextField(
+             value = email,
+             onValueChange = { email = it },
+@@ -73,7 +76,7 @@
+             isError = emailError,
+             modifier = Modifier.fillMaxWidth()
+         )
+-        Spacer(Modifier.height(8.dp))
++        Spacer(Modifier.height(16.dp))
+         OutlinedTextField(
+             value = phone,
+             onValueChange = { phone = it },
+@@ -81,6 +84,24 @@
+             isError = phoneError,
+             modifier = Modifier.fillMaxWidth()
+         )
++
++        Spacer(Modifier.height(16.dp))
++        Text("Add Role(s)")
++        Row(verticalAlignment = Alignment.CenterVertically) {
++            OutlinedButton(
++                onClick = { accRole = Role.ENTRANT },
++                modifier = Modifier.weight(1f)
++            ) {
++                Text("Entrant")
++            }
++            Spacer(modifier = Modifier.width(16.dp))
++            OutlinedButton(
++                onClick = { accRole = Role.OWNER },
++                modifier = Modifier.weight(1f)
++            ) {
++                Text("Owner")
++            }
++        }
+         Spacer(Modifier.height(16.dp))
+ 
+         Button(
+@@ -92,7 +113,8 @@
+             modifier = Modifier.fillMaxWidth()
+         ) { Text("Save Changes") }
+ 
+-        Spacer(Modifier.height(8.dp))
++
++        Spacer(Modifier.height(16.dp))
+ 
+         OutlinedButton(
+             onClick = { showDeleteDialog = true },

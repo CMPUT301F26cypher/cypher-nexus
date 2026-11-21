@@ -19,6 +19,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/*
+    PolicyGuidelineScreen.kt
+
+    Shows the app policy and guidelines. (US 01.11.01)
+    It appears before the user creates an account and can be reopened
+    from the home screen.
+    Users must read it before they can create an account.
+
+    NOTE: May change the app policy and guidelines in the future.
+    Right now it is just a rough draft.
+    I looked at the Instagram app policy and guidelines and based it off that.
+    The 18+ age requirement is not enforced yet.
+    Users can just lie and say they are above 18.
+
+
+ */
+
 @Composable
 fun PolicyScreen(
     onContinue: (() -> Unit)? = null,   // show before account creation
