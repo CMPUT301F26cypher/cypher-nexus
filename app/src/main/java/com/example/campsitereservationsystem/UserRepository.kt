@@ -45,7 +45,6 @@ class UserRepository(
             phone = doc.getString("phone") ?: "",
             roles = roles.ifEmpty { setOf(Role.ENTRANT) },
             notificationsEnabled = doc.getBoolean("notificationsEnabled") ?: true,
-            profileImage = doc.getString("profileImage") ?: "",
             deviceId = doc.getString("deviceId") ?: ""
         )
     }
@@ -56,7 +55,6 @@ class UserRepository(
         "phone" to user.phone,
         "roles" to user.roles.map { it.name },
         "notificationsEnabled" to user.notificationsEnabled,
-        "profileImage" to user.profileImage,
         "deviceId" to user.deviceId
     )
 

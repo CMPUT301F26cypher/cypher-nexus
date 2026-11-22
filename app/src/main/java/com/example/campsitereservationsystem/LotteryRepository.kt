@@ -69,8 +69,7 @@ class LotteryRepository {
                 "email" to user.email,
                 "phone" to user.phone,
                 "roles" to user.roles.map { it.name },
-                "notificationsEnabled" to user.notificationsEnabled,
-                "profileImage" to user.profileImage
+                "notificationsEnabled" to user.notificationsEnabled
             )
         }
 
