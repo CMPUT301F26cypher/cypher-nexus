@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.campsitereservationsystem.campsite.CampsiteRepository
 import com.example.campsitereservationsystem.campsite.Campsite
 import com.example.campsitereservationsystem.campsite.CampsiteController
+import kotlin.collections.emptyList
 import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
 
 private const val WELCOME = "welcome"
@@ -32,6 +33,7 @@ private const val BOOKING = "booking"
 private const val LOTTERY = "lottery"
 private const val IMAGE_TEST = "image_test"
 private const val ACCOUNT = "account"
+private const val OWNER_WAITLIST = "owner_waitlist"
 private const val BROWSE_CAMPSITES = "browse_campsites"
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
@@ -44,14 +46,20 @@ fun CampsiteApp() {
     val deviceId = remember(context) { DeviceId.get(context) }
     // Passing this repository to the campsite routes.
 
+    var signedInCamper by remember { mutableStateOf<User?>(null) }
+
 
     // REPOSITORIES
     val campsiteRepository = remember { CampsiteRepository() }
     val recentlyViewedIds = remember {
         mutableStateListOf<String>()
     }
-    val userRepository = remember { UserRepository() }
     val reservationRepository = remember { ReservationRepository() }
+    var userRepository = remember {
+        UserRepository(onUserChanged = { updated: User? -> signedInCamper = updated })
+    }
+    val imageRepository = remember { ImageRepository() }    // NEW: used for adding profile image US 01.08.02
+
 
     // Cleaning up the user listener when CampsiteApp leaves composition.
     DisposableEffect(userRepository) {
@@ -65,7 +73,6 @@ fun CampsiteApp() {
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
     val campsiteController = remember(campsiteRepository) { CampsiteController(repository = campsiteRepository, reservationRepository = ReservationRepository()) }
     //val ownerSites = remember { mutableStateListOf<Campsite>() }
-    var signedInCamper by remember { mutableStateOf<User?>(null) }
 
     // Reusing sample campsite for the availability and booking demos.
     val sampleCamp = remember {
@@ -101,10 +108,12 @@ fun CampsiteApp() {
             isWinner = true
         )
     }
+    // Making the current controller available to the registered route after a change of guest.
     val currentBookingController by rememberUpdatedState(bookingController)
     val lotteryRepository = remember { LotteryRepository() }
 
     // Keeping the same button destinations that the team wired up in MainActivity.
+    // Starting at Welcome and registering the other screens on the same stack.
     NavHost(navController = navController, startDestination = WELCOME) {
         composable(WELCOME) { page ->
             // Opening Welcome screen and its original four actions.
@@ -201,8 +210,29 @@ fun CampsiteApp() {
                 campsites = ownerSites,
                 repo = userRepository,
                 onUserChange = { signedInCamper = it },
-                onExit = { navController.closePage(page) }
+                onExit = { navController.closePage(page) },
+                imageRepo = imageRepository,
+                onOpenWaitingList = { navController.openPage(page, OWNER_WAITLIST) },
+                loadAllCampsites = { campsiteRepository.getAll() }
             )
+        }
+        composable(OWNER_WAITLIST) { page ->
+            val owner = signedInCamper
+            if (owner != null && Role.OWNER in owner.roles) {
+                // campsites can be owned by deivce ID or owner ID
+                val myCampsites = ownerSites.filter { it.ownerId == owner.id || it.ownerId == owner.deviceId }
+                OwnerWaitingListScreen(
+                    campsites = myCampsites,
+                    loadEntrants = {c, done ->
+                        lotteryRepository.getWaitingList(
+                            c.id,
+                            done,
+                            { done(emptyList())}
+                        )
+                    },
+                    onBack = { navController.closePage(page) }
+                )
+            }
         }
     }
 }

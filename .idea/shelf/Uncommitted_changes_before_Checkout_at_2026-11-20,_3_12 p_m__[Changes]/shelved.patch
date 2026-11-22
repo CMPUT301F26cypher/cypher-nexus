@@ -1,0 +1,64 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AndroidLayouts\">\n    <shared>\n      <config />\n    </shared>\n  </component>\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"NONE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"d4d5584d-fa14-4b19-b100-19221fdcf561\" name=\"Changes\" comment=\"\">\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/AddCampsiteScreen.kt\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/CampsiteController.kt\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/CampsiteRepository.kt\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/MainActivity.kt\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/MainActivity.kt\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/Campsite.kt\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/Campsite.kt\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/OwnerCampsiteScreen.kt\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/OwnerCampsiteScreen.kt\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"ClangdSettings\">\n    <option name=\"formatViaClangd\" value=\"false\" />\n  </component>\n  <component name=\"ExecutionTargetManager\" SELECTED_TARGET=\"device_and_snapshot_combo_box_target[LocalEmulator::path=/Users/juanmartinrojas/.android/avd/Medium_Phone.avd]\" />\n  <component name=\"ExternalProjectsData\">\n    <projectState path=\"$PROJECT_DIR$\">\n      <ProjectState />\n    </projectState>\n  </component>\n  <component name=\"ExternalProjectsManager\">\n    <system id=\"GRADLE\">\n      <state>\n        <projects_view>\n          <tree_state>\n            <expand>\n              <path>\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\n                <item name=\"CampsiteReservationSystem\" type=\"f1a62948:ProjectNode\" />\n              </path>\n            </expand>\n            <select />\n          </tree_state>\n        </projects_view>\n      </state>\n    </system>\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Kotlin Class\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"PropertiesComponent\">{\n  &quot;keyToString&quot;: {\n    &quot;Android App.app.executor&quot;: &quot;Run&quot;,\n    &quot;git-widget-placeholder&quot;: &quot;juanrojas&quot;\n  }\n}</component>\n  <component name=\"RecentsManager\">\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/app\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"app\" type=\"AndroidRunConfigurationType\" factoryName=\"Android App\" activateToolWindowBeforeRun=\"false\">\n      <module name=\"CampsiteReservationSystem.app\" />\n      <option name=\"ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION\" value=\"1\" />\n      <option name=\"DEPLOY\" value=\"true\" />\n      <option name=\"DEPLOY_APK_FROM_BUNDLE\" value=\"false\" />\n      <option name=\"DEPLOY_AS_INSTANT\" value=\"false\" />\n      <option name=\"ARTIFACT_NAME\" value=\"\" />\n      <option name=\"PM_INSTALL_OPTIONS\" value=\"\" />\n      <option name=\"ALL_USERS\" value=\"false\" />\n      <option name=\"ALWAYS_INSTALL_WITH_PM\" value=\"false\" />\n      <option name=\"ALLOW_ASSUME_VERIFIED\" value=\"false\" />\n      <option name=\"CLEAR_APP_STORAGE\" value=\"false\" />\n      <option name=\"DYNAMIC_FEATURES_DISABLED_LIST\" value=\"\" />\n      <option name=\"ACTIVITY_EXTRA_FLAGS\" value=\"\" />\n      <option name=\"MODE\" value=\"default_activity\" />\n      <option name=\"RESTORE_ENABLED\" value=\"false\" />\n      <option name=\"RESTORE_FILE\" value=\"\" />\n      <option name=\"RESTORE_FRESH_INSTALL_ONLY\" value=\"false\" />\n      <option name=\"CLEAR_LOGCAT\" value=\"false\" />\n      <option name=\"SHOW_LOGCAT_AUTOMATICALLY\" value=\"false\" />\n      <option name=\"TARGET_SELECTION_MODE\" value=\"DEVICE_AND_SNAPSHOT_COMBO_BOX\" />\n      <option name=\"DEBUGGER_TYPE\" value=\"Auto\" />\n      <Auto>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n        <option name=\"ATTACH_ON_WAIT_FOR_DEBUGGER\" value=\"false\" />\n      </Auto>\n      <Hybrid>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n        <option name=\"ATTACH_ON_WAIT_FOR_DEBUGGER\" value=\"false\" />\n      </Hybrid>\n      <Java>\n        <option name=\"ATTACH_ON_WAIT_FOR_DEBUGGER\" value=\"false\" />\n      </Java>\n      <Native>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n        <option name=\"ATTACH_ON_WAIT_FOR_DEBUGGER\" value=\"false\" />\n      </Native>\n      <Profilers>\n        <option name=\"ADVANCED_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_CPU_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_CPU_PROFILING_CONFIGURATION_NAME\" value=\"Java/Kotlin Method Trace\" />\n        <option name=\"STARTUP_NATIVE_MEMORY_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"NATIVE_MEMORY_SAMPLE_RATE_BYTES\" value=\"2048\" />\n      </Profilers>\n      <option name=\"DEEP_LINK\" value=\"\" />\n      <option name=\"ACTIVITY\" value=\"\" />\n      <option name=\"ACTIVITY_CLASS\" value=\"\" />\n      <option name=\"SEARCH_ACTIVITY_IN_GLOBAL_SCOPE\" value=\"false\" />\n      <option name=\"SKIP_ACTIVITY_VALIDATION\" value=\"false\" />\n      <method v=\"2\">\n        <option name=\"Android.Gradle.BeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n  </component>\n  <component name=\"TaskManager\">\n    <servers />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 35f48f6580fee1e7e9187b0272b405abe8122109)
++++ b/.idea/workspace.xml	(date 1795212613160)
+@@ -9,15 +9,7 @@
+     <option name="autoReloadType" value="NONE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="d4d5584d-fa14-4b19-b100-19221fdcf561" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/AddCampsiteScreen.kt" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/CampsiteController.kt" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/CampsiteRepository.kt" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/MainActivity.kt" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/Campsite.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/Campsite.kt" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/OwnerCampsiteScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/campsite/OwnerCampsiteScreen.kt" afterDir="false" />
+-    </list>
++    <list default="true" id="d4d5584d-fa14-4b19-b100-19221fdcf561" name="Changes" comment="" />
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -26,7 +18,7 @@
+   <component name="ClangdSettings">
+     <option name="formatViaClangd" value="false" />
+   </component>
+-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=/Users/juanmartinrojas/.android/avd/Medium_Phone.avd]" />
++  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=/Users/efarr/.android/avd/Pixel_10a.avd]" />
+   <component name="ExternalProjectsData">
+     <projectState path="$PROJECT_DIR$">
+       <ProjectState />
+@@ -57,14 +49,22 @@
+     </option>
+   </component>
+   <component name="Git.Settings">
++    <option name="RECENT_BRANCH_BY_REPOSITORY">
++      <map>
++        <entry key="$PROJECT_DIR$" value="main" />
++      </map>
++    </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;juanrojas&quot;
++  <component name="HighlightingSettingsPerFile">
++    <setting file="file://$PROJECT_DIR$/app/src/main/java/com/example/campsitereservationsystem/CreateAccountScreen.kt" root0="FORCE_HIGHLIGHTING" />
++  </component>
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "Android App.app.executor": "Run",
++    "git-widget-placeholder": "#89 on elizBranch"
+   }
+-}</component>
++}]]></component>
+   <component name="RecentsManager">
+     <key name="MoveFile.RECENT_KEYS">
+       <recent name="$PROJECT_DIR$/app" />

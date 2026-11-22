@@ -13,11 +13,16 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 /*
     CreateAccountScreen:
-    Allows users to create an account.
-    They must enter a name, email, phone, and password.
-    Password must be at least 8 characters long.
+    Create account shows up AFTER the user has read the app
+    policy and guidelines.
+    Collects the user's name, email, phone, and password.
+    Users can select what role they want to sign up as (entrant or owner).
 
     onGoToLogin() and error are used in elizScreenTesting.
+
+    NOTE: Password is not stored in firebase YET.
+    Will work on a safe way to store it after the halfway point.
+
 
 */
 

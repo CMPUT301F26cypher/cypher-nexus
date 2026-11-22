@@ -25,6 +25,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
+/*
+    LoginScreen.kt
+
+    Existing users can log in with email and password,
+    or by clicking "log in with this device" button
+
+ */
+
 @Composable
 fun LoginScreen(
     error: String?,
