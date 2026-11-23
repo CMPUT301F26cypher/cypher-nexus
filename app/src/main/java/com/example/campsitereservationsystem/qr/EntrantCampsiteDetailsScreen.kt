@@ -30,6 +30,7 @@ fun EntrantCampsiteDetailsScreen(
     campsite: Campsite,
     isLotteryActive: Boolean,
     onJoinWaitingList: () -> Unit,
+    onWriteReview: () -> Unit,
     onBack: () -> Unit
 ) {
     BackHandler(onBack = onBack)
@@ -141,6 +142,26 @@ fun EntrantCampsiteDetailsScreen(
                     Alignment.CenterHorizontally
                 )
             )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+
+        HorizontalDivider()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Campsite Reviews",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onWriteReview,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Write a Review")
         }
     }
 }
