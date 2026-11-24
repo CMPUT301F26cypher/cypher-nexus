@@ -26,7 +26,7 @@ import com.example.campsitereservationsystem.campsite.Campsite
 // For testing the create profile screen and editing the profile details
 // moved it here so i dont have to change the main activity too much
 @Composable
-fun AccountTest(
+fun OldAccountTest(
     user: User?,
     campsites: List<Campsite>,
     repo: UserRepository,
@@ -34,7 +34,7 @@ fun AccountTest(
     onExit: () -> Unit,
     imageRepo: ImageRepository = ImageRepository(),
     onOpenWaitingList: () -> Unit = {},
-    loadAllCampsites: suspend () -> List<Campsite> = { campsites }
+    loadAllCampsites: suspend () -> List<Campsite> = { campsites },
 ) {
     val context = LocalContext.current
 
@@ -116,6 +116,8 @@ fun AccountTest(
                         onError = { error = "Something went wrong! Please try again." }
                     )
                 }
+
+
             )
         }
         return
