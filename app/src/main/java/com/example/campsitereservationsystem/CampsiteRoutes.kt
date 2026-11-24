@@ -209,7 +209,8 @@ internal fun NavGraphBuilder.campsiteRoutes(
                     siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
                 )
             },
-            recentlyViewedIds = recentlyViewedIds
+            recentlyViewedIds = recentlyViewedIds,
+            reviewRepository = reviewRepository
         )
     }
 
@@ -221,6 +222,7 @@ internal fun NavGraphBuilder.campsiteRoutes(
         CampsitePage(page, campsiteRepository, knownSite, goBack) { site ->
             EntrantCampsiteDetailsScreen(
                 campsite = site,
+                reviewRepository = reviewRepository,
                 // Keeping the existing demo behavior until the waiting list is connected.
                 isLotteryActive = true,
                 // Keeping the existing placeholder for the waiting list button.
