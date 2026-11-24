@@ -2,6 +2,7 @@ package com.example.campsitereservationsystem
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -30,17 +31,23 @@ fun EntrantBookingListScreen(
             .fillMaxSize()
             .padding(16.dp) // Adds spacing from the screen edges
     ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ){
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "Booking",
+                fontSize = 40.sp
+            )
+        }
         //LazyColumn for the list allows it to be scrollable
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
             item {
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    text = "Booking",
-                    fontSize = 40.sp
-                )
+
             }
         }
         Button(

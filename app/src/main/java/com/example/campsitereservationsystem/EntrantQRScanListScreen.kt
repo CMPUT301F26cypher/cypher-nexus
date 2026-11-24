@@ -2,6 +2,7 @@ package com.example.campsitereservationsystem
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -29,16 +30,23 @@ fun EntrantQRScanListScreen(
             .padding(16.dp) // Adds spacing from the screen edges
     ) {
         //LazyColumn for the list allows it to be scrollable
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ){
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "QR Scan",
+                fontSize = 40.sp
+            )
+        }
+
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
             item {
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    text = "QR Scan",
-                    fontSize = 40.sp
-                )
+
             }
         }
         Button(

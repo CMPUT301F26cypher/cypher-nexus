@@ -283,6 +283,8 @@ fun CampsiteApp() {
         //Campsite Screen
         composable(OWNER_CAMPSITES) { page ->
             OwnerCampsiteListScreen(
+                user = signedInCamper,
+                campsiteRepository = campsiteRepository,
                 onBack = {
                     navController.closePage(page)
                 }
