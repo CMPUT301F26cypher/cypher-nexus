@@ -24,6 +24,7 @@ import com.example.campsitereservationsystem.campsite.Campsite
 import com.example.campsitereservationsystem.campsite.CampsiteController
 import kotlin.collections.emptyList
 import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
+import com.example.campsitereservationsystem.review.ReviewRepository
 
 private const val WELCOME = "welcome"
 private const val POLICY = "policy"
@@ -89,6 +90,7 @@ fun CampsiteApp() {
     var userRepository = remember {
         UserRepository(onUserChanged = { updated: User? -> signedInCamper = updated })
     }
+    val reviewRepository = remember { ReviewRepository() }
     val imageRepository = remember { ImageRepository() }    // NEW: used for adding profile image US 01.08.02
 
 
@@ -201,7 +203,9 @@ fun CampsiteApp() {
             reservationRepository,
             ownerId = deviceId,
             ownerSites = ownerSites,
-            recentlyViewedIds = recentlyViewedIds
+            recentlyViewedIds = recentlyViewedIds,
+            reviewRepository = reviewRepository,
+            currentUser = currentUser
         )
 
         //*****************************ENTRANT_SCREEN AND SUBSEQUENT PAGES************************

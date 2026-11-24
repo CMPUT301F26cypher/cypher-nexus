@@ -38,6 +38,8 @@ import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
 import com.example.campsitereservationsystem.qr.QRCodeManager
 import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
 import com.example.campsitereservationsystem.qr.QRCodeScreen
+import com.example.campsitereservationsystem.review.ReviewRepository
+import com.example.campsitereservationsystem.qr.WriteReviewScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -50,6 +52,8 @@ private const val OWNER_DETAILS_ROUTE = "owner_details"
 private const val SHOW_QR_ROUTE = "show_qr"
 private const val ENTRANT_DETAILS_ROUTE = "entrant_details"
 private const val CAMPSITE_ID = "campsiteId"
+
+private const val WRITE_REVIEW_ROUTE = "write_review"
 
 // Declaring the campsite ID as a route argument so a restored page can identify which campsite it is meant to show.
 private val campsiteArguments = listOf(navArgument(CAMPSITE_ID) { type = NavType.StringType })
@@ -65,7 +69,9 @@ internal fun NavGraphBuilder.campsiteRoutes(
     reservationRepository: ReservationRepository,
     ownerId: String,
     ownerSites: MutableList<Campsite>,
-    recentlyViewedIds: MutableList<String>
+    recentlyViewedIds: MutableList<String>,
+    reviewRepository: ReviewRepository,
+    currentUser: User
 ) {
     // Using the same repository for the controller and route lookups.
     val campsiteController = CampsiteController(campsiteRepository, reservationRepository)
@@ -203,7 +209,8 @@ internal fun NavGraphBuilder.campsiteRoutes(
                     siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
                 )
             },
-            recentlyViewedIds = recentlyViewedIds
+            recentlyViewedIds = recentlyViewedIds,
+            reviewRepository = reviewRepository
         )
     }
 
@@ -215,10 +222,39 @@ internal fun NavGraphBuilder.campsiteRoutes(
         CampsitePage(page, campsiteRepository, knownSite, goBack) { site ->
             EntrantCampsiteDetailsScreen(
                 campsite = site,
+                reviewRepository = reviewRepository,
                 // Keeping the existing demo behavior until the waiting list is connected.
                 isLotteryActive = true,
                 // Keeping the existing placeholder for the waiting list button.
                 onJoinWaitingList = { println("Join Waiting List clicked") },
+                onWriteReview = {
+                    navController.openPage(
+                        page,
+                        siteRoute(WRITE_REVIEW_ROUTE, site.id)
+                    )
+                },
+                onBack = goBack
+            )
+        }
+    }
+    composable(
+        "$WRITE_REVIEW_ROUTE/{$CAMPSITE_ID}",
+        arguments = campsiteArguments
+    ) { page ->
+
+        val goBack = { navController.closePage(page) }
+
+        CampsitePage(
+            page,
+            campsiteRepository,
+            null,
+            goBack
+        ) { site ->
+
+            WriteReviewScreen(
+                campsite = site,
+                entrantId = currentUser.id,
+                reviewRepository = reviewRepository,
                 onBack = goBack
             )
         }
