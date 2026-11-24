@@ -38,18 +38,25 @@ import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
 import com.example.campsitereservationsystem.qr.QRCodeManager
 import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
 import com.example.campsitereservationsystem.qr.QRCodeScreen
+import com.example.campsitereservationsystem.review.ReviewRepository
+import com.example.campsitereservationsystem.qr.WriteReviewScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 internal const val OWNER_CAMPSITES_ROUTE = "my_campsites"
 internal const val SCAN_CAMPSITE_ROUTE = "scan_campsite"
+// TEMPORARY (US 02.04.03, 02.04.04): opened from the Test menu until My Lotteries (Frames 20-21) exists.
+internal const val TEMP_PICK_FOR_LOTTERY_ROUTE = "temp_pick_for_lottery"
 
 private const val ADD_CAMPSITE_ROUTE = "add_campsite"
 private const val EDIT_CAMPSITE_ROUTE = "edit_campsite"
 private const val OWNER_DETAILS_ROUTE = "owner_details"
 private const val SHOW_QR_ROUTE = "show_qr"
 private const val ENTRANT_DETAILS_ROUTE = "entrant_details"
+private const val LOTTERY_DETAILS_ROUTE = "lottery_details"
 private const val CAMPSITE_ID = "campsiteId"
+
+private const val WRITE_REVIEW_ROUTE = "write_review"
 
 // Declaring the campsite ID as a route argument so a restored page can identify which campsite it is meant to show.
 private val campsiteArguments = listOf(navArgument(CAMPSITE_ID) { type = NavType.StringType })
@@ -65,7 +72,9 @@ internal fun NavGraphBuilder.campsiteRoutes(
     reservationRepository: ReservationRepository,
     ownerId: String,
     ownerSites: MutableList<Campsite>,
-    recentlyViewedIds: MutableList<String>
+    recentlyViewedIds: MutableList<String>,
+    reviewRepository: ReviewRepository,
+    currentUser: User
 ) {
     // Using the same repository for the controller and route lookups.
     val campsiteController = CampsiteController(campsiteRepository, reservationRepository)
@@ -120,6 +129,38 @@ internal fun NavGraphBuilder.campsiteRoutes(
                 // Starting the QR route from this specific details entry so Back can show the same campsite again.
                 onViewQRCode = { navController.openPage(page, siteRoute(SHOW_QR_ROUTE, site.id)) },
                 onBack = goBack
+            )
+        }
+    }
+
+    // TEMPORARY (US 02.04.03, 02.04.04): the owner picks a campsite, then Lottery Details opens.
+    // Delete this route when My Lotteries (Frame 20) and Pick a Campsite (Frame 21) exist.
+    composable(TEMP_PICK_FOR_LOTTERY_ROUTE) { page ->
+        // Loading the owner's campsites when the screen opens.
+        LaunchedEffect(ownerId) {
+            try {
+                reloadOwnerSites(campsiteRepository, ownerId, ownerSites)
+            } catch (error: Exception) {
+                // Keeping the list that is already loaded if Firestore cannot be reached.
+            }
+        }
+        TempPickCampsiteScreen(
+            campsites = ownerSites,
+            onSelect = { site -> navController.openPage(page, siteRoute(LOTTERY_DETAILS_ROUTE, site.id)) },
+            onBack = { navController.closePage(page) }
+        )
+    }
+
+    // Lottery Details form from the storyboard (Frames 24-25). US 02.04.03 and US 02.04.04.
+    composable("$LOTTERY_DETAILS_ROUTE/{$CAMPSITE_ID}", arguments = campsiteArguments) { page ->
+        val goBack = { navController.closePage(page) }
+        val lotteryDetailsRepository = remember { LotteryDetailsRepository() }
+        CampsitePage(page, campsiteRepository, knownOwnerSite(page), goBack) { site ->
+            LotteryDetailsScreen(
+                campsite = site,
+                repository = lotteryDetailsRepository,
+                onSaved = goBack,
+                onCancel = goBack
             )
         }
     }
@@ -203,7 +244,8 @@ internal fun NavGraphBuilder.campsiteRoutes(
                     siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
                 )
             },
-            recentlyViewedIds = recentlyViewedIds
+            recentlyViewedIds = recentlyViewedIds,
+            reviewRepository = reviewRepository
         )
     }
 
@@ -215,10 +257,39 @@ internal fun NavGraphBuilder.campsiteRoutes(
         CampsitePage(page, campsiteRepository, knownSite, goBack) { site ->
             EntrantCampsiteDetailsScreen(
                 campsite = site,
+                reviewRepository = reviewRepository,
                 // Keeping the existing demo behavior until the waiting list is connected.
                 isLotteryActive = true,
                 // Keeping the existing placeholder for the waiting list button.
                 onJoinWaitingList = { println("Join Waiting List clicked") },
+                onWriteReview = {
+                    navController.openPage(
+                        page,
+                        siteRoute(WRITE_REVIEW_ROUTE, site.id)
+                    )
+                },
+                onBack = goBack
+            )
+        }
+    }
+    composable(
+        "$WRITE_REVIEW_ROUTE/{$CAMPSITE_ID}",
+        arguments = campsiteArguments
+    ) { page ->
+
+        val goBack = { navController.closePage(page) }
+
+        CampsitePage(
+            page,
+            campsiteRepository,
+            null,
+            goBack
+        ) { site ->
+
+            WriteReviewScreen(
+                campsite = site,
+                entrantId = currentUser.id,
+                reviewRepository = reviewRepository,
                 onBack = goBack
             )
         }

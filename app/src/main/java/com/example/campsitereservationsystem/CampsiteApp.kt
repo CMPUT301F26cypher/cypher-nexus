@@ -24,6 +24,7 @@ import com.example.campsitereservationsystem.campsite.Campsite
 import com.example.campsitereservationsystem.campsite.CampsiteController
 import kotlin.collections.emptyList
 import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
+import com.example.campsitereservationsystem.review.ReviewRepository
 
 private const val WELCOME = "welcome"
 private const val POLICY = "policy"
@@ -35,6 +36,37 @@ private const val IMAGE_TEST = "image_test"
 private const val ACCOUNT = "account"
 private const val OWNER_WAITLIST = "owner_waitlist"
 private const val BROWSE_CAMPSITES = "browse_campsites"
+
+//********HOME SCREENS WHERE USER GOES AFTER LOGIN*********
+private const val ENTRANT_SCREEN = "entrant_screen"
+
+private const val OWNER_SCREEN = "owner_screen"
+
+private const val ADMIN_SCREEN = "admin_screen"
+
+//******************ENTRANT HOME SCREEN********************
+private const val ENTRANT_CAMPSITES = "entrant_campsites"
+
+private const val ENTRANT_LOTTERIES = "entrant_lotteries"
+
+private const val ENTRANT_BOOKING = "entrant_booking"
+
+private const val ENTRANT_RESERVATIONS = "entrant_reservations"
+
+private const val ENTRANT_QRSCAN= "entrant_qrscan"
+
+private const val ENTRANT_PROFILE= "entrant_profile"
+
+//********************OWNER HOME SCREEN********************
+
+private const val OWNER_CAMPSITES = "owner_campsites"
+
+private const val OWNER_LOTTERIES = "owner_lotteries"
+
+private const val OWNER_RESERVATIONS = "owner_reservations"
+
+private const val OWNER_NOTIFICATIONS = "owner_notifications"
+
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
 @Composable
@@ -58,6 +90,7 @@ fun CampsiteApp() {
     var userRepository = remember {
         UserRepository(onUserChanged = { updated: User? -> signedInCamper = updated })
     }
+    val reviewRepository = remember { ReviewRepository() }
     val imageRepository = remember { ImageRepository() }    // NEW: used for adding profile image US 01.08.02
 
 
@@ -157,6 +190,8 @@ fun CampsiteApp() {
                 onOwnerCampsites = { navController.openPage(page, OWNER_CAMPSITES_ROUTE) },
                 onScan = { navController.openPage(page, SCAN_CAMPSITE_ROUTE) },
                 onBooking = { navController.openPage(page, BOOKING) },
+                // TEMPORARY (US 02.04.03, 02.04.04): opens Lottery Details until My Lotteries exists.
+                onLotteryDetails = { navController.openPage(page, TEMP_PICK_FOR_LOTTERY_ROUTE) },
                 onBack = { navController.closePage(page) }
             )
         }
@@ -170,8 +205,124 @@ fun CampsiteApp() {
             reservationRepository,
             ownerId = deviceId,
             ownerSites = ownerSites,
-            recentlyViewedIds = recentlyViewedIds
+            recentlyViewedIds = recentlyViewedIds,
+            reviewRepository = reviewRepository,
+            currentUser = currentUser
         )
+
+        //*****************************ENTRANT_SCREEN AND SUBSEQUENT PAGES************************
+        composable(ENTRANT_SCREEN) { page ->
+            EntrantHomeScreen(
+                onBrowseCampsites = { navController.openPage(page, ENTRANT_CAMPSITES) },
+                onJoinedLotteries = { navController.openPage(page, ENTRANT_LOTTERIES) },
+                onBooking = { navController.openPage(page, ENTRANT_BOOKING) },
+                onEntrantReservations = { navController.openPage(page, ENTRANT_RESERVATIONS) },
+                onQRScan = { navController.openPage(page, ENTRANT_QRSCAN) },
+                onEntrantProfile = { navController.openPage(page, ENTRANT_PROFILE) }
+            )
+        }
+
+        //Browse Campsite page
+        composable(ENTRANT_CAMPSITES) { page ->
+            EntrantCampsiteListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        //Joined Lotteries page
+        composable(ENTRANT_LOTTERIES) { page ->
+            JoinedLotteriesListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        //Booking page
+        composable(ENTRANT_BOOKING) { page ->
+            EntrantBookingListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        //Entrant Reservations list page
+        composable(ENTRANT_RESERVATIONS) { page ->
+            EntrantReservationsListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        //QR scan page
+        composable(ENTRANT_QRSCAN) { page ->
+            EntrantQRScanListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        //Entrant Profile page
+        composable(ENTRANT_PROFILE) { page ->
+            EntrantProfileScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        //*****************************OWNER_SCREEN AND SUBSEQUENT PAGES************************
+        composable(OWNER_SCREEN) { page ->
+            OwnerHomeScreen(
+                onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES) },
+                onMyLotteries = { navController.openPage(page, OWNER_LOTTERIES) },
+                onOwnerReservations = { navController.openPage(page, OWNER_RESERVATIONS) },
+                onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) }
+            )
+        }
+
+        //Campsite Screen
+        composable(OWNER_CAMPSITES) { page ->
+            OwnerCampsiteListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+        //Lotteries Screen
+        composable(OWNER_LOTTERIES) { page ->
+            OwnerLotteriesListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+        //Reservations Screen
+        composable(OWNER_RESERVATIONS) { page ->
+            OwnerReservationsListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+        //Notifications Screen
+        composable(OWNER_NOTIFICATIONS) { page ->
+            OwnerNotificationsListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        //*****************************ADMIN_SCREEN AND SUBSEQUENT PAGES************************
+        composable("admin_screen") {
+            AdminHomeScreen()
+        }
 
         composable(AVAILABILITY) { page ->
             // Opening Arpit's existing calendar (9b13916).
@@ -211,9 +362,24 @@ fun CampsiteApp() {
                 repo = userRepository,
                 onUserChange = { signedInCamper = it },
                 onExit = { navController.closePage(page) },
-                imageRepo = imageRepository,
-                onOpenWaitingList = { navController.openPage(page, OWNER_WAITLIST) },
-                loadAllCampsites = { campsiteRepository.getAll() }
+
+                onEntrantHome = {
+                    navController.navigate(ENTRANT_SCREEN) {
+                        popUpTo(ACCOUNT) { inclusive = true }
+                    }
+                },
+
+                onOwnerHome = {
+                    navController.navigate(OWNER_SCREEN) {
+                        popUpTo(ACCOUNT) { inclusive = true }
+                    }
+                },
+
+                onAdminHome = {
+                    navController.navigate(ADMIN_SCREEN) {
+                        popUpTo(ACCOUNT) { inclusive = true }
+                    }
+                }
             )
         }
         composable(OWNER_WAITLIST) { page ->
@@ -246,6 +412,7 @@ private fun TestMenu(
     onOwnerCampsites: () -> Unit,
     onScan: () -> Unit,
     onBooking: () -> Unit,
+    onLotteryDetails: () -> Unit,
     onBack: () -> Unit
 ) {
     // Keeping the test menu in its original order with one callback per button.
@@ -261,6 +428,7 @@ private fun TestMenu(
         Button(onClick = onOwnerCampsites) { Text("My Campsites") }
         Button(onClick = onScan) { Text("Scan QR Code") }
         Button(onClick = onBooking) { Text("Entrant booking demo") }
+        Button(onClick = onLotteryDetails) { Text("Lottery Details (TEMP)") }
         Button(onClick = onBack) { Text("Back to welcome") }
     }
 }
