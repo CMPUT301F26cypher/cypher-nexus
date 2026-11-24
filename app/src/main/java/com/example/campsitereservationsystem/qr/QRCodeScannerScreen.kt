@@ -1,6 +1,10 @@
 package com.example.campsitereservationsystem.qr
 
-
+import androidx.compose.runtime.LaunchedEffect
+import com.example.campsitereservationsystem.review.Review
+import com.example.campsitereservationsystem.review.ReviewRepository
+import kotlinx.coroutines.CancellationException
+import kotlin.math.roundToInt
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -43,7 +47,8 @@ fun QRCodeScannerScreen(
     onQRCodeScanned: (String) ->Unit,
     onBack:() ->Unit,
     onCampsiteSelected: (String) -> Unit,
-    recentlyViewedIds: List<String>
+    recentlyViewedIds: List<String>,
+    reviewRepository: ReviewRepository
 ) {
     val context = LocalContext.current
     val scanner = remember(context) {
@@ -177,27 +182,12 @@ fun QRCodeScannerScreen(
                         Text(
                             text = "Maximum occupancy: ${campsite.maxOccupancy} people"
                         )
-
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            repeat(5) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Star,
-                                    contentDescription = null,
-                                    tint = Color.Gray
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = "Not rated yet",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
+                        CampsiteRating(
+                            campsiteId = campsite.id,
+                            reviewRepository = reviewRepository
+                        )
                     }
                 }
 
@@ -231,5 +221,66 @@ fun QRCodeScannerScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = message)
         }
+    }
+}
+@Composable
+private fun CampsiteRating(
+    campsiteId: String,
+    reviewRepository: ReviewRepository
+) {
+    var reviews by remember(campsiteId) {
+        mutableStateOf<List<Review>>(emptyList())
+    }
+
+    var isLoading by remember(campsiteId) {
+        mutableStateOf(true)
+    }
+
+    var hasError by remember(campsiteId) {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(campsiteId) {
+        try {
+            reviews = reviewRepository
+                .getReviewsByCampsite(campsiteId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            hasError = true
+        } finally {
+            isLoading = false
+        }
+    }
+
+    val averageRating = if (reviews.isNotEmpty()) {
+        reviews.map { it.rating }.average()
+    } else {
+        0.0
+    }
+
+    val roundedRating = averageRating.roundToInt()
+        .coerceIn(0, 5)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "★".repeat(roundedRating) +
+                    "☆".repeat(5 - roundedRating),
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = when {
+                isLoading -> "Loading..."
+                hasError -> "Rating unavailable"
+                reviews.isEmpty() -> "Not rated yet"
+                else -> "${"%.1f".format(averageRating)}/5 (${reviews.size})"
+            },
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
