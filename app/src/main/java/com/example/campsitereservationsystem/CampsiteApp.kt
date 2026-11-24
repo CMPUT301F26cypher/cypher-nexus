@@ -190,6 +190,8 @@ fun CampsiteApp() {
                 onOwnerCampsites = { navController.openPage(page, OWNER_CAMPSITES_ROUTE) },
                 onScan = { navController.openPage(page, SCAN_CAMPSITE_ROUTE) },
                 onBooking = { navController.openPage(page, BOOKING) },
+                // TEMPORARY (US 02.04.03, 02.04.04): opens Lottery Details until My Lotteries exists.
+                onLotteryDetails = { navController.openPage(page, TEMP_PICK_FOR_LOTTERY_ROUTE) },
                 onBack = { navController.closePage(page) }
             )
         }
@@ -410,6 +412,7 @@ private fun TestMenu(
     onOwnerCampsites: () -> Unit,
     onScan: () -> Unit,
     onBooking: () -> Unit,
+    onLotteryDetails: () -> Unit,
     onBack: () -> Unit
 ) {
     // Keeping the test menu in its original order with one callback per button.
@@ -425,6 +428,7 @@ private fun TestMenu(
         Button(onClick = onOwnerCampsites) { Text("My Campsites") }
         Button(onClick = onScan) { Text("Scan QR Code") }
         Button(onClick = onBooking) { Text("Entrant booking demo") }
+        Button(onClick = onLotteryDetails) { Text("Lottery Details (TEMP)") }
         Button(onClick = onBack) { Text("Back to welcome") }
     }
 }
