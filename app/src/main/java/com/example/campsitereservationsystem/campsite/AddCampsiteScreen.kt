@@ -9,9 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import android.net.Uri
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import com.example.campsitereservationsystem.ImagePickerButton
 import coil3.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.example.campsitereservationsystem.ImageRepository
 
 @Composable
@@ -78,13 +82,15 @@ fun AddCampsiteScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
             text = if (isEditing) "Edit Campsite" else "Register Campsite",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            fontSize = 40.sp
         )
 
         if (selectedImageUri != null || savedImageBytes!= null){
@@ -125,7 +131,13 @@ fun AddCampsiteScreen(
             value = name,
             onValueChange = { name = it },
             label = { Text("Campsite Name") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF819F5C),
+                unfocusedBorderColor = Color(0xFF819F5C),
+                focusedLabelColor = Color(0xFF819F5C)
+            )
+
         )
 
         OutlinedTextField(
@@ -206,3 +218,19 @@ fun AddCampsiteScreen(
         }
     }
 }
+
+/*
+
+fun AddCampsiteTextFields(){
+    OutlinedTextField(
+        value = name,
+        onValueChange = { name = it },
+        label = { Text("Campsite Name") },
+        modifier = Modifier.fillMaxWidth(),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF819F5C)
+        )
+
+    )
+}
+*/

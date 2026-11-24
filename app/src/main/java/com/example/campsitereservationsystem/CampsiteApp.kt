@@ -60,12 +60,15 @@ private const val ENTRANT_PROFILE= "entrant_profile"
 //********************OWNER HOME SCREEN********************
 
 private const val OWNER_CAMPSITES = "owner_campsites"
+        //**********My Campsites buttons **********
+        private const val OWNER_REGISTER_CAMPSITE = "owner_register_campsite"
 
 private const val OWNER_LOTTERIES = "owner_lotteries"
 
 private const val OWNER_RESERVATIONS = "owner_reservations"
 
 private const val OWNER_NOTIFICATIONS = "owner_notifications"
+
 
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
@@ -284,16 +287,32 @@ fun CampsiteApp() {
             )
         }
 
-        //Campsite Screen
+        //My Campsites Screens****************************
+
+        //Campsite list screen
         composable(OWNER_CAMPSITES) { page ->
             OwnerCampsiteListScreen(
                 user = signedInCamper,
                 campsiteRepository = campsiteRepository,
+                onRegisterCampsite = { navController.openPage(page, OWNER_REGISTER_CAMPSITE) },
                 onBack = {
                     navController.closePage(page)
                 }
             )
         }
+
+        //Add Campsite screen
+        composable(OWNER_REGISTER_CAMPSITE) { page ->
+            OwnerAddCampsiteScreen(
+                campsiteController = campsiteController,
+                ownerId = signedInCamper?.id ?: deviceId,
+                ownerSites = ownerSites,
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
         //Lotteries Screen
         composable(OWNER_LOTTERIES) { page ->
             OwnerLotteriesListScreen(

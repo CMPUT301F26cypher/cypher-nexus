@@ -40,6 +40,7 @@ import com.example.campsitereservationsystem.campsite.CampsiteRepository
 fun OwnerCampsiteListScreen(
     user: User?,
     campsiteRepository: CampsiteRepository,
+    onRegisterCampsite: () -> Unit,
     onBack: () -> Unit
 ) {
     var campsites by remember {
@@ -80,7 +81,7 @@ fun OwnerCampsiteListScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF819F5C)
                 ),
-                onClick = {null}
+                onClick = {onRegisterCampsite()}
             ){
                 Text(
                     text = "Register Campsite",
@@ -94,17 +95,16 @@ fun OwnerCampsiteListScreen(
             //LazyColumn for the list allows it to be scrollable
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
                 item {
                     for (item in campsites){
-                        CampsiteListCards("Name", "Location")
+                        CampsiteListCards(item.name, item.location, onRegisterCampsite)
                     }
                 }
             }
         }
-
-
 
         //Back button in the bottom left
         Button(
@@ -128,14 +128,21 @@ fun OwnerCampsiteListScreen(
 //the function that defines what the entries for a campsite on the list looks like
 
 @Composable
-fun CampsiteListCards(name: String, location: String){
+fun CampsiteListCards(
+    name: String,
+    location: String,
+    onRegisterCampsite: () -> Unit
+){
     Card(
         modifier = Modifier
             .width(350.dp)
-            .wrapContentHeight(),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF676564)
-        )
+            .wrapContentHeight()
+            .padding(
+                top = 20.dp
+            ),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF676564)
+            )
     ){
         Text(
                 modifier = Modifier.padding(
@@ -174,9 +181,11 @@ fun CampsiteListCards(name: String, location: String){
 }
 
 @Composable
-fun OwnerCampsiteListButtons(text: String){
+fun OwnerCampsiteListButtons(
+    text: String
+){
     Button(
-        onClick = {null},
+        onClick = { null },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF819F5C)
         ),
