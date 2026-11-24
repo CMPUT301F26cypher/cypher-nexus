@@ -243,6 +243,7 @@ fun CampsiteApp() {
         //Booking page
         composable(ENTRANT_BOOKING) { page ->
             EntrantBookingListScreen(
+                user = signedInCamper,
                 onBack = {
                     navController.closePage(page)
                 }
@@ -313,6 +314,7 @@ fun CampsiteApp() {
         //Notifications Screen
         composable(OWNER_NOTIFICATIONS) { page ->
             OwnerNotificationsListScreen(
+                user = signedInCamper,
                 onBack = {
                     navController.closePage(page)
                 }
