@@ -5,8 +5,6 @@ import com.example.campsitereservationsystem.review.Review
 import com.example.campsitereservationsystem.review.ReviewRepository
 import kotlinx.coroutines.CancellationException
 import kotlin.math.roundToInt
-import androidx.compose.ui.graphics.Color
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,12 +31,8 @@ import androidx.compose.runtime.DisposableEffect
 import com.example.campsitereservationsystem.campsite.CampsiteRepository
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.ui.text.font.FontWeight
 
 
