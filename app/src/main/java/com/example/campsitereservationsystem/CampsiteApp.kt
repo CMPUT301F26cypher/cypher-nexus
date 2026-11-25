@@ -35,7 +35,7 @@ private const val LOTTERY = "lottery"
 private const val IMAGE_TEST = "image_test"
 private const val ACCOUNT = "account"
 private const val OWNER_WAITLIST = "owner_waitlist"
-private const val BROWSE_CAMPSITES = "browse_campsites"
+private const val BROWSE_CAMPSITES = "welcome_browse_campsites"
 
 //********HOME SCREENS WHERE USER GOES AFTER LOGIN*********
 private const val ENTRANT_SCREEN = "entrant_screen"
@@ -45,7 +45,7 @@ private const val OWNER_SCREEN = "owner_screen"
 private const val ADMIN_SCREEN = "admin_screen"
 
 //******************ENTRANT HOME SCREEN********************
-private const val ENTRANT_CAMPSITES = "entrant_campsites"
+
 
 private const val ENTRANT_LOTTERIES = "entrant_lotteries"
 
@@ -53,13 +53,12 @@ private const val ENTRANT_BOOKING = "entrant_booking"
 
 private const val ENTRANT_RESERVATIONS = "entrant_reservations"
 
-private const val ENTRANT_QRSCAN= "entrant_qrscan"
+
 
 private const val ENTRANT_PROFILE= "entrant_profile"
 
 //********************OWNER HOME SCREEN********************
 
-private const val OWNER_CAMPSITES = "owner_campsites"
 
 private const val OWNER_LOTTERIES = "owner_lotteries"
 
@@ -104,7 +103,15 @@ fun CampsiteApp() {
 
     val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
-    val campsiteController = remember(campsiteRepository) { CampsiteController(repository = campsiteRepository, reservationRepository = ReservationRepository()) }
+    val campsiteController = remember(
+        campsiteRepository,
+        reservationRepository
+    ) {
+        CampsiteController(
+            repository = campsiteRepository,
+            reservationRepository = reservationRepository
+        )
+    }
     //val ownerSites = remember { mutableStateListOf<Campsite>() }
 
     // Reusing sample campsite for the availability and booking demos.
@@ -202,7 +209,7 @@ fun CampsiteApp() {
             navController = navController,
             campsiteRepository = campsiteRepository,
             campsiteController = campsiteController,
-            reservationRepository,
+            reservationRepository = reservationRepository,
             ownerId = deviceId,
             ownerSites = ownerSites,
             recentlyViewedIds = recentlyViewedIds,
@@ -213,23 +220,27 @@ fun CampsiteApp() {
         //*****************************ENTRANT_SCREEN AND SUBSEQUENT PAGES************************
         composable(ENTRANT_SCREEN) { page ->
             EntrantHomeScreen(
-                onBrowseCampsites = { navController.openPage(page, ENTRANT_CAMPSITES) },
-                onJoinedLotteries = { navController.openPage(page, ENTRANT_LOTTERIES) },
-                onBooking = { navController.openPage(page, ENTRANT_BOOKING) },
-                onEntrantReservations = { navController.openPage(page, ENTRANT_RESERVATIONS) },
-                onQRScan = { navController.openPage(page, ENTRANT_QRSCAN) },
-                onEntrantProfile = { navController.openPage(page, ENTRANT_PROFILE) }
-            )
-        }
-
-        //Browse Campsite page
-        composable(ENTRANT_CAMPSITES) { page ->
-            EntrantCampsiteListScreen(
-                onBack = {
-                    navController.closePage(page)
+                onBrowseCampsites = {
+                    navController.openPage(page, BROWSE_CAMPSITES_ROUTE)
+                },
+                onJoinedLotteries = {
+                    navController.openPage(page, ENTRANT_LOTTERIES)
+                },
+                onBooking = {
+                    navController.openPage(page, ENTRANT_BOOKING)
+                },
+                onEntrantReservations = {
+                    navController.openPage(page, ENTRANT_RESERVATIONS)
+                },
+                onQRScan = {
+                    navController.openPage(page, SCAN_CAMPSITE_ROUTE)
+                },
+                onEntrantProfile = {
+                    navController.openPage(page, ENTRANT_PROFILE)
                 }
             )
         }
+
 
         //Joined Lotteries page
         composable(ENTRANT_LOTTERIES) { page ->
@@ -259,15 +270,6 @@ fun CampsiteApp() {
             )
         }
 
-        //QR scan page
-        composable(ENTRANT_QRSCAN) { page ->
-            EntrantQRScanListScreen(
-                onBack = {
-                    navController.closePage(page)
-                }
-            )
-        }
-
         //Entrant Profile page
         composable(ENTRANT_PROFILE) { page ->
             EntrantProfileScreen(
@@ -280,21 +282,21 @@ fun CampsiteApp() {
         //*****************************OWNER_SCREEN AND SUBSEQUENT PAGES************************
         composable(OWNER_SCREEN) { page ->
             OwnerHomeScreen(
-                onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES) },
-                onMyLotteries = { navController.openPage(page, OWNER_LOTTERIES) },
-                onOwnerReservations = { navController.openPage(page, OWNER_RESERVATIONS) },
-                onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) }
-            )
-        }
-
-        //Campsite Screen
-        composable(OWNER_CAMPSITES) { page ->
-            OwnerCampsiteListScreen(
-                onBack = {
-                    navController.closePage(page)
+                onMyCampsites = {
+                    navController.openPage(page, OWNER_CAMPSITES_ROUTE)
+                },
+                onMyLotteries = {
+                    navController.openPage(page, OWNER_LOTTERIES)
+                },
+                onOwnerReservations = {
+                    navController.openPage(page, OWNER_RESERVATIONS)
+                },
+                onOwnerNotifications = {
+                    navController.openPage(page, OWNER_NOTIFICATIONS)
                 }
             )
         }
+
         //Lotteries Screen
         composable(OWNER_LOTTERIES) { page ->
             OwnerLotteriesListScreen(
