@@ -59,7 +59,6 @@ private const val ENTRANT_PROFILE= "entrant_profile"
 
 //********************OWNER HOME SCREEN********************
 
-private const val OWNER_CAMPSITES = "owner_campsites"
 
 private const val OWNER_LOTTERIES = "owner_lotteries"
 
@@ -104,7 +103,15 @@ fun CampsiteApp() {
 
     val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
-    val campsiteController = remember(campsiteRepository) { CampsiteController(repository = campsiteRepository, reservationRepository = ReservationRepository()) }
+    val campsiteController = remember(
+        campsiteRepository,
+        reservationRepository
+    ) {
+        CampsiteController(
+            repository = campsiteRepository,
+            reservationRepository = reservationRepository
+        )
+    }
     //val ownerSites = remember { mutableStateListOf<Campsite>() }
 
     // Reusing sample campsite for the availability and booking demos.
@@ -275,21 +282,21 @@ fun CampsiteApp() {
         //*****************************OWNER_SCREEN AND SUBSEQUENT PAGES************************
         composable(OWNER_SCREEN) { page ->
             OwnerHomeScreen(
-                onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES) },
-                onMyLotteries = { navController.openPage(page, OWNER_LOTTERIES) },
-                onOwnerReservations = { navController.openPage(page, OWNER_RESERVATIONS) },
-                onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) }
-            )
-        }
-
-        //Campsite Screen
-        composable(OWNER_CAMPSITES) { page ->
-            OwnerCampsiteListScreen(
-                onBack = {
-                    navController.closePage(page)
+                onMyCampsites = {
+                    navController.openPage(page, OWNER_CAMPSITES_ROUTE)
+                },
+                onMyLotteries = {
+                    navController.openPage(page, OWNER_LOTTERIES)
+                },
+                onOwnerReservations = {
+                    navController.openPage(page, OWNER_RESERVATIONS)
+                },
+                onOwnerNotifications = {
+                    navController.openPage(page, OWNER_NOTIFICATIONS)
                 }
             )
         }
+
         //Lotteries Screen
         composable(OWNER_LOTTERIES) { page ->
             OwnerLotteriesListScreen(

@@ -79,7 +79,6 @@ internal fun NavGraphBuilder.campsiteRoutes(
     currentUser: User
 ) {
     // Using the same repository for the controller and route lookups.
-    val campsiteController = CampsiteController(campsiteRepository, reservationRepository)
     // Holding the last checked scan alongside its ID.
     //var lastScan: Pair<String, OwnerCampsite>? = null
 
