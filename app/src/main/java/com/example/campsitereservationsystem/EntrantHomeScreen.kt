@@ -11,13 +11,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,39 +36,39 @@ fun EntrantHomeScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         //BROWSE CAMPSITES
-        EntrantHomeScreenButtons("Browse Campsites"){
+        EntrantHomeScreenButtons("Browse Campsites") {
             onBrowseCampsites()
         }
         Spacer(modifier = Modifier.height(25.dp))
 
         //JOINED LOTTERIES
-        EntrantHomeScreenButtons("Joined Lotteries"){
+        EntrantHomeScreenButtons("Joined Lotteries") {
             onJoinedLotteries()
         }
 
         Spacer(modifier = Modifier.height(25.dp))
 
         //BOOKING
-        EntrantHomeScreenButtons("Booking"){
+        EntrantHomeScreenButtons("Booking") {
             onBooking()
         }
 
         Spacer(modifier = Modifier.height(25.dp))
 
         //RESERVATIONS
-        EntrantHomeScreenButtons("Reservations"){
+        EntrantHomeScreenButtons("Reservations") {
             onEntrantReservations()
         }
 
         Spacer(modifier = Modifier.height(25.dp))
 
-        EntrantHomeScreenButtons("QR Scan"){
+        EntrantHomeScreenButtons("QR Scan") {
             onQRScan()
         }
 
         Spacer(modifier = Modifier.height(25.dp))
 
-        EntrantHomeScreenButtons("Profile"){
+        EntrantHomeScreenButtons("Profile") {
             onEntrantProfile()
         }
     }

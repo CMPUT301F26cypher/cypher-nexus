@@ -79,6 +79,16 @@ class NotificationRepository(
         doc.set(newNotification)
     }
 
+    fun getAllNotifications(onSuccess: (List<Notification>) -> Unit){
+        notificationsRef
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val notifications = snapshot.documents.mapNotNull { document ->
+                    document.toObject(Notification::class.java)
+                }
+                onSuccess(notifications)
+            }
+    }
     fun getSentNotifications(){
         //Collects all sent notifications
         notificationsRef
