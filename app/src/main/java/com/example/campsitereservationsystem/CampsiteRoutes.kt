@@ -48,6 +48,8 @@ internal const val SCAN_CAMPSITE_ROUTE = "scan_campsite"
 // TEMPORARY (US 02.04.03, 02.04.04): opened from the Test menu until My Lotteries (Frames 20-21) exists.
 internal const val TEMP_PICK_FOR_LOTTERY_ROUTE = "temp_pick_for_lottery"
 
+internal const val BROWSE_CAMPSITES_ROUTE = "browse_campsites"
+
 private const val ADD_CAMPSITE_ROUTE = "add_campsite"
 private const val EDIT_CAMPSITE_ROUTE = "edit_campsite"
 private const val OWNER_DETAILS_ROUTE = "owner_details"
@@ -224,28 +226,7 @@ internal fun NavGraphBuilder.campsiteRoutes(
                     }
                 }
             },
-            onBack = goBack,
-            onCampsiteSelected = { campsiteId ->
-
-                // Avoid duplicate campsites
-                recentlyViewedIds.remove(campsiteId)
-
-                // Put the newest campsite first
-                recentlyViewedIds.add(0, campsiteId)
-
-                // Keep only the last 5 campsites
-                if (recentlyViewedIds.size > 5) {
-                    recentlyViewedIds.removeAt(recentlyViewedIds.lastIndex)
-                }
-
-                // Navigate to campsite details
-                navController.openPage(
-                    page,
-                    siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
-                )
-            },
-            recentlyViewedIds = recentlyViewedIds,
-            reviewRepository = reviewRepository
+            onBack = goBack
         )
     }
 
@@ -271,6 +252,38 @@ internal fun NavGraphBuilder.campsiteRoutes(
                 onBack = goBack
             )
         }
+    }
+    // Browse campsites destination
+    composable(BROWSE_CAMPSITES_ROUTE) { page ->
+
+        val goBack = { navController.closePage(page) }
+
+        EntrantCampsiteListScreen(
+            onBack = goBack,
+            onCampsiteSelected = { campsiteId ->
+
+                // Avoid duplicate campsites
+                recentlyViewedIds.remove(campsiteId)
+
+                // Put the newest campsite first
+                recentlyViewedIds.add(0, campsiteId)
+
+                // Keep only the last 5 campsites
+                if (recentlyViewedIds.size > 5) {
+                    recentlyViewedIds.removeAt(
+                        recentlyViewedIds.lastIndex
+                    )
+                }
+
+                // Navigate to campsite details
+                navController.openPage(
+                    page,
+                    siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
+                )
+            },
+            recentlyViewedIds = recentlyViewedIds,
+            reviewRepository = reviewRepository
+        )
     }
     composable(
         "$WRITE_REVIEW_ROUTE/{$CAMPSITE_ID}",

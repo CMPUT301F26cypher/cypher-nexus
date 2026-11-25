@@ -35,7 +35,7 @@ private const val LOTTERY = "lottery"
 private const val IMAGE_TEST = "image_test"
 private const val ACCOUNT = "account"
 private const val OWNER_WAITLIST = "owner_waitlist"
-private const val BROWSE_CAMPSITES = "browse_campsites"
+private const val BROWSE_CAMPSITES = "welcome_browse_campsites"
 
 //********HOME SCREENS WHERE USER GOES AFTER LOGIN*********
 private const val ENTRANT_SCREEN = "entrant_screen"
@@ -45,7 +45,7 @@ private const val OWNER_SCREEN = "owner_screen"
 private const val ADMIN_SCREEN = "admin_screen"
 
 //******************ENTRANT HOME SCREEN********************
-private const val ENTRANT_CAMPSITES = "entrant_campsites"
+
 
 private const val ENTRANT_LOTTERIES = "entrant_lotteries"
 
@@ -53,7 +53,7 @@ private const val ENTRANT_BOOKING = "entrant_booking"
 
 private const val ENTRANT_RESERVATIONS = "entrant_reservations"
 
-private const val ENTRANT_QRSCAN= "entrant_qrscan"
+
 
 private const val ENTRANT_PROFILE= "entrant_profile"
 
@@ -202,7 +202,7 @@ fun CampsiteApp() {
             navController = navController,
             campsiteRepository = campsiteRepository,
             campsiteController = campsiteController,
-            reservationRepository,
+            reservationRepository = reservationRepository,
             ownerId = deviceId,
             ownerSites = ownerSites,
             recentlyViewedIds = recentlyViewedIds,
@@ -213,23 +213,27 @@ fun CampsiteApp() {
         //*****************************ENTRANT_SCREEN AND SUBSEQUENT PAGES************************
         composable(ENTRANT_SCREEN) { page ->
             EntrantHomeScreen(
-                onBrowseCampsites = { navController.openPage(page, ENTRANT_CAMPSITES) },
-                onJoinedLotteries = { navController.openPage(page, ENTRANT_LOTTERIES) },
-                onBooking = { navController.openPage(page, ENTRANT_BOOKING) },
-                onEntrantReservations = { navController.openPage(page, ENTRANT_RESERVATIONS) },
-                onQRScan = { navController.openPage(page, ENTRANT_QRSCAN) },
-                onEntrantProfile = { navController.openPage(page, ENTRANT_PROFILE) }
-            )
-        }
-
-        //Browse Campsite page
-        composable(ENTRANT_CAMPSITES) { page ->
-            EntrantCampsiteListScreen(
-                onBack = {
-                    navController.closePage(page)
+                onBrowseCampsites = {
+                    navController.openPage(page, BROWSE_CAMPSITES_ROUTE)
+                },
+                onJoinedLotteries = {
+                    navController.openPage(page, ENTRANT_LOTTERIES)
+                },
+                onBooking = {
+                    navController.openPage(page, ENTRANT_BOOKING)
+                },
+                onEntrantReservations = {
+                    navController.openPage(page, ENTRANT_RESERVATIONS)
+                },
+                onQRScan = {
+                    navController.openPage(page, SCAN_CAMPSITE_ROUTE)
+                },
+                onEntrantProfile = {
+                    navController.openPage(page, ENTRANT_PROFILE)
                 }
             )
         }
+
 
         //Joined Lotteries page
         composable(ENTRANT_LOTTERIES) { page ->
@@ -253,15 +257,6 @@ fun CampsiteApp() {
         //Entrant Reservations list page
         composable(ENTRANT_RESERVATIONS) { page ->
             EntrantReservationsListScreen(
-                onBack = {
-                    navController.closePage(page)
-                }
-            )
-        }
-
-        //QR scan page
-        composable(ENTRANT_QRSCAN) { page ->
-            EntrantQRScanListScreen(
                 onBack = {
                     navController.closePage(page)
                 }
