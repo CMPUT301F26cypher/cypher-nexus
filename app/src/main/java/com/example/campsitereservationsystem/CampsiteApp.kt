@@ -64,6 +64,9 @@ private const val OWNER_CAMPSITES = "owner_campsites"
         private const val OWNER_REGISTER_CAMPSITE = "owner_register_campsite"
 
 private const val OWNER_LOTTERIES = "owner_lotteries"
+        //**********My Lotteries buttons **********
+        private const val OWNER_PICK_LOTTERY = "owner_pick_lottery"
+        private const val OWNER_REGISTER_LOTTERY = "owner_register_lottery"
 
 private const val OWNER_RESERVATIONS = "owner_reservations"
 
@@ -95,6 +98,19 @@ fun CampsiteApp() {
     }
     val reviewRepository = remember { ReviewRepository() }
     val imageRepository = remember { ImageRepository() }    // NEW: used for adding profile image US 01.08.02
+
+
+    var ownerCampsitesWithoutLottery = remember {
+        mutableStateListOf<Campsite?>(null)
+    }
+
+    var selectedCampsite by remember {
+        mutableStateOf<Campsite?>(null)
+    }
+
+    val lotteryDetailsRepository = remember {
+        LotteryDetailsRepository()
+    }
 
 
     // Cleaning up the user listener when CampsiteApp leaves composition.
@@ -315,14 +331,65 @@ fun CampsiteApp() {
             )
         }
 
-        //Lotteries Screen
+        //My Lotteries Screens****************************
         composable(OWNER_LOTTERIES) { page ->
             OwnerLotteriesListScreen(
+                user = signedInCamper,
+                campsiteRepository = campsiteRepository,
+                lotteryRepository = lotteryRepository,
+                onRegisterLottery = { campsites ->
+                    ownerCampsitesWithoutLottery.clear()
+                    ownerCampsitesWithoutLottery.addAll(campsites)
+
+                    navController.openPage(page, OWNER_PICK_LOTTERY)
+                },
                 onBack = {
                     navController.closePage(page)
                 }
             )
         }
+
+        //SCREEN THAT LISTS CAMPSITES FOR OWNER TO SELECT A LOTTERY
+        composable(OWNER_PICK_LOTTERY) { page ->
+            OwnerLotteryPickACampsiteScreen(
+                user = signedInCamper,
+                campsiteRepository = campsiteRepository,
+                campsitesWithoutLotteries = ownerCampsitesWithoutLottery.filterNotNull() as MutableList<OwnerCampsite>,
+                //lotteryRepository = lotteryRepository,
+                //onRegisterLottery = { navController.openPage(page, OWNER_REGISTER_LOTTERY) },
+                onSelect = { campsite ->
+                    // Remember which campsite the owner selected.
+                    selectedCampsite = campsite
+
+                    // Open the Lottery Details screen.
+                    navController.openPage(page, OWNER_REGISTER_LOTTERY)
+                },
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        composable(OWNER_REGISTER_LOTTERY) { page ->
+            val campsite = selectedCampsite
+
+            if (campsite != null) {
+                OwnerAddLotteryScreen(
+                    campsite = campsite,
+                    repository = lotteryDetailsRepository,
+                    onSaved = {
+                        navController.closePage(page)
+                    },
+                    onCancel = {
+                        navController.closePage(page)
+                    }
+                )
+            } else {
+                // No campsite selected; return to the previous screen.
+                navController.closePage(page)
+            }
+        }
+
         //Reservations Screen
         composable(OWNER_RESERVATIONS) { page ->
             OwnerReservationsListScreen(

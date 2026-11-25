@@ -100,7 +100,7 @@ fun OwnerCampsiteListScreen(
             ) {
                 item {
                     for (item in campsites){
-                        CampsiteListCards(item.name, item.location, onRegisterCampsite)
+                        CampsiteListCards(item.name, item.location)
                     }
                 }
             }
@@ -130,8 +130,7 @@ fun OwnerCampsiteListScreen(
 @Composable
 fun CampsiteListCards(
     name: String,
-    location: String,
-    onRegisterCampsite: () -> Unit
+    location: String
 ){
     Card(
         modifier = Modifier
