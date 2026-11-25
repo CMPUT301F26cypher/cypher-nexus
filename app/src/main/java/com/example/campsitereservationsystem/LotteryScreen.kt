@@ -80,8 +80,10 @@ fun LotteryScreen(
             status = "CLOSED",
             numWinners = numLotteryWinners.toInt(),
             capacity = 0,
-            startTimestamp = null,
-            endTimestamp = null,
+            registrationStartTimestamp = null,
+            registrationEndTimestamp = null,
+            bookingStartTimestamp = null,
+            bookingEndTimestamp = null,
             campsite = campsite,
             campsiteID = campsite.id, //this will be the same campsiteID from campsite
             waitingList = mutableStateListOf<User>(),
@@ -349,8 +351,8 @@ fun LotteryScreen(
                 } else if (startTimestamp < endTimestamp) {
                     newLottery.status = "OPEN"
                     newLottery.numWinners = numLotteryWinners.toIntOrNull() ?: 0
-                    newLottery.startTimestamp = startTimestamp
-                    newLottery.endTimestamp = endTimestamp
+                    newLottery.registrationStartTimestamp = startTimestamp
+                    newLottery.registrationEndTimestamp = endTimestamp
 
                     lotteryRepository.addLottery(newLottery) {
 

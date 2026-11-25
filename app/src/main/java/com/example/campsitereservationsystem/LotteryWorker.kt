@@ -46,7 +46,7 @@ class LotteryWorker(appContext: Context, workerParams: WorkerParameters)
             }
 
             // Check whether the lottery has actually expired
-            val endTime = lottery.endTimestamp?.toDate()?.time
+            val endTime = lottery.registrationEndTimestamp?.toDate()?.time
                 ?: return Result.failure()
 
             val currentTime = System.currentTimeMillis()

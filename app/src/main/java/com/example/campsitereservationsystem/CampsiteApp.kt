@@ -391,7 +391,7 @@ fun CampsiteApp() {
                     navController.openPage(page, OWNER_PICK_LOTTERY)
                 },
                 onBack = {
-                    navController.closePage(page)
+                    navController.openPage(page, OWNER_SCREEN)
                 }
             )
         }
@@ -412,7 +412,7 @@ fun CampsiteApp() {
                     navController.openPage(page, OWNER_REGISTER_LOTTERY)
                 },
                 onBack = {
-                    navController.closePage(page)
+                    navController.openPage(page, OWNER_LOTTERIES)
                 }
             )
         }
@@ -423,12 +423,13 @@ fun CampsiteApp() {
             if (campsite != null) {
                 OwnerAddLotteryScreen(
                     campsite = campsite,
+                    lotteryRepository = lotteryRepository,
                     repository = lotteryDetailsRepository,
                     onSaved = {
-                        navController.closePage(page)
+                        navController.openPage(page, OWNER_LOTTERIES)
                     },
                     onCancel = {
-                        navController.closePage(page)
+                        navController.openPage(page, OWNER_PICK_LOTTERY)
                     }
                 )
             } else {
@@ -437,7 +438,7 @@ fun CampsiteApp() {
             }
         }
 
-        //Reservations Screen
+        //Reservations Screens****************************
         composable(OWNER_RESERVATIONS) { page ->
             OwnerReservationsListScreen(
                 onBack = {

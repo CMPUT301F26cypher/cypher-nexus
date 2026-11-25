@@ -27,6 +27,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.example.campsitereservationsystem.campsite.Campsite
+import com.google.firebase.Timestamp
 import java.time.LocalDateTime
 
 /**
@@ -64,6 +66,7 @@ import java.time.LocalDateTime
 @Composable
 fun OwnerAddLotteryScreen(
     campsite: Campsite,
+    lotteryRepository: LotteryRepository,
     repository: LotteryDetailsRepository,
     onSaved: () -> Unit,
     onCancel: () -> Unit
@@ -73,6 +76,8 @@ fun OwnerAddLotteryScreen(
     // What the owner has typed so far. Each box updates one field of one period.
     var registration by remember { mutableStateOf(LotteryPeriod()) }
     var booking by remember { mutableStateOf(LotteryPeriod()) }
+    var numWinners by remember { mutableStateOf("0") }
+    var capacity by remember { mutableStateOf("0") }
 
     // True while the saved lottery is being loaded from Firestore.
     var loading by remember { mutableStateOf(true) }
@@ -83,6 +88,8 @@ fun OwnerAddLotteryScreen(
     var errorMessage by remember { mutableStateOf("") }
     var saving by remember { mutableStateOf(false) }
 
+
+    /*
     // Loading the saved lottery once, when the screen opens (Frame 31: "current values should be shown").
     LaunchedEffect(campsite.id) {
         repository.loadLotteryDetails(
@@ -101,9 +108,19 @@ fun OwnerAddLotteryScreen(
             }
         )
     }
+    */
+
+
+    //***********NEED TO CHANGE THIS, this is the main thing to change I believe
+    // as this is where saving happens so as long as I can add in the two new fields
+    // and make sure its saving to Lottery not lotteryDetails, should be good
+
+    //user LotteryPeriods, .toDateTime to turn the Lottery periods into timestamps
 
     // Checking the form, then saving it.
     fun saveLottery() {
+
+        //makes a LotteryDetails object so its "problems" can be checked
         val details = LotteryDetails(registration = registration, booking = booking)
         val problem = details.problem(LocalDateTime.now(), isUpdate)
         if (problem.isNotEmpty()) {
@@ -111,17 +128,22 @@ fun OwnerAddLotteryScreen(
             return
         }
 
-        saving = true
-        repository.saveLotteryDetails(campsite.id, details) { saved ->
-            saving = false
-            if (saved) {
-                val message = if (isUpdate) "Lottery updated" else "Lottery saved"
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                onSaved()
-            } else {
-                errorMessage = "The lottery could not be saved. Check your connection and try again."
-            }
-        }
+        val newLottery = Lottery(
+            status = "CLOSED",
+            numWinners = numWinners.toIntOrNull() ?: 0,
+            capacity = capacity.toIntOrNull() ?: 0,
+            registrationStartTimestamp = registration.startTimestamp(),
+            registrationEndTimestamp = registration.endTimestamp(),
+            bookingStartTimestamp = booking.startTimestamp(),
+            bookingEndTimestamp = booking.endTimestamp(),
+            campsite = campsite,
+            campsiteID = campsite.id,
+            waitingList = mutableStateListOf<User>(),
+            winners = mutableStateListOf<User>()
+        )
+
+        lotteryRepository.addLottery(newLottery)
+        onSaved()
     }
 
     BackHandler(onBack = onCancel)
@@ -146,21 +168,20 @@ fun OwnerAddLotteryScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Waiting for Firestore, so saved values are not overwritten by what the owner types.
-        if (loading) {
-            Text("Loading lottery…", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-        } else {
-            LotteryFields(
-                registration = registration,
-                booking = booking,
-                onRegistrationChange = { registration = it },
-                onBookingChange = { booking = it }
-            )
-        }
+        LotteryFields(
+            registration = registration,
+            booking = booking,
+            numWinners = numWinners,
+            capacity = capacity,
+            onRegistrationChange = { registration = it },
+            onBookingChange = { booking = it },
+            onNumWinnersChange = { numWinners = it },
+            onCapacityChange = { capacity = it }
+        )
 
         Button(
             onClick = { saveLottery() },
-            enabled = !loading && !saving,
+            //enabled = !loading && !saving,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF819F5C)
@@ -209,9 +230,17 @@ fun OwnerAddLotteryScreen(
 private fun LotteryFields(
     registration: LotteryPeriod,
     booking: LotteryPeriod,
+    numWinners: String,
+    capacity: String,
     onRegistrationChange: (LotteryPeriod) -> Unit,
-    onBookingChange: (LotteryPeriod) -> Unit
+    onBookingChange: (LotteryPeriod) -> Unit,
+    onNumWinnersChange: (String) -> Unit,
+    onCapacityChange: (String) -> Unit
 ) {
+    LotteryField("Number of Winners", numWinners) {
+        onNumWinnersChange(it)
+    }
+
     // Registration fields (US 02.04.03).
     LotteryField("Registration Start Date (MM/DD/YYYY)", registration.startDate) {
         onRegistrationChange(registration.copy(startDate = it))
@@ -242,10 +271,59 @@ private fun LotteryFields(
     LotteryField("Booking End Time (24 hour clock)", booking.endTime) {
         onBookingChange(booking.copy(endTime = it))
     }
-    LotteryField("Capacity (Optional)", booking.endTime) {
-        onBookingChange(booking.copy(endTime = it))
+    LotteryField("Capacity (Optional)", capacity) {
+        onCapacityChange(it)
     }
 
+}
+
+/**
+ * Checks the whole form. The message is shown in the Frame 25 error popup.
+ *
+ * Rules, in the order they are checked:
+ * 1. The registration period is filled in correctly.
+ * 2. The booking period is filled in correctly.
+ * 3. Creating only: registration ends in the future.
+ *    (When updating, registration may already be over, for example when the owner
+ *    only wants to move the booking end date, as in storyboard Frame 32.)
+ * 4. Booking starts after registration ends (winners are drawn when registration ends).
+ * 5. Booking ends in the future.
+ *
+ * @param now The current date and time.
+ * @param isUpdate True when the owner is changing a lottery that is already saved (US 02.04.06).
+ * @return An empty string if everything is fine, or a message explaining what to fix.
+ */
+fun problem(now: LocalDateTime, isUpdate: Boolean = false,registration: LotteryPeriod,
+            booking: LotteryPeriod,): String {
+    val registrationProblem = registration.problem("Registration")
+    if (registrationProblem.isNotEmpty()) {
+        return registrationProblem
+    }
+
+    val bookingProblem = booking.problem("Booking")
+    if (bookingProblem.isNotEmpty()) {
+        return bookingProblem
+    }
+
+    val registrationEnd = registration.end()
+    val bookingStart = booking.start()
+    val bookingEnd = booking.end()
+
+    // Safety net: both periods were checked above, so this should never happen.
+    if (registrationEnd == null || bookingStart == null || bookingEnd == null) {
+        return "Please check the dates and times."
+    }
+
+    if (!isUpdate && !registrationEnd.isAfter(now)) {
+        return "Registration end must be in the future."
+    }
+    if (bookingStart.isBefore(registrationEnd)) {
+        return "Booking must start after registration ends."
+    }
+    if (!bookingEnd.isAfter(now)) {
+        return "Booking end must be in the future."
+    }
+    return ""
 }
 
 /** One text box on the Lottery Details form. */
