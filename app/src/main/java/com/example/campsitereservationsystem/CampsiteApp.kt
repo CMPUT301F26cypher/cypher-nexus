@@ -19,13 +19,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.campsitereservationsystem.AdminPages.AdminHomeScreen
 import com.example.campsitereservationsystem.campsite.CampsiteRepository
 import com.example.campsitereservationsystem.campsite.Campsite
 import com.example.campsitereservationsystem.campsite.CampsiteController
 import kotlin.collections.emptyList
 import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
 import com.example.campsitereservationsystem.review.ReviewRepository
-
+import com.example.campsitereservationsystem.AdminPages.AdminImageGallery
+import com.example.campsitereservationsystem.AdminPages.AdminNotificationReview
 private const val WELCOME = "welcome"
 private const val POLICY = "policy"
 private const val TEST_MENU = "test_menu"
@@ -65,6 +67,18 @@ private const val OWNER_LOTTERIES = "owner_lotteries"
 private const val OWNER_RESERVATIONS = "owner_reservations"
 
 private const val OWNER_NOTIFICATIONS = "owner_notifications"
+
+//********************OWNER HOME SCREEN********************
+
+private const val ADMIN_IMAGES = "admin_images"
+
+private const val ADMIN_NOTIFICATIONS = "admin_notifications"
+
+private const val ADMIN_PROFILES = "admin_profiles"
+
+private const val ADMIN_CAMPSITES = "admin_campsites"
+
+private const val ADMIN_MESSAGES = "admin_messages"
 
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
@@ -324,8 +338,30 @@ fun CampsiteApp() {
         }
 
         //*****************************ADMIN_SCREEN AND SUBSEQUENT PAGES************************
-        composable("admin_screen") {
-            AdminHomeScreen()
+        composable("admin_screen") { page ->
+            AdminHomeScreen(
+                onImages = {navController.openPage(page, ADMIN_IMAGES)},
+                onNotifications = {navController.openPage(page, ADMIN_NOTIFICATIONS)},
+                onProfiles = {},
+                onCampsites = {},
+                onMessages = {}
+            )
+        }
+
+        composable(ADMIN_IMAGES){ page -> AdminImageGallery(
+            onBack = {
+                navController.closePage(page)
+            }
+        )
+        }
+
+        composable(ADMIN_NOTIFICATIONS){ page ->
+            AdminNotificationReview(
+                userID = currentUser.id,
+                onBack = {
+                 navController.closePage(page)
+                }
+            )
         }
 
         composable(AVAILABILITY) { page ->

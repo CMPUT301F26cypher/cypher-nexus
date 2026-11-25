@@ -78,6 +78,16 @@ class UserRepository(
         listener = null
     }
 
+    //Retrieves all profile images
+    fun getAllUsers(onSuccess: (List<User>) -> Unit){
+        usersRef.get().addOnSuccessListener { snapshot ->
+            val users = snapshot.documents.map { document ->
+                toUser(document)
+            }
+            onSuccess(users)
+        }
+    }
+
     // Checks if the device ID is remembered
     fun findByDeviceId(
         deviceId: String,
