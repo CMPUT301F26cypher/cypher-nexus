@@ -35,7 +35,7 @@ private const val LOTTERY = "lottery"
 private const val IMAGE_TEST = "image_test"
 private const val ACCOUNT = "account"
 private const val OWNER_WAITLIST = "owner_waitlist"
-private const val BROWSE_CAMPSITES = "browse_campsites"
+private const val BROWSE_CAMPSITES = "welcome_browse_campsites"
 
 //********HOME SCREENS WHERE USER GOES AFTER LOGIN*********
 private const val ENTRANT_SCREEN = "entrant_screen"
@@ -60,13 +60,13 @@ private const val ENTRANT_PROFILE= "entrant_profile"
 //********************OWNER HOME SCREEN********************
 
 private const val OWNER_CAMPSITES = "owner_campsites"
-        //**********My Campsites buttons **********
-        private const val OWNER_REGISTER_CAMPSITE = "owner_register_campsite"
+//**********My Campsites buttons **********
+private const val OWNER_REGISTER_CAMPSITE = "owner_register_campsite"
 
 private const val OWNER_LOTTERIES = "owner_lotteries"
-        //**********My Lotteries buttons **********
-        private const val OWNER_PICK_LOTTERY = "owner_pick_lottery"
-        private const val OWNER_REGISTER_LOTTERY = "owner_register_lottery"
+//**********My Lotteries buttons **********
+private const val OWNER_PICK_LOTTERY = "owner_pick_lottery"
+private const val OWNER_REGISTER_LOTTERY = "owner_register_lottery"
 
 private const val OWNER_RESERVATIONS = "owner_reservations"
 
@@ -123,7 +123,15 @@ fun CampsiteApp() {
 
     val ownerSites = remember { mutableStateListOf<OwnerCampsite>() }
     // Keeping the account state above the routes so a change from the account screen can be read by the booking demo.
-    val campsiteController = remember(campsiteRepository) { CampsiteController(repository = campsiteRepository, reservationRepository = ReservationRepository()) }
+    val campsiteController = remember(
+        campsiteRepository,
+        reservationRepository
+    ) {
+        CampsiteController(
+            repository = campsiteRepository,
+            reservationRepository = reservationRepository
+        )
+    }
     //val ownerSites = remember { mutableStateListOf<Campsite>() }
 
     // Reusing sample campsite for the availability and booking demos.
@@ -221,7 +229,7 @@ fun CampsiteApp() {
             navController = navController,
             campsiteRepository = campsiteRepository,
             campsiteController = campsiteController,
-            reservationRepository,
+            reservationRepository = reservationRepository,
             ownerId = deviceId,
             ownerSites = ownerSites,
             recentlyViewedIds = recentlyViewedIds,
@@ -262,6 +270,7 @@ fun CampsiteApp() {
         //Booking page
         composable(ENTRANT_BOOKING) { page ->
             EntrantBookingListScreen(
+                user = signedInCamper,
                 onBack = {
                     navController.closePage(page)
                 }
@@ -401,6 +410,7 @@ fun CampsiteApp() {
         //Notifications Screen
         composable(OWNER_NOTIFICATIONS) { page ->
             OwnerNotificationsListScreen(
+                user = signedInCamper,
                 onBack = {
                     navController.closePage(page)
                 }
