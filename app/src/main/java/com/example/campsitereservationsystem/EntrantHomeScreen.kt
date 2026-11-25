@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun EntrantHomeScreen(
-    onEntrantBrowseCampsites: () -> Unit,
+    onBrowseCampsites: () -> Unit,
     onJoinedLotteries: () -> Unit,
     onBooking: () -> Unit,
     onEntrantReservations: () -> Unit,
@@ -42,7 +42,7 @@ fun EntrantHomeScreen(
     ) {
         //BROWSE CAMPSITES
         EntrantHomeScreenButtons("Browse Campsites"){
-            onEntrantBrowseCampsites()
+            onBrowseCampsites()
         }
         Spacer(modifier = Modifier.height(25.dp))
 
