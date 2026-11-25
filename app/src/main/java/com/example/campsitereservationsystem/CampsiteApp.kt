@@ -240,7 +240,7 @@ fun CampsiteApp() {
         //*****************************ENTRANT_SCREEN AND SUBSEQUENT PAGES************************
         composable(ENTRANT_SCREEN) { page ->
             EntrantHomeScreen(
-                onBrowseCampsites = { navController.openPage(page, ENTRANT_CAMPSITES) },
+                onEntrantBrowseCampsites = { navController.openPage(page, ENTRANT_CAMPSITES) },
                 onJoinedLotteries = { navController.openPage(page, ENTRANT_LOTTERIES) },
                 onBooking = { navController.openPage(page, ENTRANT_BOOKING) },
                 onEntrantReservations = { navController.openPage(page, ENTRANT_RESERVATIONS) },
@@ -249,12 +249,36 @@ fun CampsiteApp() {
             )
         }
 
-        //Browse Campsite page
+        // Browse campsites destination
         composable(ENTRANT_CAMPSITES) { page ->
+
+            val goBack = { navController.closePage(page) }
+
             EntrantCampsiteListScreen(
-                onBack = {
-                    navController.closePage(page)
-                }
+                onBack = goBack,
+                onCampsiteSelected = { campsiteId ->
+
+                    // Avoid duplicate campsites
+                    recentlyViewedIds.remove(campsiteId)
+
+                    // Put the newest campsite first
+                    recentlyViewedIds.add(0, campsiteId)
+
+                    // Keep only the last 5 campsites
+                    if (recentlyViewedIds.size > 5) {
+                        recentlyViewedIds.removeAt(
+                            recentlyViewedIds.lastIndex
+                        )
+                    }
+
+                    // Navigate to campsite details
+                    navController.openPage(
+                        page,
+                        siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
+                    )
+                },
+                recentlyViewedIds = recentlyViewedIds,
+                reviewRepository = reviewRepository
             )
         }
 

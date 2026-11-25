@@ -6,29 +6,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import android.net.Uri
 import com.example.campsitereservationsystem.ImagePickerButton
 import coil3.compose.AsyncImage
-import androidx.compose.ui.layout.ContentScale
-import com.example.campsitereservationsystem.ImageRepository
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import android.net.Uri
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import com.example.campsitereservationsystem.ImagePickerButton
 import coil3.compose.AsyncImage
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import com.example.campsitereservationsystem.ImageRepository
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -118,6 +108,14 @@ fun AddCampsiteScreen(
         mutableStateOf(campsite?.tags?.joinToString(", ") ?: "")
     }
 
+    // Shared colors for all text fields
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = green,
+        unfocusedBorderColor = green,
+        focusedLabelColor = darkGreen,
+        cursorColor = darkGreen
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -168,104 +166,104 @@ fun AddCampsiteScreen(
 
             // Image selection
             Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            ImagePickerButton { uri ->
-                selectedImageUri = uri
-            }
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ImagePickerButton { uri ->
+                    selectedImageUri = uri
+                }
 
-            if (selectedImageUri != null || savedImageBytes != null) {
-                Button(
-                    onClick = {
-                        if (selectedImageUri != null) {
-                            selectedImageUri = null
-                        } else if (campsite != null) {
-                            imageRepository.deleteCampsiteImage(campsite.id)
-                            savedImageBytes = null
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = green,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text("Delete Image")
+                if (selectedImageUri != null || savedImageBytes != null) {
+                    Button(
+                        onClick = {
+                            if (selectedImageUri != null) {
+                                selectedImageUri = null
+                            } else if (campsite != null) {
+                                imageRepository.deleteCampsiteImage(campsite.id)
+                                savedImageBytes = null
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = green,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Delete Image")
+                    }
                 }
             }
-        }
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Campsite Name") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF819F5C),
-                unfocusedBorderColor = Color(0xFF819F5C),
-                focusedLabelColor = Color(0xFF819F5C)
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Campsite Name") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF819F5C),
+                    unfocusedBorderColor = Color(0xFF819F5C),
+                    focusedLabelColor = Color(0xFF819F5C)
+                )
             )
-        )
 
-        OutlinedTextField(
-            value = location,
-            onValueChange = { location = it },
-            label = { Text("Location") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors
-        )
+            OutlinedTextField(
+                value = location,
+                onValueChange = { location = it },
+                label = { Text("Location") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors
+            )
 
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors
-        )
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Description") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors
+            )
 
-        OutlinedTextField(
-            value = amenities,
-            onValueChange = { amenities = it },
-            label = { Text("Amenities (comma separated)") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors
-        )
+            OutlinedTextField(
+                value = amenities,
+                onValueChange = { amenities = it },
+                label = { Text("Amenities (comma separated)") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors
+            )
 
-        OutlinedTextField(
-            value = maxOccupancy,
-            onValueChange = { maxOccupancy = it },
-            label = { Text("Maximum Occupancy") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors
-        )
+            OutlinedTextField(
+                value = maxOccupancy,
+                onValueChange = { maxOccupancy = it },
+                label = { Text("Maximum Occupancy") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors
+            )
 
-        OutlinedTextField(
-            value = latitude,
-            onValueChange = { latitude = it },
-            label = { Text("Latitude (optional)") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors
-        )
+            OutlinedTextField(
+                value = latitude,
+                onValueChange = { latitude = it },
+                label = { Text("Latitude (optional)") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors
+            )
 
-        OutlinedTextField(
-            value = longitude,
-            onValueChange = { longitude = it },
-            label = { Text("Longitude (optional)") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors
-        )
+            OutlinedTextField(
+                value = longitude,
+                onValueChange = { longitude = it },
+                label = { Text("Longitude (optional)") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors
+            )
 
-        OutlinedTextField(
-            value = tags,
-            onValueChange = { tags = it },
-            label = { Text("Tags (comma separated)") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors
-        )
+            OutlinedTextField(
+                value = tags,
+                onValueChange = { tags = it },
+                label = { Text("Tags (comma separated)") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors
+            )
 
-        Button(
-            onClick = {
-                onSave(
-                    selectedImageUri,
+            Button(
+                onClick = {
+                    onSave(
+                        selectedImageUri,
                     name,
                     location,
                     description,

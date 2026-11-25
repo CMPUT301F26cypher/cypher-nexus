@@ -54,7 +54,7 @@ private const val ADD_CAMPSITE_ROUTE = "add_campsite"
 private const val EDIT_CAMPSITE_ROUTE = "edit_campsite"
 private const val OWNER_DETAILS_ROUTE = "owner_details"
 private const val SHOW_QR_ROUTE = "show_qr"
-private const val ENTRANT_DETAILS_ROUTE = "entrant_details"
+const val ENTRANT_DETAILS_ROUTE = "entrant_details"
 private const val LOTTERY_DETAILS_ROUTE = "lottery_details"
 private const val CAMPSITE_ID = "campsiteId"
 
@@ -524,7 +524,7 @@ private fun CampsitePage(
 }
 
 // Encoding the ID so it stays one route segment even when a QR code contains punctuation.
-private fun siteRoute(route: String, campsiteId: String) = "$route/${Uri.encode(campsiteId)}"
+fun siteRoute(route: String, campsiteId: String) = "$route/${Uri.encode(campsiteId)}"
 
 // Checking the current entry before following callbacks from an outgoing screen.
 internal fun NavHostController.openPage(page: NavBackStackEntry, route: String) {
