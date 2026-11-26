@@ -20,7 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.campsitereservationsystem.campsite.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 
 /**
  * TEMPORARY list of the owner's campsites. Pressing Select opens the Lottery Details form.

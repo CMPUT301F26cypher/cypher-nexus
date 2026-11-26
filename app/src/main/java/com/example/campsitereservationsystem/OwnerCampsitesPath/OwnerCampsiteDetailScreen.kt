@@ -1,4 +1,21 @@
-package com.example.campsitereservationsystem.campsite
+
+/*
+ * OwnerCampsiteDetailsScreen.kt
+ *
+ * This file is part of the View in our MVC architecture.
+ * Here we allow the owner to see the information of their
+ * campsite, such as the name, location, description,
+ * amenities and maximum occupancy.
+ *
+ * We also have a button that takes the owner to the QR Code
+ * screen so they can promote their campsite to other users.
+ *
+ * Outstanding issues:
+ * - For now, we do not display the campsite image,
+ *   rules and policies or tags on this screen.
+ */
+
+package com.example.campsitereservationsystem.OwnerCampsitesPath
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
@@ -13,6 +30,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * This screen allows the owner to see the details of
+ * a campsite and access its promotional QR Code.
+ *
+ * @param campsite The campsite we want to display.
+ * @param onViewQRCode Callback used to open the QR Code screen.
+ * @param onBack Callback used to go back to the previous screen.
+ */
 @Composable
 fun OwnerCampsiteDetailsScreen(
     campsite: Campsite,
@@ -25,6 +50,7 @@ fun OwnerCampsiteDetailsScreen(
     val green = Color(0xFF819F5C)
     val cardGray = Color(0xFFE0E0E0)
 
+    // We use the same colors for all the buttons on this screen
     val buttonColors = ButtonDefaults.buttonColors(
         containerColor = green,
         contentColor = Color.Black
@@ -49,6 +75,8 @@ fun OwnerCampsiteDetailsScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // We use a LazyColumn so the owner can scroll
+        // through the information of the campsite
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,7 +84,7 @@ fun OwnerCampsiteDetailsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // Campsite information
+            // Here we display the main information of the campsite
             item {
 
                 Card(
@@ -121,14 +149,16 @@ fun OwnerCampsiteDetailsScreen(
                             modifier = Modifier.height(8.dp)
                         )
 
+                        // If the campsite does not have any amenities,
+                        // we display a message instead of an empty list
                         if (campsite.amenities.isEmpty()) {
 
                             Text("No amenities listed")
 
                         } else {
 
+                            // We go through the list and display each amenity
                             campsite.amenities.forEach { amenity ->
-
                                 Text(
                                     text = "• $amenity"
                                 )
@@ -147,7 +177,7 @@ fun OwnerCampsiteDetailsScreen(
                             modifier = Modifier.height(16.dp)
                         )
 
-                        // Maximum occupancy
+                        // Here we show how many people can fit in the campsite
                         Text(
                             text = "Maximum occupancy: " +
                                     "${campsite.maxOccupancy} people"
@@ -157,11 +187,11 @@ fun OwnerCampsiteDetailsScreen(
             }
 
             item {
-
                 HorizontalDivider()
             }
 
-            // Promotional QR Code section
+            // Here we explain to the owner what the promotional
+            // QR Code is used for and how other users can use it
             item {
 
                 Text(
@@ -184,14 +214,14 @@ fun OwnerCampsiteDetailsScreen(
                     modifier = Modifier.height(16.dp)
                 )
 
-                // Open the existing QR Code screen
+                // We use the callback to open the QR Code screen
+                // instead of handling the QR Code logic here
                 Button(
                     onClick = onViewQRCode,
                     modifier = Modifier.fillMaxWidth(),
                     colors = buttonColors,
                     shape = RoundedCornerShape(8.dp)
                 ) {
-
                     Text("View QR Code")
                 }
 
@@ -209,13 +239,13 @@ fun OwnerCampsiteDetailsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Back button
+        // We keep the Back button outside the LazyColumn
+        // so the owner can always go back without scrolling
         Button(
             onClick = onBack,
             colors = buttonColors,
             shape = RoundedCornerShape(8.dp)
         ) {
-
             Text("Back")
         }
     }

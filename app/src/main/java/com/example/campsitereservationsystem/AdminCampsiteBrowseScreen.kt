@@ -1,6 +1,6 @@
 package com.example.campsitereservationsystem
 
-import com.example.campsitereservationsystem.campsite.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
