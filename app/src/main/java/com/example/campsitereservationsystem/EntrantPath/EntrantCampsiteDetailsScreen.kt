@@ -21,6 +21,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,6 +31,10 @@ import com.example.campsitereservationsystem.review.Review
 import com.example.campsitereservationsystem.review.ReviewRepository
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
+//Image Display libraries
+import coil3.compose.AsyncImage
+import com.example.campsitereservationsystem.ImageRepository
+import androidx.compose.ui.layout.ContentScale
 
 /**
  * This screen lets the entrant see the campsite details,
@@ -76,8 +81,16 @@ fun EntrantCampsiteDetailsScreen(
         mutableStateOf<String?>(null)
     }
 
+    // Hold image ByteArray and reference ImageRepository
+    val imageRepo = remember { ImageRepository() }
+    var imageBytes by remember (campsite.id){mutableStateOf<ByteArray?>(null)}
+
     // We get the reviews using the campsite ID
     LaunchedEffect(campsite.id) {
+    imageRepo.getCampsiteImage(campsite.id) { bytes ->
+        imageBytes = bytes
+    }
+
         try {
             reviews = reviewRepository
                 .getReviewsByCampsite(campsite.id)
@@ -158,6 +171,19 @@ fun EntrantCampsiteDetailsScreen(
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    val bytes = imageBytes
+                    if(bytes != null){
+                        AsyncImage(
+                            model = bytes,
+                            contentDescription = "Campsite Image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentScale = ContentScale.Crop
+                            )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
                     Text(
                         text = "Location: ${campsite.location}"

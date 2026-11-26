@@ -26,8 +26,11 @@ import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteControll
 import kotlin.collections.emptyList
 import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite as OwnerCampsite
 import com.example.campsitereservationsystem.review.ReviewRepository
+
 import com.example.campsitereservationsystem.AdminPages.AdminImageGallery
 import com.example.campsitereservationsystem.AdminPages.AdminNotificationReview
+import com.example.campsitereservationsystem.AdminPages.AdminProfileReview
+
 import com.example.campsitereservationsystem.EntrantPath.CampsiteListScreen
 
 private const val WELCOME = "welcome"
@@ -471,22 +474,31 @@ fun CampsiteApp() {
             AdminHomeScreen(
                 onImages = {navController.openPage(page, ADMIN_IMAGES)},
                 onNotifications = {navController.openPage(page, ADMIN_NOTIFICATIONS)},
-                onProfiles = {},
+                onProfiles = {navController.openPage(page, ADMIN_PROFILES)},
                 onCampsites = {},
                 onMessages = {}
             )
         }
 
-        composable(ADMIN_IMAGES){ page -> AdminImageGallery(
-            onBack = {
-                navController.closePage(page)
-            }
-        )
+        composable(ADMIN_IMAGES){ page ->
+            AdminImageGallery(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
         }
 
         composable(ADMIN_NOTIFICATIONS){ page ->
             AdminNotificationReview(
                 userID = currentUser.id,
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        composable(ADMIN_PROFILES){ page ->
+            AdminProfileReview(
                 onBack = {
                     navController.closePage(page)
                 }
