@@ -1,5 +1,6 @@
 package com.example.campsitereservationsystem
 
+import android.graphics.Paint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import com.example.campsitereservationsystem.reusableButtons.InboxButton
+
 /*
 
  */
@@ -32,50 +37,58 @@ fun EntrantHomeScreen(
     onBooking: () -> Unit,
     onEntrantReservations: () -> Unit,
     onQRScan: () -> Unit,
-    onEntrantProfile: () -> Unit
-){
+    onEntrantProfile: () -> Unit,
+    onInbox: () -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            //BROWSE CAMPSITES
+            EntrantHomeScreenButtons("Browse Campsites") {
+                onBrowseCampsites()
+            }
+            Spacer(modifier = Modifier.height(25.dp))
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        //BROWSE CAMPSITES
-        EntrantHomeScreenButtons("Browse Campsites"){
-            onBrowseCampsites()
+            //JOINED LOTTERIES
+            EntrantHomeScreenButtons("Joined Lotteries") {
+                onJoinedLotteries()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            //BOOKING
+            EntrantHomeScreenButtons("Booking") {
+                onBooking()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            //RESERVATIONS
+            EntrantHomeScreenButtons("Reservations") {
+                onEntrantReservations()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            EntrantHomeScreenButtons("QR Scan") {
+                onQRScan()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            EntrantHomeScreenButtons("Profile") {
+                onEntrantProfile()
+            }
         }
-        Spacer(modifier = Modifier.height(25.dp))
-
-        //JOINED LOTTERIES
-        EntrantHomeScreenButtons("Joined Lotteries"){
-            onJoinedLotteries()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        //BOOKING
-        EntrantHomeScreenButtons("Booking"){
-            onBooking()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        //RESERVATIONS
-        EntrantHomeScreenButtons("Reservations"){
-            onEntrantReservations()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        EntrantHomeScreenButtons("QR Scan"){
-            onQRScan()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        EntrantHomeScreenButtons("Profile"){
-            onEntrantProfile()
-        }
+        InboxButton(
+            onClick = onInbox,
+            modifier =  Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
     }
 }
 

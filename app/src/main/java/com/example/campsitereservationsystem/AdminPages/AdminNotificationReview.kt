@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.text.format.DateFormat
+import com.example.campsitereservationsystem.NotificationRow
 
 
 @Composable
@@ -75,7 +75,7 @@ fun AdminNotificationReview(
                     }
                 }
 
-                AdminNotificationRow(
+                NotificationRow(
                     notification = notification,
                     sender = sender,
                     receiver = receiver
@@ -86,35 +86,5 @@ fun AdminNotificationReview(
         Spacer(modifier = Modifier.height(15.dp))
 
         AdminMenuButtons("Back", onBack)
-    }
-}
-
-@Composable
-private fun AdminNotificationRow(
-    notification: Notification,
-    sender: String,
-    receiver: String
-) {
-    val timestamp = DateFormat.format(
-        "MMM dd, yyyy - hh:mm a",
-        notification.timestamp
-    ).toString()
-
-    OutlinedCard(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(15.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text("Sender: $sender", fontSize = 16.sp)
-            Text("Receiver: $receiver", fontSize = 16.sp)
-
-            HorizontalDivider()
-
-            Text(notification.message, fontSize = 16.sp)
-
-            Text(timestamp, fontSize = 12.sp)
-        }
     }
 }
