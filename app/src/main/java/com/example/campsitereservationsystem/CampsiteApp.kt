@@ -26,8 +26,11 @@ import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteControll
 import kotlin.collections.emptyList
 import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite as OwnerCampsite
 import com.example.campsitereservationsystem.review.ReviewRepository
+
 import com.example.campsitereservationsystem.AdminPages.AdminImageGallery
 import com.example.campsitereservationsystem.AdminPages.AdminNotificationReview
+import com.example.campsitereservationsystem.AdminPages.AdminProfileReview
+
 import com.example.campsitereservationsystem.EntrantPath.CampsiteListScreen
 
 private const val WELCOME = "welcome"
@@ -88,6 +91,9 @@ private const val ADMIN_CAMPSITES = "admin_campsites"
 
 private const val ADMIN_MESSAGES = "admin_messages"
 
+
+// INBOX ROUTE
+private const val INBOX = "inbox"
 
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
@@ -261,7 +267,8 @@ fun CampsiteApp() {
                 onBooking = { navController.openPage(page, ENTRANT_BOOKING) },
                 onEntrantReservations = { navController.openPage(page, ENTRANT_RESERVATIONS) },
                 onQRScan = { navController.openPage(page, ENTRANT_QRSCAN) },
-                onEntrantProfile = { navController.openPage(page, ENTRANT_PROFILE) }
+                onEntrantProfile = { navController.openPage(page, ENTRANT_PROFILE) },
+                onInbox = {navController.openPage(page, INBOX)}
             )
         }
 
@@ -357,7 +364,8 @@ fun CampsiteApp() {
                 onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES) },
                 onMyLotteries = { navController.openPage(page, OWNER_LOTTERIES) },
                 onOwnerReservations = { navController.openPage(page, OWNER_RESERVATIONS) },
-                onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) }
+                onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) },
+                onInbox = {navController.openPage(page, INBOX)}
             )
         }
 
@@ -471,17 +479,19 @@ fun CampsiteApp() {
             AdminHomeScreen(
                 onImages = {navController.openPage(page, ADMIN_IMAGES)},
                 onNotifications = {navController.openPage(page, ADMIN_NOTIFICATIONS)},
-                onProfiles = {},
+                onProfiles = {navController.openPage(page, ADMIN_PROFILES)},
                 onCampsites = {},
-                onMessages = {}
+                onMessages = {},
+                onInbox = {navController.openPage(page, INBOX)}
             )
         }
 
-        composable(ADMIN_IMAGES){ page -> AdminImageGallery(
-            onBack = {
-                navController.closePage(page)
-            }
-        )
+        composable(ADMIN_IMAGES){ page ->
+            AdminImageGallery(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
         }
 
         composable(ADMIN_NOTIFICATIONS){ page ->
@@ -490,6 +500,21 @@ fun CampsiteApp() {
                 onBack = {
                     navController.closePage(page)
                 }
+            )
+        }
+
+        composable(ADMIN_PROFILES){ page ->
+            AdminProfileReview(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        composable(INBOX) { page ->
+            InboxScreen(
+                userID = currentUser.id,
+                onBack = {navController.closePage(page)}
             )
         }
 
