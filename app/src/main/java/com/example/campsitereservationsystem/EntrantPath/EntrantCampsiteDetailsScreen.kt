@@ -23,11 +23,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.campsitereservationsystem.Lottery
+import com.example.campsitereservationsystem.LotteryRepository
 import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.example.campsitereservationsystem.User
 import com.example.campsitereservationsystem.review.Review
 import com.example.campsitereservationsystem.review.ReviewRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -44,8 +50,8 @@ import kotlin.math.roundToInt
  */
 @Composable
 fun EntrantCampsiteDetailsScreen(
+    user: User,
     campsite: Campsite,
-    isLotteryActive: Boolean,
     reviewRepository: ReviewRepository,
     onJoinWaitingList: () -> Unit,
     onWriteReview: () -> Unit,
@@ -57,6 +63,48 @@ fun EntrantCampsiteDetailsScreen(
     val green = Color(0xFF819F5C)
     val darkGreen = Color(0xFF587437)
     val cardGray = Color(0xFFE0E0E0)
+
+    val lotteryRepository = remember { LotteryRepository() }
+
+    var lottery by remember(campsite.id) {
+        mutableStateOf<Lottery?>(null)
+    }
+
+    var isLotteryLoading by remember(campsite.id) {
+        mutableStateOf(true)
+    }
+
+    LaunchedEffect(campsite.id) {
+        lotteryRepository.getLotteryByCampsiteID(campsite.id) { result ->
+            lottery = result
+            //isLotteryLoading = false
+        }
+    }
+
+    //check lottery status here to and set isLotteryActive accordingly
+    var isLotteryActive = false
+    var isLotteryClosed = false
+    var isLotteryFull = false
+    var isLotteryCompleted = false
+
+    lottery?.let {
+        if (it.status == "OPEN") {
+            isLotteryActive = true
+        } else if (it.status == "CLOSED") {
+            isLotteryClosed = true
+        } else if (it.status == "FULL") {
+            isLotteryFull = true
+        }
+        //last one not needed as the else{} handles it
+        /*
+         else if (it.status == "COMPLETED") {
+            isLotteryCompleted = true
+        }
+
+             */
+    }
+
+    val scope = rememberCoroutineScope()
 
     // Here we store the reviews we get from Firebase
     var reviews by remember(campsite.id) {
@@ -126,7 +174,9 @@ fun EntrantCampsiteDetailsScreen(
         Text(
             text = "Campsite Details",
             fontSize = 28.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -201,7 +251,10 @@ fun EntrantCampsiteDetailsScreen(
             Text(
                 text = "Reservation Lottery",
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -209,23 +262,40 @@ fun EntrantCampsiteDetailsScreen(
             Text(
                 text = if (isLotteryActive) {
                     "Lottery Active"
+                } else if (isLotteryClosed) {
+                    "Lottery Registration has not started yet"
+                } else if (isLotteryFull) {
+                    "Lottery is full"
                 } else {
-                    "Lottery Inactive"
+                    "There is no active lottery"
                 },
                 color = if (isLotteryActive) {
                     darkGreen
                 } else {
                     Color.Gray
                 },
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             // The entrant can only press this button if the lottery is active
             Button(
-                onClick = onJoinWaitingList,
-                enabled = isLotteryActive,
+                onClick = {
+                    lottery?.let { currentLottery ->
+                        joinLottery(
+                            newEntrant = user,
+                            campsite = campsite,
+                            lottery = currentLottery,
+                            isLotteryActive = isLotteryActive,
+                            lotteryRepository = lotteryRepository,
+                            scope = scope
+                        )
+                    }
+                },
+                enabled = isLotteryActive && lottery != null,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = green,
@@ -241,6 +311,7 @@ fun EntrantCampsiteDetailsScreen(
                 )
             }
 
+            /*
             // If the lottery is inactive, we let the entrant know
             if (!isLotteryActive) {
 
@@ -253,6 +324,8 @@ fun EntrantCampsiteDetailsScreen(
                     )
                 )
             }
+
+             */
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -416,4 +489,70 @@ fun EntrantCampsiteDetailsScreen(
             Text("Back")
         }
     }
+}
+
+
+
+fun joinLottery(
+    newEntrant: User,
+    campsite: Campsite,
+    lottery: Lottery,
+    isLotteryActive: Boolean,
+    lotteryRepository: LotteryRepository,
+    scope: CoroutineScope
+) {
+    if (!isLotteryActive) return
+
+    lotteryRepository.getWaitingList(
+        campsiteID = campsite.id,
+        onResult = { waitingList ->
+
+            // Check if the entrant has already joined
+            if (waitingList.any { it.id == newEntrant.id }) {
+                println("User is already on the waiting list")
+                return@getWaitingList
+            }
+
+            // Add the entrant to the waiting list
+            val updatedWaitingList = waitingList + newEntrant
+
+            scope.launch {
+                try {
+                    // First, update the waiting list in Firebase
+                    lotteryRepository.updateList(
+                        lottery,
+                        updatedWaitingList,
+                        "waitingList"
+                    )
+
+                    println("Waiting list successfully updated")
+
+                    // Check capacity using the updated waiting list
+                    if (
+                        lottery.status == "OPEN" &&
+                        lottery.capacity > 0 &&
+                        updatedWaitingList.size >= lottery.capacity
+                    ) {
+                        // Update the status in Firebase
+                        lotteryRepository.updateStatus(
+                            lottery,
+                            "FULL"
+                        )
+
+                        println("Lottery status successfully changed to FULL")
+                    } else {
+                        println("Lottery has not reached capacity")
+                    }
+
+                    println("Successfully joined waiting list")
+
+                } catch (e: Exception) {
+                    println("Error joining lottery: ${e.message}")
+                }
+            }
+        },
+        onError = {
+            println("Could not retrieve waiting list")
+        }
+    )
 }
