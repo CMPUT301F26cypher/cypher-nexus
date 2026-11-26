@@ -4,8 +4,8 @@ import android.util.Log
 import com.example.campsitereservationsystem.ImageRepository
 import com.example.campsitereservationsystem.UserRepository
 import com.example.campsitereservationsystem.User
-import com.example.campsitereservationsystem.campsite.Campsite
-import com.example.campsitereservationsystem.campsite.CampsiteRepository
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteRepository
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items

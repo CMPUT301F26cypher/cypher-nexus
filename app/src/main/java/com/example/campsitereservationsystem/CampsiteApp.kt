@@ -20,14 +20,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.campsitereservationsystem.AdminPages.AdminHomeScreen
-import com.example.campsitereservationsystem.campsite.CampsiteRepository
-import com.example.campsitereservationsystem.campsite.Campsite
-import com.example.campsitereservationsystem.campsite.CampsiteController
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteRepository
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteController
 import kotlin.collections.emptyList
-import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite as OwnerCampsite
 import com.example.campsitereservationsystem.review.ReviewRepository
 import com.example.campsitereservationsystem.AdminPages.AdminImageGallery
 import com.example.campsitereservationsystem.AdminPages.AdminNotificationReview
+import com.example.campsitereservationsystem.EntrantPath.CampsiteListScreen
+
 private const val WELCOME = "welcome"
 private const val POLICY = "policy"
 private const val TEST_MENU = "test_menu"

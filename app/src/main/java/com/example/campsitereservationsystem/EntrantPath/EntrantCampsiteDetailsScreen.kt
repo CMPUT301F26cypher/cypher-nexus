@@ -1,4 +1,17 @@
-package com.example.campsitereservationsystem.qr
+
+/*
+ * EntrantCampsiteDetailsScreen.kt
+ *
+ * This file is part of the View in our MVC architecture.
+ * Here we show the campsite information, its reviews and
+ * whether the entrant can join the lottery or not.
+ *
+ * Outstanding issues:
+ * - We still need to test the lottery status and the Join
+ *   Waiting List button with the actual waitlist functionality.
+ */
+
+package com.example.campsitereservationsystem.EntrantPath
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
@@ -12,12 +25,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.campsitereservationsystem.campsite.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 import com.example.campsitereservationsystem.review.Review
 import com.example.campsitereservationsystem.review.ReviewRepository
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
+/**
+ * This screen lets the entrant see the campsite details,
+ * join the waiting list if the lottery is active and write a review.
+ *
+ * @param campsite The campsite we want to display.
+ * @param isLotteryActive Whether the lottery is active or not.
+ * @param reviewRepository The repository we use to get the reviews.
+ * @param onJoinWaitingList Callback used when the entrant wants to join.
+ * @param onWriteReview Callback used to open the review screen.
+ * @param onBack Callback used to go back to the previous screen.
+ */
 @Composable
 fun EntrantCampsiteDetailsScreen(
     campsite: Campsite,
@@ -27,17 +51,19 @@ fun EntrantCampsiteDetailsScreen(
     onWriteReview: () -> Unit,
     onBack: () -> Unit
 ) {
+
     BackHandler(onBack = onBack)
 
     val green = Color(0xFF819F5C)
     val darkGreen = Color(0xFF587437)
     val cardGray = Color(0xFFE0E0E0)
 
-    // Store the reviews retrieved from Firebase
+    // Here we store the reviews we get from Firebase
     var reviews by remember(campsite.id) {
         mutableStateOf<List<Review>>(emptyList())
     }
 
+    // We use this to know if the user wants to see all the reviews
     var showAllReviews by remember(campsite.id) {
         mutableStateOf(false)
     }
@@ -50,7 +76,7 @@ fun EntrantCampsiteDetailsScreen(
         mutableStateOf<String?>(null)
     }
 
-    // Retrieve campsite reviews from Firebase
+    // We get the reviews using the campsite ID
     LaunchedEffect(campsite.id) {
         try {
             reviews = reviewRepository
@@ -67,22 +93,23 @@ fun EntrantCampsiteDetailsScreen(
         }
     }
 
-    // Calculate the average rating
+    // We calculate the average using all the reviews
     val averageRating = if (reviews.isNotEmpty()) {
         reviews.map { it.rating }.average()
     } else {
         0.0
     }
 
+    // We round the rating to know how many stars to fill
     val roundedRating = averageRating
         .roundToInt()
         .coerceIn(0, 5)
 
-    // Sort reviews from newest to oldest
+    // We put the newest reviews first
     val sortedReviews = reviews
         .sortedByDescending { it.createdAt }
 
-    // Show only the two most recent reviews by default
+    // For now, we show two reviews unless the user wants to see all of them
     val recentReviews = if (showAllReviews) {
         sortedReviews
     } else {
@@ -104,6 +131,7 @@ fun EntrantCampsiteDetailsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // We make this part scrollable so the user can see all the information
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -111,7 +139,7 @@ fun EntrantCampsiteDetailsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
 
-            // Campsite information
+            // Here we show the main information of the campsite
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -153,6 +181,7 @@ fun EntrantCampsiteDetailsScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    // We go through the list and show each amenity
                     campsite.amenities.forEach { amenity ->
                         Text(text = "• $amenity")
                     }
@@ -168,7 +197,7 @@ fun EntrantCampsiteDetailsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Lottery status
+            // Here we show if the lottery is active or not
             Text(
                 text = "Reservation Lottery",
                 fontSize = 20.sp,
@@ -193,6 +222,7 @@ fun EntrantCampsiteDetailsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // The entrant can only press this button if the lottery is active
             Button(
                 onClick = onJoinWaitingList,
                 enabled = isLotteryActive,
@@ -211,6 +241,7 @@ fun EntrantCampsiteDetailsScreen(
                 )
             }
 
+            // If the lottery is inactive, we let the entrant know
             if (!isLotteryActive) {
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -229,7 +260,7 @@ fun EntrantCampsiteDetailsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campsite reviews
+            // Here we show the reviews of the campsite
             Text(
                 text = "Campsite Reviews",
                 fontSize = 22.sp,
@@ -238,6 +269,8 @@ fun EntrantCampsiteDetailsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // We display different messages depending on
+            // whether the reviews have been loaded or not
             when {
 
                 isLoading -> {
@@ -257,7 +290,7 @@ fun EntrantCampsiteDetailsScreen(
 
                 else -> {
 
-                    // Average rating
+                    // We show the average as a number and as stars
                     Row(
                         verticalAlignment =
                             Alignment.CenterVertically
@@ -289,9 +322,10 @@ fun EntrantCampsiteDetailsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Individual reviews
+                    // Here we create a card for each review we want to show
                     recentReviews.forEach { review ->
 
+                        // We make sure the rating stays between 0 and 5
                         val rating = review.rating.coerceIn(0, 5)
 
                         Card(
@@ -327,6 +361,8 @@ fun EntrantCampsiteDetailsScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                     }
 
+                    // If there are more than two reviews,
+                    // we give the user the option to see all of them
                     if (reviews.size > 2) {
 
                         TextButton(
@@ -352,6 +388,8 @@ fun EntrantCampsiteDetailsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // This button takes the entrant to the screen
+            // where they can write a review
             Button(
                 onClick = onWriteReview,
                 modifier = Modifier.fillMaxWidth(),
@@ -366,7 +404,8 @@ fun EntrantCampsiteDetailsScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // Back button stays at the bottom of the screen
+        // We keep the Back button at the bottom
+        // so the user does not have to scroll to go back
         Button(
             onClick = onBack,
             colors = ButtonDefaults.buttonColors(

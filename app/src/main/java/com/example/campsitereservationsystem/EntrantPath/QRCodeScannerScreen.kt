@@ -1,4 +1,20 @@
-package com.example.campsitereservationsystem.qr
+
+/*
+ * QRCodeScannerScreen.kt
+ *
+ * This file is part of the View in our MVC architecture.
+ * Here we allow the entrant to scan a campsite QR Code
+ * so they can open its details.
+ *
+ * We use Google's barcode scanner to get the content
+ * of the QR Code and pass it to the corresponding callback.
+ *
+ * Outstanding issues:
+ * - For now, we only display a general error message
+ *   if something goes wrong while scanning.
+ */
+
+package com.example.campsitereservationsystem.EntrantPath
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
@@ -14,21 +30,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 
+/**
+ * This screen allows the entrant to scan a QR Code
+ * and get its content.
+ *
+ * @param onQRCodeScanned Callback used to pass the content of the QR Code.
+ * @param onBack Callback used to go back to the previous screen.
+ */
 @Composable
 fun QRCodeScannerScreen(
     onQRCodeScanned: (String) -> Unit,
     onBack: () -> Unit
 ) {
+
     BackHandler(onBack = onBack)
 
     val green = Color(0xFF819F5C)
 
     val context = LocalContext.current
 
+    // Here we create the scanner we are going to use
+    // to scan the campsite QR Code
     val scanner = remember(context) {
         GmsBarcodeScanning.getClient(context)
     }
 
+    // We use this to store the error if something goes wrong
     var errorMessage by remember {
         mutableStateOf<String?>(null)
     }
@@ -62,15 +89,21 @@ fun QRCodeScannerScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // When the entrant presses this button, we open the scanner
             Button(
                 onClick = {
+
+                    // We clear the previous error before scanning again
                     errorMessage = null
 
                     scanner.startScan()
                         .addOnSuccessListener { barcode ->
 
+                            // Here we get the content of the scanned QR Code
                             val content = barcode.rawValue
 
+                            // If we get the content, we pass it to the callback.
+                            // Otherwise, we show an error message.
                             if (content != null) {
                                 onQRCodeScanned(content)
                             } else {
@@ -78,6 +111,9 @@ fun QRCodeScannerScreen(
                             }
                         }
                         .addOnFailureListener {
+
+                            // If something goes wrong while scanning,
+                            // we let the entrant know
                             errorMessage = "Unable to scan QR code"
                         }
                 },
@@ -89,6 +125,7 @@ fun QRCodeScannerScreen(
                 Text("Open QR Scanner")
             }
 
+            // We only show the error message if there is one
             errorMessage?.let { message ->
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -100,6 +137,7 @@ fun QRCodeScannerScreen(
             }
         }
 
+        // We keep the Back button at the bottom left of the screen
         Button(
             onClick = onBack,
             modifier = Modifier.align(Alignment.BottomStart),

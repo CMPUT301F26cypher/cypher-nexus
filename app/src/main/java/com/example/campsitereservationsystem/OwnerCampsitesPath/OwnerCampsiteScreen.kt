@@ -1,4 +1,22 @@
-package com.example.campsitereservationsystem.campsite
+
+/*
+ * OwnerCampsitesScreen.kt
+ *
+ * This file is part of the View in our MVC architecture.
+ * Here we display all the campsites that belong to the owner.
+ * The owner can register a new campsite, edit or delete an
+ * existing one, and open its details.
+ *
+ * We also ask the owner for confirmation before deleting
+ * a campsite so they do not delete one by accident.
+ *
+ * Outstanding issues:
+ * - For now, the Booking button is ready, but we still
+ *   need to connect it to the booking functionality.
+ *   The button is disabled until we pass the callback.
+ */
+
+package com.example.campsitereservationsystem.OwnerCampsitesPath
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -15,6 +33,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * This screen allows the owner to see and manage
+ * all their registered campsites in one place.
+ *
+ * @param campsites The list of campsites owned by the current owner.
+ * @param onCampsiteClick Callback used to open the campsite details.
+ * @param onAddCampsite Callback used to register a new campsite.
+ * @param onEditCampsite Callback used to edit the selected campsite.
+ * @param onDeleteCampsite Callback used to delete the selected campsite.
+ * @param onBack Callback used to go back to the previous screen.
+ * @param onBookingCampsite Callback used to open the booking
+ * functionality. If it is null, the Booking button is disabled.
+ */
 @Composable
 fun OwnerCampsitesScreen(
     campsites: List<Campsite>,
@@ -30,10 +61,14 @@ fun OwnerCampsitesScreen(
     val darkGreen = Color(0xFF587437)
     val cardGray = Color(0xFFE0E0E0)
 
+    // Here we keep track of which campsite the owner wants to delete.
+    // If it is null, we do not display the confirmation dialog.
     var campsiteToDelete by remember {
         mutableStateOf<Campsite?>(null)
     }
 
+    // If the confirmation dialog is open, we close it first.
+    // Otherwise, we go back to the previous screen.
     BackHandler {
         if (campsiteToDelete != null) {
             campsiteToDelete = null
@@ -42,6 +77,7 @@ fun OwnerCampsitesScreen(
         }
     }
 
+    // We use the same colors for all the main buttons
     val buttonColors = ButtonDefaults.buttonColors(
         containerColor = green,
         contentColor = Color.Black
@@ -66,7 +102,7 @@ fun OwnerCampsitesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Register a new campsite
+        // This button takes the owner to the registration screen
         Button(
             onClick = onAddCampsite,
             modifier = Modifier.align(
@@ -79,7 +115,8 @@ fun OwnerCampsitesScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // List of campsites owned by the current owner
+        // We use a LazyColumn so the owner can scroll
+        // through all their registered campsites.
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,6 +124,7 @@ fun OwnerCampsitesScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
+            // If the owner has no campsites, we display a message
             if (campsites.isEmpty()) {
                 item {
                     Text(
@@ -95,6 +133,8 @@ fun OwnerCampsitesScreen(
                 }
             }
 
+            // Here we create a card for each campsite.
+            // We use the campsite ID to identify each item in the list.
             items(
                 items = campsites,
                 key = { it.id }
@@ -113,7 +153,8 @@ fun OwnerCampsitesScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
 
-                        // Open campsite details
+                        // The owner can click on the campsite
+                        // information to open its details.
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -142,13 +183,16 @@ fun OwnerCampsitesScreen(
                             modifier = Modifier.height(12.dp)
                         )
 
+                        // Here we display the different actions
+                        // the owner can perform on each campsite.
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement =
                                 Arrangement.spacedBy(8.dp)
                         ) {
 
-                            // Edit campsite
+                            // We pass the selected campsite
+                            // to the callback so the owner can edit it.
                             Button(
                                 onClick = {
                                     onEditCampsite(campsite)
@@ -167,7 +211,8 @@ fun OwnerCampsitesScreen(
                                 )
                             }
 
-                            // Request campsite deletion
+                            // We do not delete the campsite immediately.
+                            // First, we ask the owner for confirmation.
                             Button(
                                 onClick = {
                                     campsiteToDelete = campsite
@@ -186,7 +231,8 @@ fun OwnerCampsitesScreen(
                                 )
                             }
 
-                            // Open campsite booking
+                            // For now, this button only works if
+                            // the booking callback is provided.
                             Button(
                                 onClick = {
                                     onBookingCampsite?.invoke(campsite)
@@ -213,7 +259,8 @@ fun OwnerCampsitesScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Back button stays at the bottom
+        // We keep the Back button outside the LazyColumn
+        // so the owner does not have to scroll to go back.
         Button(
             onClick = onBack,
             colors = buttonColors,
@@ -223,7 +270,8 @@ fun OwnerCampsitesScreen(
         }
     }
 
-    // Confirmation dialog before deleting a campsite
+    // We only display this dialog when the owner
+    // has selected a campsite to delete.
     campsiteToDelete?.let { campsite ->
 
         AlertDialog(
@@ -238,6 +286,8 @@ fun OwnerCampsitesScreen(
                 Text("Delete Campsite?")
             },
 
+            // We include the name so the owner knows
+            // exactly which campsite they are about to delete.
             text = {
                 Text(
                     "Are you sure you want to delete " +
@@ -246,8 +296,9 @@ fun OwnerCampsitesScreen(
                 )
             },
 
+            // If the owner confirms, we call onDeleteCampsite
+            // and close the confirmation dialog.
             confirmButton = {
-
                 TextButton(
                     onClick = {
                         onDeleteCampsite(campsite)
@@ -261,8 +312,9 @@ fun OwnerCampsitesScreen(
                 }
             },
 
+            // If the owner cancels, we close the dialog
+            // without requesting the deletion of the campsite.
             dismissButton = {
-
                 TextButton(
                     onClick = {
                         campsiteToDelete = null

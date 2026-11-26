@@ -1,4 +1,20 @@
-package com.example.campsitereservationsystem.campsite
+
+/*
+ * AddCampsiteScreen.kt
+ *
+ * This file is part of the View in our MVC architecture.
+ * Here we allow the owner to register a new campsite or edit
+ * one that already exists. The owner can also add or delete
+ * an image and change the information of the campsite.
+ *
+ * Outstanding issues:
+ * - We still need to add a field for rules and policies.
+ * - For now, deleting an existing image removes it without
+ *   waiting for the owner to save the changes. We need to
+ *   make sure that cancelling does not delete the saved image.
+ */
+
+package com.example.campsitereservationsystem.OwnerCampsitesPath
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -19,6 +35,18 @@ import coil3.compose.AsyncImage
 import com.example.campsitereservationsystem.ImagePickerButton
 import com.example.campsitereservationsystem.ImageRepository
 
+/**
+ * This screen allows the owner to create or edit a campsite.
+ * We use the same screen for both cases so we don't have
+ * to create two different screens with the same fields.
+ *
+ * @param campsite The campsite we want to edit. If it is null,
+ * we are creating a new campsite.
+ * @param onSave Callback used to send the selected image and
+ * all the information entered by the owner when saving.
+ * @param onCancel Callback used to go back without saving
+ * the form changes.
+ */
 @Composable
 fun AddCampsiteScreen(
     campsite: Campsite? = null,
@@ -34,6 +62,7 @@ fun AddCampsiteScreen(
     val green = Color(0xFF819F5C)
     val darkGreen = Color(0xFF587437)
 
+    // Check if we are editing or creating a campsite
     val isEditing = campsite != null
 
     val imageRepository = remember {
@@ -48,7 +77,7 @@ fun AddCampsiteScreen(
         mutableStateOf<Uri?>(null)
     }
 
-    // Retrieve the existing campsite image
+    // If the campsite already exists, we get its saved image
     LaunchedEffect(campsite?.id) {
         if (campsite != null) {
             imageRepository.getCampsiteImage(campsite.id) { bytes ->
@@ -57,7 +86,8 @@ fun AddCampsiteScreen(
         }
     }
 
-    // Existing campsite information
+    // Here we get the existing information of the campsite.
+    // If we are creating a new one, the fields start empty.
     var name by remember(campsite) {
         mutableStateOf(campsite?.name ?: "")
     }
@@ -100,7 +130,7 @@ fun AddCampsiteScreen(
         )
     }
 
-    // Shared colors for all text fields
+    // We use the same colors for all the text fields
     val fieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = green,
         unfocusedBorderColor = green,
@@ -116,6 +146,7 @@ fun AddCampsiteScreen(
             .padding(16.dp)
     ) {
 
+        // The title depends on what the owner is doing
         Text(
             text = if (isEditing) {
                 "Edit Campsite"
@@ -139,7 +170,8 @@ fun AddCampsiteScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            // Campsite image preview
+            // Here we display the selected image or the
+            // image that was already saved for the campsite
             if (
                 selectedImageUri != null ||
                 savedImageBytes != null
@@ -155,13 +187,14 @@ fun AddCampsiteScreen(
                 )
             }
 
-            // Image selection
+            // The owner can select or delete an image
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
-                // Apply green styling to the existing image picker
+                // We use the existing image picker and
+                // give it the same colors as our screen
                 MaterialTheme(
                     colorScheme = MaterialTheme.colorScheme.copy(
                         primary = green,
@@ -182,12 +215,16 @@ fun AddCampsiteScreen(
                     Button(
                         onClick = {
 
+                            // If the image was just selected,
+                            // we only remove it from the form.
                             if (selectedImageUri != null) {
 
                                 selectedImageUri = null
 
                             } else if (campsite != null) {
 
+                                // If the image was already saved,
+                                // we delete it using the repository.
                                 imageRepository.deleteCampsiteImage(
                                     campsite.id
                                 )
@@ -205,6 +242,8 @@ fun AddCampsiteScreen(
                 }
             }
 
+            // Here the owner can enter or change
+            // the information of the campsite
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -257,6 +296,7 @@ fun AddCampsiteScreen(
                 colors = fieldColors
             )
 
+            // The owner does not have to enter the coordinates
             OutlinedTextField(
                 value = latitude,
                 onValueChange = { latitude = it },
@@ -275,7 +315,8 @@ fun AddCampsiteScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Save campsite
+            // We pass all the information through onSave
+            // so the saving logic can be handled outside this screen
             Button(
                 onClick = {
 
@@ -307,7 +348,7 @@ fun AddCampsiteScreen(
                 )
             }
 
-            // Cancel campsite registration or editing
+            // The owner can go back without saving the form
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth(),
