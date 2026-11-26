@@ -1,5 +1,6 @@
 package com.example.campsitereservationsystem
 
+import androidx.compose.runtime.mutableStateListOf
 import com.google.firebase.Timestamp
 
 
@@ -12,9 +13,11 @@ data class Lottery (
     // DRAWING --> Lottery is currently being processed, ensures a lottery draw does not happen twice
     // COMPLETED --> Winners have been selected
     var numWinners: Int = 0,
-    var capacity: Int = 0,  //this is for final checkpoint, currently all values will be 0 and will not be considered
-    var startTimestamp: Timestamp? = null,
-    var endTimestamp: Timestamp? = null,
+    var capacity: Int = 0,  //0 should be the default value and will also be used to indicate no max capacity for a lottery
+    var registrationStartTimestamp: Timestamp? = null,
+    var registrationEndTimestamp: Timestamp? = null,
+    var bookingStartTimestamp: Timestamp? = null,
+    var bookingEndTimestamp: Timestamp? = null,
     var campsite: com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite? = null,
     var campsiteID: String = "", //this will be the same campsiteID from campsite
 

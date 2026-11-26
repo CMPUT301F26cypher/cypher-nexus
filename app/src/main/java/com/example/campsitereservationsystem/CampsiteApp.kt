@@ -49,7 +49,7 @@ private const val OWNER_SCREEN = "owner_screen"
 private const val ADMIN_SCREEN = "admin_screen"
 
 //******************ENTRANT HOME SCREEN********************
-
+private const val ENTRANT_CAMPSITES = "entrant_campsites"
 
 private const val ENTRANT_LOTTERIES = "entrant_lotteries"
 
@@ -57,14 +57,20 @@ private const val ENTRANT_BOOKING = "entrant_booking"
 
 private const val ENTRANT_RESERVATIONS = "entrant_reservations"
 
-
+private const val ENTRANT_QRSCAN= "entrant_qrscan"
 
 private const val ENTRANT_PROFILE= "entrant_profile"
 
 //********************OWNER HOME SCREEN********************
 
+private const val OWNER_CAMPSITES = "owner_campsites"
+//**********My Campsites buttons **********
+private const val OWNER_REGISTER_CAMPSITE = "owner_register_campsite"
 
 private const val OWNER_LOTTERIES = "owner_lotteries"
+//**********My Lotteries buttons **********
+private const val OWNER_PICK_LOTTERY = "owner_pick_lottery"
+private const val OWNER_REGISTER_LOTTERY = "owner_register_lottery"
 
 private const val OWNER_RESERVATIONS = "owner_reservations"
 
@@ -81,6 +87,7 @@ private const val ADMIN_PROFILES = "admin_profiles"
 private const val ADMIN_CAMPSITES = "admin_campsites"
 
 private const val ADMIN_MESSAGES = "admin_messages"
+
 
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
@@ -107,6 +114,19 @@ fun CampsiteApp() {
     }
     val reviewRepository = remember { ReviewRepository() }
     val imageRepository = remember { ImageRepository() }    // NEW: used for adding profile image US 01.08.02
+
+
+    var ownerCampsitesWithoutLottery = remember {
+        mutableStateListOf<Campsite?>(null)
+    }
+
+    var selectedCampsite by remember {
+        mutableStateOf<Campsite?>(null)
+    }
+
+    val lotteryDetailsRepository = remember {
+        LotteryDetailsRepository()
+    }
 
 
     // Cleaning up the user listener when CampsiteApp leaves composition.
@@ -236,27 +256,49 @@ fun CampsiteApp() {
         //*****************************ENTRANT_SCREEN AND SUBSEQUENT PAGES************************
         composable(ENTRANT_SCREEN) { page ->
             EntrantHomeScreen(
-                onBrowseCampsites = {
-                    navController.openPage(page, BROWSE_CAMPSITES_ROUTE)
-                },
-                onJoinedLotteries = {
-                    navController.openPage(page, ENTRANT_LOTTERIES)
-                },
-                onBooking = {
-                    navController.openPage(page, ENTRANT_BOOKING)
-                },
-                onEntrantReservations = {
-                    navController.openPage(page, ENTRANT_RESERVATIONS)
-                },
-                onQRScan = {
-                    navController.openPage(page, SCAN_CAMPSITE_ROUTE)
-                },
-                onEntrantProfile = {
-                    navController.openPage(page, ENTRANT_PROFILE)
-                }
+                onBrowseCampsites = { navController.openPage(page, BROWSE_CAMPSITES_ROUTE) },
+                onJoinedLotteries = { navController.openPage(page, ENTRANT_LOTTERIES) },
+                onBooking = { navController.openPage(page, ENTRANT_BOOKING) },
+                onEntrantReservations = { navController.openPage(page, ENTRANT_RESERVATIONS) },
+                onQRScan = { navController.openPage(page, ENTRANT_QRSCAN) },
+                onEntrantProfile = { navController.openPage(page, ENTRANT_PROFILE) }
             )
         }
 
+        /*
+        // Browse campsites destination
+        composable(ENTRANT_CAMPSITES) { page ->
+
+            val goBack = { navController.closePage(page) }
+
+            EntrantCampsiteListScreen(
+                onBack = goBack,
+                onCampsiteSelected = { campsiteId ->
+
+                    // Avoid duplicate campsites
+                    recentlyViewedIds.remove(campsiteId)
+
+                    // Put the newest campsite first
+                    recentlyViewedIds.add(0, campsiteId)
+
+                    // Keep only the last 5 campsites
+                    if (recentlyViewedIds.size > 5) {
+                        recentlyViewedIds.removeAt(
+                            recentlyViewedIds.lastIndex
+                        )
+                    }
+
+                    // Navigate to campsite details
+                    navController.openPage(
+                        page,
+                        siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
+                    )
+                },
+                recentlyViewedIds = recentlyViewedIds,
+                reviewRepository = reviewRepository
+            )
+        }
+        */
 
         //Joined Lotteries page
         composable(ENTRANT_LOTTERIES) { page ->
@@ -286,6 +328,15 @@ fun CampsiteApp() {
             )
         }
 
+        //QR scan page
+        composable(ENTRANT_QRSCAN) { page ->
+            EntrantQRScanListScreen(
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
         //Entrant Profile page
         composable(ENTRANT_PROFILE) { page ->
             EntrantProfileScreen(
@@ -298,30 +349,100 @@ fun CampsiteApp() {
         //*****************************OWNER_SCREEN AND SUBSEQUENT PAGES************************
         composable(OWNER_SCREEN) { page ->
             OwnerHomeScreen(
-                onMyCampsites = {
-                    navController.openPage(page, OWNER_CAMPSITES_ROUTE)
-                },
-                onMyLotteries = {
-                    navController.openPage(page, OWNER_LOTTERIES)
-                },
-                onOwnerReservations = {
-                    navController.openPage(page, OWNER_RESERVATIONS)
-                },
-                onOwnerNotifications = {
-                    navController.openPage(page, OWNER_NOTIFICATIONS)
-                }
+                onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES) },
+                onMyLotteries = { navController.openPage(page, OWNER_LOTTERIES) },
+                onOwnerReservations = { navController.openPage(page, OWNER_RESERVATIONS) },
+                onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) }
             )
         }
 
-        //Lotteries Screen
-        composable(OWNER_LOTTERIES) { page ->
-            OwnerLotteriesListScreen(
+        //My Campsites Screens****************************
+
+        //Campsite list screen
+        composable(OWNER_CAMPSITES) { page ->
+            OwnerCampsiteListScreen(
+                user = signedInCamper,
+                campsiteRepository = campsiteRepository,
+                onRegisterCampsite = { navController.openPage(page, OWNER_REGISTER_CAMPSITE) },
                 onBack = {
                     navController.closePage(page)
                 }
             )
         }
-        //Reservations Screen
+
+        //Add Campsite screen
+        composable(OWNER_REGISTER_CAMPSITE) { page ->
+            OwnerAddCampsiteScreen(
+                campsiteController = campsiteController,
+                ownerId = signedInCamper?.id ?: deviceId,
+                ownerSites = ownerSites,
+                onBack = {
+                    navController.closePage(page)
+                }
+            )
+        }
+
+        //My Lotteries Screens****************************
+        composable(OWNER_LOTTERIES) { page ->
+            OwnerLotteriesListScreen(
+                user = signedInCamper,
+                campsiteRepository = campsiteRepository,
+                lotteryRepository = lotteryRepository,
+                onRegisterLottery = { campsites ->
+                    ownerCampsitesWithoutLottery.clear()
+                    ownerCampsitesWithoutLottery.addAll(campsites)
+
+                    navController.openPage(page, OWNER_PICK_LOTTERY)
+                },
+                onBack = {
+                    navController.openPage(page, OWNER_SCREEN)
+                }
+            )
+        }
+
+        //SCREEN THAT LISTS CAMPSITES FOR OWNER TO SELECT A LOTTERY
+        composable(OWNER_PICK_LOTTERY) { page ->
+            OwnerLotteryPickACampsiteScreen(
+                user = signedInCamper,
+                campsiteRepository = campsiteRepository,
+                campsitesWithoutLotteries = ownerCampsitesWithoutLottery.filterNotNull() as MutableList<OwnerCampsite>,
+                //lotteryRepository = lotteryRepository,
+                //onRegisterLottery = { navController.openPage(page, OWNER_REGISTER_LOTTERY) },
+                onSelect = { campsite ->
+                    // Remember which campsite the owner selected.
+                    selectedCampsite = campsite
+
+                    // Open the Lottery Details screen.
+                    navController.openPage(page, OWNER_REGISTER_LOTTERY)
+                },
+                onBack = {
+                    navController.openPage(page, OWNER_LOTTERIES)
+                }
+            )
+        }
+
+        composable(OWNER_REGISTER_LOTTERY) { page ->
+            val campsite = selectedCampsite
+
+            if (campsite != null) {
+                OwnerAddLotteryScreen(
+                    campsite = campsite,
+                    lotteryRepository = lotteryRepository,
+                    repository = lotteryDetailsRepository,
+                    onSaved = {
+                        navController.openPage(page, OWNER_LOTTERIES)
+                    },
+                    onCancel = {
+                        navController.openPage(page, OWNER_PICK_LOTTERY)
+                    }
+                )
+            } else {
+                // No campsite selected; return to the previous screen.
+                navController.closePage(page)
+            }
+        }
+
+        //Reservations Screens****************************
         composable(OWNER_RESERVATIONS) { page ->
             OwnerReservationsListScreen(
                 onBack = {
@@ -384,6 +505,9 @@ fun CampsiteApp() {
                 onBack = { navController.closePage(page) }
             )
         }
+
+        //Once LotteryScreen is removed we can remove this chunk as well
+        /*
         composable(LOTTERY) { page ->
             // Passing the original test entrants to aboogabingbong's lottery screen (83f3b25).
             LotteryScreen(
@@ -393,6 +517,7 @@ fun CampsiteApp() {
                 currentUser
             )
         }
+         */
         composable(IMAGE_TEST) { page ->
             ImageTestRoute(onBack = { navController.closePage(page) })
         }

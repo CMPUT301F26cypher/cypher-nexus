@@ -5,10 +5,9 @@ data class User(
     var name: String = "",
     var email: String = "",
     var phone: String = "",
-    val roles: Set<Role> = setOf(Role.ENTRANT),
+    //val roles: Set<Role> = setOf(Role.ENTRANT),
+    val roles: List<Role> = listOf(Role.ENTRANT),
     var notificationsEnabled: Boolean = true,
     val deviceId: String = ""
 )
-
-
 

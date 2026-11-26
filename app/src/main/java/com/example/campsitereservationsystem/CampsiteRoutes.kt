@@ -28,7 +28,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.campsitereservationsystem.OwnerCampsitesPath.AddCampsiteScreen
 import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteController
 import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteRepository
@@ -41,6 +40,7 @@ import com.example.campsitereservationsystem.EntrantPath.QRCodeScannerScreen
 import com.example.campsitereservationsystem.EntrantPath.QRCodeScreen
 import com.example.campsitereservationsystem.review.ReviewRepository
 import com.example.campsitereservationsystem.EntrantPath.WriteReviewScreen
+import com.example.campsitereservationsystem.campsite.AddCampsiteScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -55,7 +55,7 @@ private const val ADD_CAMPSITE_ROUTE = "add_campsite"
 private const val EDIT_CAMPSITE_ROUTE = "edit_campsite"
 private const val OWNER_DETAILS_ROUTE = "owner_details"
 private const val SHOW_QR_ROUTE = "show_qr"
-private const val ENTRANT_DETAILS_ROUTE = "entrant_details"
+const val ENTRANT_DETAILS_ROUTE = "entrant_details"
 private const val LOTTERY_DETAILS_ROUTE = "lottery_details"
 private const val CAMPSITE_ID = "campsiteId"
 
@@ -527,7 +527,7 @@ private fun CampsitePage(
 }
 
 // Encoding the ID so it stays one route segment even when a QR code contains punctuation.
-private fun siteRoute(route: String, campsiteId: String) = "$route/${Uri.encode(campsiteId)}"
+fun siteRoute(route: String, campsiteId: String) = "$route/${Uri.encode(campsiteId)}"
 
 // Checking the current entry before following callbacks from an outgoing screen.
 internal fun NavHostController.openPage(page: NavBackStackEntry, route: String) {

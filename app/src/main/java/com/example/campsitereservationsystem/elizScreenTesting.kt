@@ -106,7 +106,7 @@ fun OldAccountTest(
                             name = name,
                             email = email,
                             phone = phone,
-                            roles = setOf(accRole),
+                            roles = listOf(accRole),
                             deviceId = DeviceId.get(context)
                         ),
                         password,

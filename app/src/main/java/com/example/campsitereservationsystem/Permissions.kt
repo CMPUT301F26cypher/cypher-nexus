@@ -37,7 +37,7 @@ class Permissions {
     )
 
     fun isAllowed(
-        roles: Set<Role>,
+        roles: List<Role>,
         action: Action,
         userId: String? = null,
         resourceOwnerId: String? = null

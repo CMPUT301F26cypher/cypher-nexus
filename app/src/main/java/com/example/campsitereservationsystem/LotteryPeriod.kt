@@ -8,6 +8,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.format.ResolverStyle
+import com.google.firebase.Timestamp
 
 // "M/d/uuuu" accepts 01/20/2027, 1/20/2027 and 02/3/2027 (the formats used in the storyboard).
 // STRICT stops impossible dates such as 02/30/2027 from being quietly changed to 02/28/2027.
@@ -45,6 +46,16 @@ data class LotteryPeriod(
     /** @return When the period ends, or null if the end date or time is not valid. */
     fun end(): LocalDateTime? {
         return toDateTime(endDate, endTime)
+    }
+
+    /** Returns the Firebase Timestamp for the start of this period. */
+    fun startTimestamp(): Timestamp? {
+        return toTimestamp(startDate, startTime)
+    }
+
+    /** Returns the Firebase Timestamp for the end of this period. */
+    fun endTimestamp(): Timestamp? {
+        return toTimestamp(endDate, endTime)
     }
 
     /**
@@ -105,6 +116,27 @@ private fun toDateTime(dateText: String, timeText: String): LocalDateTime? {
         val time = LocalTime.parse(timeText.trim(), TIME_FORMAT)
         LocalDateTime.of(date, time)
     } catch (error: DateTimeParseException) {
+        null
+    }
+}
+
+// Turns typed text such as "01/20/2027" and "12:00"
+// directly into a Firebase Timestamp.
+// Returns null if either part is not a valid date or time.
+private fun toTimestamp(dateText: String, timeText: String): Timestamp? {
+    return try {
+        val dateTime = toDateTime(dateText, timeText)
+
+        if (dateTime != null) {
+            Timestamp(
+                java.util.Date.from(
+                    dateTime.atZone(java.time.ZoneId.systemDefault()).toInstant()
+                )
+            )
+        } else {
+            null
+        }
+    } catch (error: Exception) {
         null
     }
 }
