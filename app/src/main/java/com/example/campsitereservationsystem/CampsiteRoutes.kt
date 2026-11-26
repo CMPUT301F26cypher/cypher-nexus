@@ -85,6 +85,7 @@ internal fun NavGraphBuilder.campsiteRoutes(
 
     var lastScan: Pair<String, Campsite>? = null
 
+
     // Reusing a campsite already loaded for the owner list.
     fun knownOwnerSite(page: NavBackStackEntry): Campsite? {
         val campsiteId = page.arguments?.getString(CAMPSITE_ID)
@@ -237,10 +238,9 @@ internal fun NavGraphBuilder.campsiteRoutes(
         val knownSite = lastScan?.takeIf { it.first == campsiteId }?.second
         CampsitePage(page, campsiteRepository, knownSite, goBack) { site ->
             EntrantCampsiteDetailsScreen(
+                user = currentUser,
                 campsite = site,
                 reviewRepository = reviewRepository,
-                // Keeping the existing demo behavior until the waiting list is connected.
-                isLotteryActive = true,
                 // Keeping the existing placeholder for the waiting list button.
                 onJoinWaitingList = { println("Join Waiting List clicked") },
                 onWriteReview = {
