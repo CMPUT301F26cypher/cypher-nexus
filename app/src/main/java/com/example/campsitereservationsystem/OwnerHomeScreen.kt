@@ -22,6 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import com.example.campsitereservationsystem.reusableButtons.InboxButton
+
 /*
 
  */
@@ -30,43 +34,53 @@ fun OwnerHomeScreen(
     onMyCampsites: () -> Unit,
     onMyLotteries: () -> Unit,
     onOwnerReservations: () -> Unit,
-    onOwnerNotifications: () -> Unit
-){
+    onOwnerNotifications: () -> Unit,
+    onInbox: () -> Unit
+) {
     //OWNER SCREEN VARIABLE
     var showCampsites by remember { mutableStateOf(false) }
     var showLotteries by remember { mutableStateOf(false) }
     var showReservations by remember { mutableStateOf(false) }
     var showNotifications by remember { mutableStateOf(false) }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        //MY CAMPSITES
-        OwnerHomeScreenButtons("My Campsites"){
-            onMyCampsites()
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            //MY CAMPSITES
+            OwnerHomeScreenButtons("My Campsites") {
+                onMyCampsites()
+            }
+            Spacer(modifier = Modifier.height(25.dp))
+
+            //MY LOTTERIES
+            OwnerHomeScreenButtons("My Lotteries") {
+                onMyLotteries()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            //RESERVATIONS
+            OwnerHomeScreenButtons("Reservations") {
+                onOwnerReservations()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            //NOTIFICATIONS
+            OwnerHomeScreenButtons("Notifications") {
+                onOwnerNotifications()
+            }
         }
-        Spacer(modifier = Modifier.height(25.dp))
+        InboxButton(
+            onClick = onInbox,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
 
-        //MY LOTTERIES
-        OwnerHomeScreenButtons("My Lotteries"){
-            onMyLotteries()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        //RESERVATIONS
-        OwnerHomeScreenButtons("Reservations"){
-            onOwnerReservations()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        //NOTIFICATIONS
-        OwnerHomeScreenButtons("Notifications"){
-            onOwnerNotifications()
-        }
+        )
     }
 }
 
