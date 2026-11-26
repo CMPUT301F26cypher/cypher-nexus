@@ -14,7 +14,7 @@ suspend fun LotteryDraw(
     entrants: List<User>,
     lottery: Lottery,
     lotteryRepository: LotteryRepository,
-    //notificationController: NotificationController
+    notificationController: NotificationController
 ): List<User>{
 
     /*should check if Lottery is already being drawn*/
@@ -33,7 +33,7 @@ suspend fun LotteryDraw(
         "winners"
     )
 
-    /*
+
     // Notify everyone on the waiting list
     entrants.forEach { entrant ->
 
@@ -59,7 +59,7 @@ suspend fun LotteryDraw(
         }
     }
 
-     */
+
 
     //notificationController.stopNotifications()
 

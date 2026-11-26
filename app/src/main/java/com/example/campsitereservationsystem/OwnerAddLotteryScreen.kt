@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,7 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.example.campsitereservationsystem.campsite.Campsite
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import kotlin.time.*
 
 /**
  * modified version of Arpit's LotteryDetailsScreen, will remove LotteryDetails
@@ -72,6 +76,7 @@ fun OwnerAddLotteryScreen(
     onCancel: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     // What the owner has typed so far. Each box updates one field of one period.
     var registration by remember { mutableStateOf(LotteryPeriod()) }
@@ -87,6 +92,104 @@ fun OwnerAddLotteryScreen(
     // When this is not empty, the Frame 25 error popup is shown with this message.
     var errorMessage by remember { mutableStateOf("") }
     var saving by remember { mutableStateOf(false) }
+
+    // TEST DATA FROM LOTTERY SCREEN
+
+    var testUserList = remember{
+        listOf(
+            User(
+                id = "010101", // Device ID
+                name = "John Test",
+                email = "John Test @ test.com",
+                phone = "780-testnumber",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010102",
+                name = "Jane Test",
+                email = "Jane Test @ test.com",
+                phone = "780-testnumber2",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010103",
+                name = "Bob Test",
+                email = "Bob Test @ test.com",
+                phone = "780-testnumber3",
+                notificationsEnabled = false
+            ),
+            User(
+                id = "010104",
+                name = "Alice Johnson",
+                email = "alice.johnson@test.com",
+                phone = "780-555-0104",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010105",
+                name = "Michael Smith",
+                email = "michael.smith@test.com",
+                phone = "780-555-0105",
+                notificationsEnabled = false
+            ),
+            User(
+                id = "010106",
+                name = "Sarah Williams",
+                email = "sarah.williams@test.com",
+                phone = "780-555-0106",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010107",
+                name = "David Brown",
+                email = "david.brown@test.com",
+                phone = "780-555-0107",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010108",
+                name = "Emily Davis",
+                email = "emily.davis@test.com",
+                phone = "780-555-0108",
+                notificationsEnabled = false
+            ),
+            User(
+                id = "010109",
+                name = "James Wilson",
+                email = "james.wilson@test.com",
+                phone = "780-555-0109",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010110",
+                name = "Olivia Martinez",
+                email = "olivia.martinez@test.com",
+                phone = "780-555-0110",
+                notificationsEnabled = false
+            ),
+            User(
+                id = "010111",
+                name = "Daniel Anderson",
+                email = "daniel.anderson@test.com",
+                phone = "780-555-0111",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010112",
+                name = "Sophia Taylor",
+                email = "sophia.taylor@test.com",
+                phone = "780-555-0112",
+                notificationsEnabled = true
+            ),
+            User(
+                id = "010113",
+                name = "Matthew Thomas",
+                email = "matthew.thomas@test.com",
+                phone = "780-555-0113",
+                notificationsEnabled = false
+            )
+        )
+    }
 
 
     /*
@@ -142,7 +245,35 @@ fun OwnerAddLotteryScreen(
             winners = mutableStateListOf<User>()
         )
 
-        lotteryRepository.addLottery(newLottery)
+        //is this line needed? Should just be here for testing.
+        newLottery.status = "OPEN"
+
+        //this line is to avoid issues with possible null values while doing LotteryWorker
+        val registrationEnd = newLottery.registrationEndTimestamp
+
+        if (registrationEnd != null) {
+
+            lotteryRepository.addLottery(newLottery) {
+
+                // Schedule automatic lottery draw
+                lotteryRepository.scheduleLotteryWorker(
+                    context = context,
+                    campsiteID = newLottery.campsiteID,
+                    endTime = registrationEnd.toDate().time
+                )
+            }
+        }
+
+        //this is just here to test if the lotteries will be automatically
+        //drawn after a certain amount of time has passed
+        //it adds the testUserList to the lotteries waiting list
+        coroutineScope.launch {
+            lotteryRepository.updateList(
+                newLottery,
+                testUserList,
+                "waitingList"
+            )
+        }
         onSaved()
     }
 

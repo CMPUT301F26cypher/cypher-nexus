@@ -62,9 +62,32 @@ class LotteryWorker(appContext: Context, workerParams: WorkerParameters)
 
             // Lottery has expired.
             // Perform lottery draw here.
-            LotteryDraw(lottery.waitingList, lottery, lotteryRepository)
 
-            Result.success()
+            val lotteryCampsite = lottery.campsite
+            if (lotteryCampsite != null) {
+                val ownerDocument = db.collection("users")
+                    .document(lotteryCampsite.ownerId)
+                    .get()
+                    .await()
+
+                val owner = ownerDocument.toObject(User::class.java)
+                    ?.copy(id = ownerDocument.id)
+                    ?: return Result.failure()
+
+                // Create NotificationController using campsite owner
+                val notificationController = NotificationController(
+                    user = owner,
+                    context = applicationContext
+                )
+
+
+                LotteryDraw(lottery.waitingList, lottery, lotteryRepository, notificationController)
+
+                notificationController.stopNotifications()
+                Result.success()
+            }else{
+                Result.failure()
+            }
 
         } catch (e: Exception) {
             Log.e("LotteryWorker", "Worker failed: ${e.message}", e)

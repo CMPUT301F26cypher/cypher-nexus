@@ -501,6 +501,9 @@ fun CampsiteApp() {
                 onBack = { navController.closePage(page) }
             )
         }
+
+        //Once LotteryScreen is removed we can remove this chunk as well
+        /*
         composable(LOTTERY) { page ->
             // Passing the original test entrants to aboogabingbong's lottery screen (83f3b25).
             LotteryScreen(
@@ -510,6 +513,7 @@ fun CampsiteApp() {
                 currentUser
             )
         }
+         */
         composable(IMAGE_TEST) { page ->
             ImageTestRoute(onBack = { navController.closePage(page) })
         }

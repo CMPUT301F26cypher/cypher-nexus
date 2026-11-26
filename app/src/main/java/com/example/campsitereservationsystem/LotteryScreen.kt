@@ -20,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
-import kotlin.String
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.AlertDialog
 import com.example.campsitereservationsystem.campsite.Campsite
@@ -37,11 +36,14 @@ via a push notification
 (currently the automatic selection is not implemented and the
 owner must manually do it themselves)
  */
+
+/*
 @Composable
 fun LotteryScreen(
     onBack: () -> Unit,
     campsite: Campsite,
     lotteryRepository: LotteryRepository,
+    notificationController: NotificationController,
     currentUser: User
 ) {
     val context = LocalContext.current
@@ -402,7 +404,8 @@ fun LotteryScreen(
                         LotteryDraw(
                             testUserList,
                             newLottery,
-                            lotteryRepository
+                            lotteryRepository,
+                            notificationController
                         )
                     }
 
@@ -421,3 +424,4 @@ fun LotteryScreen(
 
     }
 }
+*/
