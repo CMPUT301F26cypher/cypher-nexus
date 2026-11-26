@@ -126,7 +126,7 @@ fun CreateAccountScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth()
         )
-        // Role selction
+        // Role selection
         Spacer(modifier = Modifier.height(12.dp))
         Text("Select Role:")
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -142,6 +142,13 @@ fun CreateAccountScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Owner")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(
+                onClick = { accRole = Role.ADMIN },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Admin")
             }
         }
 

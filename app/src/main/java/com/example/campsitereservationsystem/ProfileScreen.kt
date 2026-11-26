@@ -212,7 +212,7 @@ fun ProfileScreen(
                     }
                 }
                 // Admins can turn the owner role on or off. The admin role is always kept.
-                val newRoles: Set<Role> = if (isAdmin) {
+                val newRoles: List<Role> = if (isAdmin) {
                     if (wantsOwner) user.roles + Role.OWNER else user.roles - Role.OWNER
                 } else {
                     user.roles

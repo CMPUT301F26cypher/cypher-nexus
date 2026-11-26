@@ -20,10 +20,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
-import kotlin.String
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.AlertDialog
-import com.example.campsitereservationsystem.campsite.Campsite
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 
 /*
@@ -35,14 +35,18 @@ via a push notification
 (currently the automatic selection is not implemented and the
 owner must manually do it themselves)
  */
+
+/*
 @Composable
 fun LotteryScreen(
     onBack: () -> Unit,
     campsite: Campsite,
     lotteryRepository: LotteryRepository,
+    notificationController: NotificationController,
     currentUser: User
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     val notificationController = remember(currentUser.id) {
         NotificationController(
@@ -77,8 +81,10 @@ fun LotteryScreen(
             status = "CLOSED",
             numWinners = numLotteryWinners.toInt(),
             capacity = 0,
-            startTimestamp = null,
-            endTimestamp = null,
+            registrationStartTimestamp = null,
+            registrationEndTimestamp = null,
+            bookingStartTimestamp = null,
+            bookingEndTimestamp = null,
             campsite = campsite,
             campsiteID = campsite.id, //this will be the same campsiteID from campsite
             waitingList = mutableStateListOf<User>(),
@@ -346,10 +352,30 @@ fun LotteryScreen(
                 } else if (startTimestamp < endTimestamp) {
                     newLottery.status = "OPEN"
                     newLottery.numWinners = numLotteryWinners.toIntOrNull() ?: 0
-                    newLottery.startTimestamp = startTimestamp
-                    newLottery.endTimestamp = endTimestamp
+                    newLottery.registrationStartTimestamp = startTimestamp
+                    newLottery.registrationEndTimestamp = endTimestamp
 
-                    lotteryRepository.addLottery(newLottery)
+                    lotteryRepository.addLottery(newLottery) {
+
+                        // Schedule automatic lottery draw
+                        lotteryRepository.scheduleLotteryWorker(
+                            context = context,
+                            campsiteID = newLottery.campsiteID,
+                            endTime = endTimestamp.toDate().time
+                        )
+                    }
+
+                    //this is just here to test if the lotteries will be automatically
+                    //drawn after a certain amount of time has passed
+
+                    coroutineScope.launch {
+                        lotteryRepository.updateList(
+                            newLottery,
+                            testUserList,
+                            "waitingList"
+                        )
+                    }
+
                 } else {
                     showDateError = true
                 }
@@ -359,15 +385,30 @@ fun LotteryScreen(
         }
         Button(
             onClick = {
-                //check if lottery has been drawn already,
-                // if not set as being drawn and then draw lottery
-                if (newLottery.status == "OPEN" || newLottery.status == "FULL"){
-                    newLottery.status = "DRAWING"
-                    lotteryRepository.updateStatus(newLottery, newLottery.status)
+                // Check if lottery can be drawn
+                if (newLottery.status == "OPEN" || newLottery.status == "FULL") {
 
-                    //testUserList is just for testing purposes replace it with the campsites waiting list for the actual app
-                    LotteryDraw(testUserList, newLottery, lotteryRepository, notificationController)
-                }else{
+                    coroutineScope.launch {
+
+                        // Set lottery status to DRAWING
+                        newLottery.status = "DRAWING"
+
+                        lotteryRepository.updateStatus(
+                            newLottery,
+                            newLottery.status
+                        )
+
+                        // Run lottery draw
+                        // testUserList is temporary testing data
+                        LotteryDraw(
+                            testUserList,
+                            newLottery,
+                            lotteryRepository,
+                            notificationController
+                        )
+                    }
+
+                } else {
                     showLotteryError = true
                 }
             }
@@ -382,3 +423,4 @@ fun LotteryScreen(
 
     }
 }
+*/

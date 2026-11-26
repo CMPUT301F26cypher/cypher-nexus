@@ -10,7 +10,7 @@ if given size of lottery is bigger than numLotteryWinners just select all entran
 otherwise randomly select numLotteryWinners amount of winners from entrants
 and return it in a new array
  */
-fun LotteryDraw(
+suspend fun LotteryDraw(
     entrants: List<User>,
     lottery: Lottery,
     lotteryRepository: LotteryRepository,
@@ -32,6 +32,7 @@ fun LotteryDraw(
         selectedEntrants,
         "winners"
     )
+
 
     // Notify everyone on the waiting list
     entrants.forEach { entrant ->
@@ -58,7 +59,9 @@ fun LotteryDraw(
         }
     }
 
-    notificationController.stopNotifications()
+
+
+    //notificationController.stopNotifications()
 
     lottery.status = "COMPLETED"
     lotteryRepository.updateStatus(lottery, lottery.status)

@@ -1,5 +1,5 @@
 
-package com.example.campsitereservationsystem.campsite
+package com.example.campsitereservationsystem.OwnerCampsitesPath
 
 import com.google.firebase.firestore.Blob
 

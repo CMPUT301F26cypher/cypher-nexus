@@ -28,18 +28,19 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.campsitereservationsystem.campsite.AddCampsiteScreen
-import com.example.campsitereservationsystem.campsite.Campsite
-import com.example.campsitereservationsystem.campsite.CampsiteController
-import com.example.campsitereservationsystem.campsite.CampsiteRepository
-import com.example.campsitereservationsystem.campsite.OwnerCampsiteDetailsScreen
-import com.example.campsitereservationsystem.campsite.OwnerCampsitesScreen
-import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
-import com.example.campsitereservationsystem.qr.QRCodeManager
-import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
-import com.example.campsitereservationsystem.qr.QRCodeScreen
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteController
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteRepository
+import com.example.campsitereservationsystem.OwnerCampsitesPath.OwnerCampsiteDetailsScreen
+import com.example.campsitereservationsystem.OwnerCampsitesPath.OwnerCampsitesScreen
+import com.example.campsitereservationsystem.EntrantPath.EntrantCampsiteDetailsScreen
+import com.example.campsitereservationsystem.EntrantPath.EntrantCampsiteListScreen
+import com.example.campsitereservationsystem.EntrantPath.QRCodeManager
+import com.example.campsitereservationsystem.EntrantPath.QRCodeScannerScreen
+import com.example.campsitereservationsystem.EntrantPath.QRCodeScreen
 import com.example.campsitereservationsystem.review.ReviewRepository
-import com.example.campsitereservationsystem.qr.WriteReviewScreen
+import com.example.campsitereservationsystem.EntrantPath.WriteReviewScreen
+import com.example.campsitereservationsystem.campsite.AddCampsiteScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -48,11 +49,13 @@ internal const val SCAN_CAMPSITE_ROUTE = "scan_campsite"
 // TEMPORARY (US 02.04.03, 02.04.04): opened from the Test menu until My Lotteries (Frames 20-21) exists.
 internal const val TEMP_PICK_FOR_LOTTERY_ROUTE = "temp_pick_for_lottery"
 
+internal const val BROWSE_CAMPSITES_ROUTE = "browse_campsites"
+
 private const val ADD_CAMPSITE_ROUTE = "add_campsite"
 private const val EDIT_CAMPSITE_ROUTE = "edit_campsite"
 private const val OWNER_DETAILS_ROUTE = "owner_details"
 private const val SHOW_QR_ROUTE = "show_qr"
-private const val ENTRANT_DETAILS_ROUTE = "entrant_details"
+const val ENTRANT_DETAILS_ROUTE = "entrant_details"
 private const val LOTTERY_DETAILS_ROUTE = "lottery_details"
 private const val CAMPSITE_ID = "campsiteId"
 
@@ -68,7 +71,7 @@ private val campsiteArguments = listOf(navArgument(CAMPSITE_ID) { type = NavType
 internal fun NavGraphBuilder.campsiteRoutes(
     navController: NavHostController,
     campsiteRepository: CampsiteRepository,
-    campsiteController: com.example.campsitereservationsystem.campsite.CampsiteController,
+    campsiteController: com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteController,
     reservationRepository: ReservationRepository,
     ownerId: String,
     ownerSites: MutableList<Campsite>,
@@ -77,7 +80,6 @@ internal fun NavGraphBuilder.campsiteRoutes(
     currentUser: User
 ) {
     // Using the same repository for the controller and route lookups.
-    val campsiteController = CampsiteController(campsiteRepository, reservationRepository)
     // Holding the last checked scan alongside its ID.
     //var lastScan: Pair<String, OwnerCampsite>? = null
 
@@ -224,28 +226,7 @@ internal fun NavGraphBuilder.campsiteRoutes(
                     }
                 }
             },
-            onBack = goBack,
-            onCampsiteSelected = { campsiteId ->
-
-                // Avoid duplicate campsites
-                recentlyViewedIds.remove(campsiteId)
-
-                // Put the newest campsite first
-                recentlyViewedIds.add(0, campsiteId)
-
-                // Keep only the last 5 campsites
-                if (recentlyViewedIds.size > 5) {
-                    recentlyViewedIds.removeAt(recentlyViewedIds.lastIndex)
-                }
-
-                // Navigate to campsite details
-                navController.openPage(
-                    page,
-                    siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
-                )
-            },
-            recentlyViewedIds = recentlyViewedIds,
-            reviewRepository = reviewRepository
+            onBack = goBack
         )
     }
 
@@ -271,6 +252,40 @@ internal fun NavGraphBuilder.campsiteRoutes(
                 onBack = goBack
             )
         }
+    }
+    // Browse campsites destination
+    composable(BROWSE_CAMPSITES_ROUTE) { page ->
+
+        val goBack = { navController.closePage(page) }
+
+        EntrantCampsiteListScreen(
+            onBack = goBack,
+            onCampsiteSelected = { campsiteId ->
+
+                // Avoid duplicate campsites
+                recentlyViewedIds.remove(campsiteId)
+
+                // Put the newest campsite first
+                recentlyViewedIds.add(0, campsiteId)
+
+                // Keep only the last 5 campsites
+                if (recentlyViewedIds.size > 5) {
+                    recentlyViewedIds.removeAt(
+                        recentlyViewedIds.lastIndex
+                    )
+                }
+
+                // Navigate to campsite details
+                navController.openPage(
+                    page,
+                    siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
+                )
+            },
+            recentlyViewedIds = recentlyViewedIds,
+            reviewRepository = reviewRepository,
+            repository = campsiteRepository,
+            controller = campsiteController
+        )
     }
     composable(
         "$WRITE_REVIEW_ROUTE/{$CAMPSITE_ID}",
@@ -512,7 +527,7 @@ private fun CampsitePage(
 }
 
 // Encoding the ID so it stays one route segment even when a QR code contains punctuation.
-private fun siteRoute(route: String, campsiteId: String) = "$route/${Uri.encode(campsiteId)}"
+fun siteRoute(route: String, campsiteId: String) = "$route/${Uri.encode(campsiteId)}"
 
 // Checking the current entry before following callbacks from an outgoing screen.
 internal fun NavHostController.openPage(page: NavBackStackEntry, route: String) {

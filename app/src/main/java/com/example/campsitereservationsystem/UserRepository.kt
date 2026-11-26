@@ -6,9 +6,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
-import com.example.campsitereservationsystem.campsite.Campsite
-
-
 
 
 // Gets the device ID of the current device
@@ -37,13 +34,13 @@ class UserRepository(
     private fun toUser(doc: DocumentSnapshot): User {
         val roleNames = doc.get("roles") as? List<*> ?: emptyList<Any>()
         val roles = roleNames
-            .mapNotNull { runCatching { Role.valueOf(it.toString()) }.getOrNull() }.toSet()
+            .mapNotNull { runCatching { Role.valueOf(it.toString()) }.getOrNull() }.toList()
         return User(
             id = doc.id,
             name = doc.getString("name") ?: "",
             email = doc.getString("email") ?: "",
             phone = doc.getString("phone") ?: "",
-            roles = roles.ifEmpty { setOf(Role.ENTRANT) },
+            roles = roles.ifEmpty { listOf(Role.ENTRANT) },
             notificationsEnabled = doc.getBoolean("notificationsEnabled") ?: true,
             deviceId = doc.getString("deviceId") ?: ""
         )
@@ -76,6 +73,16 @@ class UserRepository(
     fun stopListening() {
         listener?.remove()
         listener = null
+    }
+
+    //Retrieves all profile images
+    fun getAllUsers(onSuccess: (List<User>) -> Unit){
+        usersRef.get().addOnSuccessListener { snapshot ->
+            val users = snapshot.documents.map { document ->
+                toUser(document)
+            }
+            onSuccess(users)
+        }
     }
 
     // Checks if the device ID is remembered

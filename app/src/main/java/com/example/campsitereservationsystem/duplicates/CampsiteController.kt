@@ -1,6 +1,9 @@
+/*
 package com.example.campsitereservationsystem.duplicates
 
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteRepository
 import com.example.campsitereservationsystem.ReservationRepository
+
 
 class CampsiteController (
     private val campsiteRepository: CampsiteRepository,
@@ -44,3 +47,4 @@ class CampsiteController (
         }
     }
 }
+*/

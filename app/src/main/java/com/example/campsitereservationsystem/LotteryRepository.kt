@@ -1,16 +1,23 @@
 package com.example.campsitereservationsystem
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.google.firebase.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
+import kotlinx.coroutines.tasks.await
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
 
 class LotteryRepository {
     private val db = Firebase.firestore
     private val lotteriesRef = db.collection("lotteries")
     private val lotteries = mutableStateListOf<Lottery>()
+
 
     // Function for getting the waiting list as an Owner US 02.09.01
     fun getWaitingList(
@@ -36,11 +43,15 @@ class LotteryRepository {
     }
 
 
-    fun addLottery(lottery: Lottery) {
+    fun addLottery(
+        lottery: Lottery,
+        onSuccess: () -> Unit = {}
+    ) {
         lotteriesRef.document(lottery.campsiteID)
             .set(lottery)
             .addOnSuccessListener {
                 println("Lottery successfully created")
+                onSuccess()
             }
             .addOnFailureListener { exception ->
                 println("Error creating lottery: ${exception.message}")
@@ -56,7 +67,7 @@ class LotteryRepository {
 
     also converts from to a list type firebase can use
     */
-    fun updateList(
+    suspend fun updateList(
         lottery: Lottery,
         list: List<User>,
         listType: String //listType options are: waitingList or winners
@@ -75,24 +86,18 @@ class LotteryRepository {
 
         lotteriesRef.document(lottery.campsiteID)
             .update(listType, firestoreList)
-            .addOnSuccessListener {
-                println("Successfully updated $listType")
-            }
-            .addOnFailureListener { exception ->
-                println("Failed to update $listType: ${exception.message}")
-            }
+            .await()
     }
 
-    fun updateStatus(lottery: Lottery, newStatus: String) {
+    suspend fun updateStatus(
+        lottery: Lottery,
+        newStatus: String
+    ) {
         lotteriesRef.document(lottery.campsiteID)
             .update("status", newStatus)
-            .addOnSuccessListener {
-                lottery.status = newStatus
-                println("Successfully updated lottery status to $newStatus")
-            }
-            .addOnFailureListener { exception ->
-                println("Failed to update lottery status: ${exception.message}")
-            }
+            .await()
+
+        lottery.status = newStatus
     }
 
     fun deleteLottery(lottery: Lottery){
@@ -148,4 +153,35 @@ class LotteryRepository {
                 onResult(null)
             }
     }
+
+    fun scheduleLotteryWorker(
+        context: Context,
+        campsiteID: String,
+        endTime: Long
+    ) {
+        // Calculate how long until lottery ends
+        val delay = endTime - System.currentTimeMillis()
+
+        val inputData = Data.Builder()
+            .putString("campsiteID", campsiteID)
+            .build()
+
+        val lotteryWorkRequest =
+            OneTimeWorkRequestBuilder<LotteryWorker>()
+                .setInputData(inputData)
+                .setInitialDelay(
+                    delay.coerceAtLeast(0),
+                    TimeUnit.MILLISECONDS
+                )
+                .build()
+
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(
+                "Lottery_$campsiteID",
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                lotteryWorkRequest
+            )
+    }
+
+
 }

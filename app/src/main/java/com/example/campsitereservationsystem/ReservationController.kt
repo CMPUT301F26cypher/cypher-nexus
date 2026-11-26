@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.example.campsitereservationsystem.campsite.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 
 /**
  * Booking rules for one winning opportunity in the local May 2027 prototype.
