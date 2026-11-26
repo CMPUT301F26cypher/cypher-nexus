@@ -322,6 +322,11 @@ fun CampsiteApp() {
         //Entrant Reservations list page
         composable(ENTRANT_RESERVATIONS) { page ->
             EntrantReservationsListScreen(
+                user = signedInCamper,
+                // Frame 63: reusing Juan's campsite details screen for "View Campsite".
+                onViewCampsite = { campsiteId ->
+                    navController.openPage(page, siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId))
+                },
                 onBack = {
                     navController.closePage(page)
                 }
@@ -445,6 +450,7 @@ fun CampsiteApp() {
         //Reservations Screens****************************
         composable(OWNER_RESERVATIONS) { page ->
             OwnerReservationsListScreen(
+                user = signedInCamper,
                 onBack = {
                     navController.closePage(page)
                 }
@@ -482,7 +488,7 @@ fun CampsiteApp() {
             AdminNotificationReview(
                 userID = currentUser.id,
                 onBack = {
-                 navController.closePage(page)
+                    navController.closePage(page)
                 }
             )
         }
