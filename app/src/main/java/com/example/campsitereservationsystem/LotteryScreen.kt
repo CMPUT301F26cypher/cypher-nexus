@@ -22,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.AlertDialog
-import com.example.campsitereservationsystem.campsite.Campsite
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 

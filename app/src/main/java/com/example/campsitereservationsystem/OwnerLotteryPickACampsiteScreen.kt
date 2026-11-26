@@ -33,8 +33,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.campsitereservationsystem.campsite.Campsite
-import com.example.campsitereservationsystem.campsite.CampsiteRepository
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteRepository
 
 @Composable
 fun OwnerLotteryPickACampsiteScreen(

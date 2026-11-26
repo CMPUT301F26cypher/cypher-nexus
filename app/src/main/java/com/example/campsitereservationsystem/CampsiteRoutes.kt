@@ -28,18 +28,19 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.campsitereservationsystem.campsite.AddCampsiteScreen
-import com.example.campsitereservationsystem.campsite.Campsite
-import com.example.campsitereservationsystem.campsite.CampsiteController
-import com.example.campsitereservationsystem.campsite.CampsiteRepository
-import com.example.campsitereservationsystem.campsite.OwnerCampsiteDetailsScreen
-import com.example.campsitereservationsystem.campsite.OwnerCampsitesScreen
-import com.example.campsitereservationsystem.qr.EntrantCampsiteDetailsScreen
-import com.example.campsitereservationsystem.qr.QRCodeManager
-import com.example.campsitereservationsystem.qr.QRCodeScannerScreen
-import com.example.campsitereservationsystem.qr.QRCodeScreen
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteController
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteRepository
+import com.example.campsitereservationsystem.OwnerCampsitesPath.OwnerCampsiteDetailsScreen
+import com.example.campsitereservationsystem.OwnerCampsitesPath.OwnerCampsitesScreen
+import com.example.campsitereservationsystem.EntrantPath.EntrantCampsiteDetailsScreen
+import com.example.campsitereservationsystem.EntrantPath.EntrantCampsiteListScreen
+import com.example.campsitereservationsystem.EntrantPath.QRCodeManager
+import com.example.campsitereservationsystem.EntrantPath.QRCodeScannerScreen
+import com.example.campsitereservationsystem.EntrantPath.QRCodeScreen
 import com.example.campsitereservationsystem.review.ReviewRepository
-import com.example.campsitereservationsystem.qr.WriteReviewScreen
+import com.example.campsitereservationsystem.EntrantPath.WriteReviewScreen
+import com.example.campsitereservationsystem.campsite.AddCampsiteScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -70,7 +71,7 @@ private val campsiteArguments = listOf(navArgument(CAMPSITE_ID) { type = NavType
 internal fun NavGraphBuilder.campsiteRoutes(
     navController: NavHostController,
     campsiteRepository: CampsiteRepository,
-    campsiteController: com.example.campsitereservationsystem.campsite.CampsiteController,
+    campsiteController: com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteController,
     reservationRepository: ReservationRepository,
     ownerId: String,
     ownerSites: MutableList<Campsite>,
@@ -281,7 +282,9 @@ internal fun NavGraphBuilder.campsiteRoutes(
                 )
             },
             recentlyViewedIds = recentlyViewedIds,
-            reviewRepository = reviewRepository
+            reviewRepository = reviewRepository,
+            repository = campsiteRepository,
+            controller = campsiteController
         )
     }
     composable(

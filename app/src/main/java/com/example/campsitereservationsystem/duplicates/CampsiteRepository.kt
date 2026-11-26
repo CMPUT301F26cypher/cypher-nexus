@@ -1,40 +1,96 @@
-package com.example.campsitereservationsystem.duplicates
 
+package com.example.campsitereservationsystem.campsite
+
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import androidx.compose.runtime.mutableStateListOf
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.google.firebase.firestore.ListenerRegistration
 
-class CampsiteRepository {
-    private val db = Firebase.firestore
-    private val campsitesRef = db.collection("campsites")
-    private val _campsites = mutableStateListOf<Campsite>()
-    val campsites: List<Campsite>
-        get() = _campsites
-    init {
-        campsitesRef.addSnapshotListener { snapshot, error ->
+class CampsiteRepository(
+    db: FirebaseFirestore = FirebaseFirestore.getInstance()
+) {
+    private val col = db.collection("campsites")
+    private val storedCampsites = mutableStateListOf<Campsite>()
+
+    val campsites: List<Campsite> get() = storedCampsites
+
+    //load campsites for screen search
+    fun watchCampsites(): ListenerRegistration {
+        return col.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 return@addSnapshotListener
             }
-            _campsites.clear()
+            storedCampsites.clear()
             snapshot?.documents?.forEach { document ->
-                val campsite =
-                    document.toObject(Campsite::class.java)
+                val campsite = document.toObject(Campsite::class.java)
                 if (campsite != null) {
-                    _campsites.add(campsite.copy(campsiteID = document.id))
+                    storedCampsites.add(
+                        campsite.copy(id = document.id)
+                    )
                 }
             }
         }
     }
-    fun saveCampsite(documentId: String, campsite: Campsite) {
-        campsitesRef.document(documentId).set(campsite)
+
+    // Register a new campsite in Firebase
+    suspend fun save(campsite: Campsite): String {
+        val doc = col.document()
+        val newCampsite = campsite.copy(id = doc.id)
+
+        doc.set(newCampsite).await()
+
+        return doc.id
     }
-    fun updateCampsite(
-        documentId: String,
-        updatedCampsite: Campsite
-    ) {
-        campsitesRef.document(documentId).set(updatedCampsite)
+
+    // Get a campsite by its ID
+    suspend fun getById(id: String): Campsite? {
+        val doc = col.document(id).get().await()
+
+        if (!doc.exists()) return null
+
+        return doc.toObject(Campsite::class.java)?.copy(id = doc.id)
     }
-    fun deleteCampsite(documentId: String) {
-        campsitesRef.document(documentId).delete()
+
+    // Get all campsites registered by an owner
+    suspend fun getByOwner(ownerId: String): List<Campsite> {
+        val snapshot = col
+            .whereEqualTo("ownerId", ownerId)
+            .get()
+            .await()
+
+        return snapshot.documents.mapNotNull { doc ->
+            doc.toObject(Campsite::class.java)?.copy(id = doc.id)
+        }
+    }
+
+    // Get all  campsites (for Admin Browsing US 03.04.01)
+    suspend fun getAll(): List<Campsite> {
+        val snapshot = col.get().await()
+        return snapshot.documents.mapNotNull { doc ->
+            doc.toObject(Campsite::class.java)?.copy(id = doc.id)
+        }
+    }
+
+    // Update an existing campsite
+    suspend fun update(campsite: Campsite) {
+        require(campsite.id.isNotBlank()) {
+            "Campsite ID cannot be empty"
+        }
+
+        col.document(campsite.id)
+            .set(campsite)
+            .await()
+    }
+
+    // Delete an existing campsite from Firebase
+    suspend fun delete(campsiteId: String) {
+        require(campsiteId.isNotBlank()) {
+            "Campsite ID cannot be empty"
+        }
+
+        col.document(campsiteId)
+            .delete()
+            .await()
     }
 }

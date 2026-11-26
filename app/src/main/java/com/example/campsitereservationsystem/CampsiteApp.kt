@@ -20,14 +20,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.campsitereservationsystem.AdminPages.AdminHomeScreen
-import com.example.campsitereservationsystem.campsite.CampsiteRepository
-import com.example.campsitereservationsystem.campsite.Campsite
-import com.example.campsitereservationsystem.campsite.CampsiteController
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteRepository
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteController
 import kotlin.collections.emptyList
-import com.example.campsitereservationsystem.campsite.Campsite as OwnerCampsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite as OwnerCampsite
 import com.example.campsitereservationsystem.review.ReviewRepository
 import com.example.campsitereservationsystem.AdminPages.AdminImageGallery
 import com.example.campsitereservationsystem.AdminPages.AdminNotificationReview
+import com.example.campsitereservationsystem.EntrantPath.CampsiteListScreen
+
 private const val WELCOME = "welcome"
 private const val POLICY = "policy"
 private const val TEST_MENU = "test_menu"
@@ -254,7 +256,7 @@ fun CampsiteApp() {
         //*****************************ENTRANT_SCREEN AND SUBSEQUENT PAGES************************
         composable(ENTRANT_SCREEN) { page ->
             EntrantHomeScreen(
-                onBrowseCampsites = { navController.openPage(page, ENTRANT_CAMPSITES) },
+                onBrowseCampsites = { navController.openPage(page, BROWSE_CAMPSITES_ROUTE) },
                 onJoinedLotteries = { navController.openPage(page, ENTRANT_LOTTERIES) },
                 onBooking = { navController.openPage(page, ENTRANT_BOOKING) },
                 onEntrantReservations = { navController.openPage(page, ENTRANT_RESERVATIONS) },
@@ -263,6 +265,7 @@ fun CampsiteApp() {
             )
         }
 
+        /*
         // Browse campsites destination
         composable(ENTRANT_CAMPSITES) { page ->
 
@@ -295,6 +298,7 @@ fun CampsiteApp() {
                 reviewRepository = reviewRepository
             )
         }
+        */
 
         //Joined Lotteries page
         composable(ENTRANT_LOTTERIES) { page ->

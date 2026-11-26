@@ -1,4 +1,20 @@
-package com.example.campsitereservationsystem.qr
+
+/*
+ * QRCodeScreen.kt
+ *
+ * This file is part of the View in our MVC architecture.
+ * Here we show the promotional QR Code of a campsite
+ * so the owner can use it to promote their campsite.
+ *
+ * We use the QRCodeManager to generate the QR Code
+ * using the campsite ID.
+ *
+ * Outstanding issues:
+ * - For now, the owner can see the QR Code, but we do not
+ *   have a button to download or share it directly.
+ */
+
+package com.example.campsitereservationsystem.EntrantPath
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -19,6 +35,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * This screen allows the owner to see the promotional
+ * QR Code of their campsite.
+ *
+ * @param campsiteId The ID we use to generate the QR Code.
+ * @param campsiteName The name of the campsite we want to display.
+ * @param onBack Callback used to go back to the previous screen.
+ */
 @Composable
 fun QRCodeScreen(
     campsiteId: String,
@@ -30,12 +54,13 @@ fun QRCodeScreen(
 
     val green = Color(0xFF819F5C)
 
-    // Initialize the QR Code Manager
+    // Here we create the manager we use to generate the QR Code
     val qrCodeManager = remember {
         QRCodeManager()
     }
 
-    // Generate the promotional QR code
+    // We generate the QR Code using the campsite ID.
+    // We only generate it again if the campsite ID changes.
     val qrBitmap = remember(campsiteId) {
 
         val content = qrCodeManager.generateContent(
@@ -52,7 +77,6 @@ fun QRCodeScreen(
             .padding(16.dp)
     ) {
 
-        // Screen title
         Text(
             text = "Promotional QR Code",
             fontSize = 26.sp,
@@ -63,6 +87,8 @@ fun QRCodeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // We make this part scrollable so the owner
+        // can see all the information on the screen
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,7 +98,7 @@ fun QRCodeScreen(
             verticalArrangement = Arrangement.Center
         ) {
 
-            // Campsite name
+            // Here we show which campsite the QR Code belongs to
             Text(
                 text = campsiteName,
                 fontSize = 28.sp,
@@ -90,7 +116,7 @@ fun QRCodeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Promotional QR Code
+            // Here we display the QR Code inside a white card
             Card(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(1.dp, green),
@@ -104,6 +130,7 @@ fun QRCodeScreen(
                     contentAlignment = Alignment.Center
                 ) {
 
+                    // We convert the bitmap so we can display it as an image
                     Image(
                         bitmap = qrBitmap.asImageBitmap(),
                         contentDescription =
@@ -115,6 +142,7 @@ fun QRCodeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // We explain what the QR Code can be used for
             Text(
                 text = "Scan this QR code to view campsite details.",
                 fontSize = 16.sp,
@@ -136,7 +164,7 @@ fun QRCodeScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Back button
+        // We keep the Back button at the bottom of the screen
         Button(
             onClick = onBack,
             shape = RoundedCornerShape(8.dp),

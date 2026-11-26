@@ -1,24 +1,5 @@
-
 package com.example.campsitereservationsystem.campsite
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.unit.dp
-import com.example.campsitereservationsystem.ImagePickerButton
-import coil3.compose.AsyncImage
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.unit.dp
-import com.example.campsitereservationsystem.ImagePickerButton
-import coil3.compose.AsyncImage
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -37,8 +18,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.campsitereservationsystem.ImagePickerButton
 import com.example.campsitereservationsystem.ImageRepository
-
-
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 
 @Composable
 fun AddCampsiteScreen(
@@ -49,6 +29,7 @@ fun AddCampsiteScreen(
     ) -> Unit,
     onCancel: () -> Unit
 ) {
+
     BackHandler(onBack = onCancel)
 
     val green = Color(0xFF819F5C)
@@ -59,17 +40,19 @@ fun AddCampsiteScreen(
     val imageRepository = remember {
         ImageRepository()
     }
-    var savedImageBytes by remember(campsite){
+
+    var savedImageBytes by remember(campsite) {
         mutableStateOf<ByteArray?>(null)
     }
-    var selectedImageUri by remember(campsite){
+
+    var selectedImageUri by remember(campsite) {
         mutableStateOf<Uri?>(null)
     }
 
     // Retrieve the existing campsite image
     LaunchedEffect(campsite?.id) {
-        if(campsite != null){
-            imageRepository.getCampsiteImage(campsite.id){ bytes ->
+        if (campsite != null) {
+            imageRepository.getCampsiteImage(campsite.id) { bytes ->
                 savedImageBytes = bytes
             }
         }
@@ -89,23 +72,33 @@ fun AddCampsiteScreen(
     }
 
     var amenities by remember(campsite) {
-        mutableStateOf(campsite?.amenities?.joinToString(", ") ?: "")
+        mutableStateOf(
+            campsite?.amenities?.joinToString(", ") ?: ""
+        )
     }
 
     var maxOccupancy by remember(campsite) {
-        mutableStateOf(campsite?.maxOccupancy?.toString() ?: "")
+        mutableStateOf(
+            campsite?.maxOccupancy?.toString() ?: ""
+        )
     }
 
     var latitude by remember(campsite) {
-        mutableStateOf(campsite?.latitude?.toString() ?: "")
+        mutableStateOf(
+            campsite?.latitude?.toString() ?: ""
+        )
     }
 
     var longitude by remember(campsite) {
-        mutableStateOf(campsite?.longitude?.toString() ?: "")
+        mutableStateOf(
+            campsite?.longitude?.toString() ?: ""
+        )
     }
 
     var tags by remember(campsite) {
-        mutableStateOf(campsite?.tags?.joinToString(", ") ?: "")
+        mutableStateOf(
+            campsite?.tags?.joinToString(", ") ?: ""
+        )
     }
 
     // Shared colors for all text fields
@@ -119,11 +112,10 @@ fun AddCampsiteScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .safeDrawingPadding()
+            .imePadding()
+            .padding(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
 
         Text(
             text = if (isEditing) {
@@ -131,7 +123,7 @@ fun AddCampsiteScreen(
             } else {
                 "Register Campsite"
             },
-            fontSize = 40.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(
                 Alignment.CenterHorizontally
@@ -169,17 +161,40 @@ fun AddCampsiteScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ImagePickerButton { uri ->
-                    selectedImageUri = uri
+
+                // Apply green styling to the existing image picker
+                // We use the existing image picker and
+                // give it the same colors as our screen
+                MaterialTheme(
+                    colorScheme = MaterialTheme.colorScheme.copy(
+                        primary = green,
+                        onPrimary = Color.Black
+                    )
+                ) {
+
+                    ImagePickerButton { uri ->
+                        selectedImageUri = uri
+                    }
                 }
 
-                if (selectedImageUri != null || savedImageBytes != null) {
+                if (
+                    selectedImageUri != null ||
+                    savedImageBytes != null
+                ) {
+
                     Button(
                         onClick = {
+
                             if (selectedImageUri != null) {
+
                                 selectedImageUri = null
+
                             } else if (campsite != null) {
-                                imageRepository.deleteCampsiteImage(campsite.id)
+
+                                imageRepository.deleteCampsiteImage(
+                                    campsite.id
+                                )
+
                                 savedImageBytes = null
                             }
                         },
@@ -192,6 +207,7 @@ fun AddCampsiteScreen(
                     }
                 }
             }
+
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -223,7 +239,9 @@ fun AddCampsiteScreen(
             OutlinedTextField(
                 value = amenities,
                 onValueChange = { amenities = it },
-                label = { Text("Amenities (comma separated)") },
+                label = {
+                    Text("Amenities (comma separated)")
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = fieldColors
             )
@@ -232,6 +250,16 @@ fun AddCampsiteScreen(
                 value = maxOccupancy,
                 onValueChange = { maxOccupancy = it },
                 label = { Text("Maximum Occupancy") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors
+            )
+
+            OutlinedTextField(
+                value = tags,
+                onValueChange = { tags = it },
+                label = {
+                    Text("Tags (comma separated)")
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = fieldColors
             )
@@ -252,42 +280,41 @@ fun AddCampsiteScreen(
                 colors = fieldColors
             )
 
-            OutlinedTextField(
-                value = tags,
-                onValueChange = { tags = it },
-                label = { Text("Tags (comma separated)") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = fieldColors
-            )
+            Spacer(modifier = Modifier.height(8.dp))
 
+            // Save campsite
+            // We pass all the information through onSave
+            // so the saving logic can be handled outside this screen
             Button(
                 onClick = {
+
                     onSave(
                         selectedImageUri,
-                    name,
-                    location,
-                    description,
-                    amenities,
-                    maxOccupancy,
-                    latitude,
-                    longitude,
-                    tags
+                        name,
+                        location,
+                        description,
+                        amenities,
+                        maxOccupancy,
+                        latitude,
+                        longitude,
+                        tags
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = green,
+                    contentColor = Color.Black
                 )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = green,
-                contentColor = Color.Black
-            )
-        ) {
-            Text(
-                if (isEditing) {
-                    "Save Changes"
-                } else {
-                    "Save Campsite"
-                }
-            )
-        }
+            ) {
+
+                Text(
+                    if (isEditing) {
+                        "Save Changes"
+                    } else {
+                        "Save Campsite"
+                    }
+                )
+            }
 
             // Cancel campsite registration or editing
             OutlinedButton(
@@ -300,6 +327,8 @@ fun AddCampsiteScreen(
             ) {
                 Text("Cancel")
             }
-    }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }

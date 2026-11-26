@@ -6,9 +6,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
-import com.example.campsitereservationsystem.campsite.Campsite
-
-
 
 
 // Gets the device ID of the current device

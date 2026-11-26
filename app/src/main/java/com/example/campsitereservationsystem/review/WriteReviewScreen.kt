@@ -1,4 +1,4 @@
-package com.example.campsitereservationsystem.qr
+package com.example.campsitereservationsystem.EntrantPath
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.campsitereservationsystem.campsite.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 import com.example.campsitereservationsystem.review.Review
 import com.example.campsitereservationsystem.review.ReviewRepository
 import kotlinx.coroutines.launch

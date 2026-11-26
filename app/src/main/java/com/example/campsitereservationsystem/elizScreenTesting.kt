@@ -1,6 +1,5 @@
 package com.example.campsitereservationsystem
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 
 
-import com.example.campsitereservationsystem.campsite.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 
 // For testing the create profile screen and editing the profile details
 // moved it here so i dont have to change the main activity too much

@@ -9,9 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
+import com.example.campsitereservationsystem.OwnerCampsitesPath.CampsiteController
 import com.example.campsitereservationsystem.campsite.AddCampsiteScreen
-import com.example.campsitereservationsystem.campsite.Campsite
-import com.example.campsitereservationsystem.campsite.CampsiteController
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
