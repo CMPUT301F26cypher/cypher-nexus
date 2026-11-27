@@ -499,6 +499,7 @@ fun CampsiteApp() {
 
         composable(ADMIN_PROFILES){ page ->
             AdminProfileReview(
+                currentUserId = currentUser.id,
                 onBack = {
                     navController.closePage(page)
                 }

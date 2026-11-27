@@ -116,8 +116,9 @@ private fun AdminProfileRow(
                 Text("View Profile Details", color = Color.Black)
             }
             if (canRemove) {
-                OutlinedButton(onClick = onRemove) {}
-                Text("Remove", color = Color.Red)
+                OutlinedButton(onClick = onRemove) {
+                    Text("Remove", color = Color.Red)
+                }
             }
         }
     }
