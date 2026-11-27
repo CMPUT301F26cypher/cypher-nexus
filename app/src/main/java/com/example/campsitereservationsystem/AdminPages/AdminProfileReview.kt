@@ -13,9 +13,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 
-
 @Composable
-fun AdminProfileReview(onBack: () -> Unit) {
+fun AdminProfileReview(
+    onViewProfile: (User) -> Unit,
+    onBack: () -> Unit
+){
 
     val userRepo = remember { UserRepository() }
 
@@ -46,7 +48,11 @@ fun AdminProfileReview(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             items(users, key = { it.id }) { user ->
-            AdminProfileRow(user)
+            AdminProfileRow(
+                user = user,
+                onViewProfile = {
+                    onViewProfile(user)
+                })
             }
         }
 
@@ -56,7 +62,10 @@ fun AdminProfileReview(onBack: () -> Unit) {
     }
 }
 @Composable
-private fun AdminProfileRow(user: User) {
+private fun AdminProfileRow(
+    user: User,
+    onViewProfile: () -> Unit
+) {
     OutlinedCard(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -68,9 +77,7 @@ private fun AdminProfileRow(user: User) {
             Text("Role: ${user.roles.joinToString(", ")}", fontSize = 16.sp)
 
             Button(
-                onClick = {
-                    // View selected user profile
-                },
+                onClick = onViewProfile,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF819F5C)
                 )

@@ -171,9 +171,10 @@ class UserRepository(
     }
 
     // Deletes the users document and stops interacting with fire base
-    fun delete(user: User) {
+    fun delete(user: User, onSuccess: () -> Unit = {}) {
         stopListening()
         usersRef.document(user.id).delete()
+            .addOnSuccessListener { onSuccess() }
     }
 
     // Saves changes to an existing user
