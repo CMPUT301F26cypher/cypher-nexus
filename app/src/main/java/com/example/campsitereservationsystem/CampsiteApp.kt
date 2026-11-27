@@ -252,7 +252,7 @@ fun CampsiteApp() {
             campsiteRepository = campsiteRepository,
             campsiteController = campsiteController,
             reservationRepository = reservationRepository,
-            ownerId = deviceId,
+            ownerId = signedInCamper?.id ?: deviceId,
             ownerSites = ownerSites,
             recentlyViewedIds = recentlyViewedIds,
             reviewRepository = reviewRepository,
@@ -375,7 +375,7 @@ fun CampsiteApp() {
         //*****************************OWNER_SCREEN AND SUBSEQUENT PAGES************************
         composable(OWNER_SCREEN) { page ->
             OwnerHomeScreen(
-                onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES) },
+                onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES_ROUTE) },
                 onMyLotteries = { navController.openPage(page, OWNER_LOTTERIES) },
                 onOwnerReservations = { navController.openPage(page, OWNER_RESERVATIONS) },
                 onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) },
