@@ -307,14 +307,28 @@ fun CampsiteApp() {
         }
         */
 
-        //Joined Lotteries page
+
+        // Joined Lotteries page
         composable(ENTRANT_LOTTERIES) { page ->
+
             JoinedLotteriesListScreen(
+                user = signedInCamper,
+                lotteryRepository = lotteryRepository,
+
+                onViewCampsite = { campsiteId ->
+
+                    navController.openPage(
+                        page,
+                        siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
+                    )
+                },
+
                 onBack = {
                     navController.closePage(page)
                 }
             )
         }
+
 
         //Booking page
         composable(ENTRANT_BOOKING) { page ->

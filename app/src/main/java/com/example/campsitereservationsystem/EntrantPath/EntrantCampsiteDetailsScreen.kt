@@ -10,7 +10,7 @@
  * - We still need to test the lottery status and the Join
  *   Waiting List button with the actual waitlist functionality.
  */
-
+// US 01.01.05 - View campsite details as an entrant.
 package com.example.campsitereservationsystem.EntrantPath
 
 import androidx.activity.compose.BackHandler

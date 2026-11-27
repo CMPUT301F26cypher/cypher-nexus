@@ -21,7 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
-
+// US 02.02.01 - Generate a unique promotional QR code.
 /**
  * This class handles the creation and decoding of QR Codes
  * for the campsites in our application.
