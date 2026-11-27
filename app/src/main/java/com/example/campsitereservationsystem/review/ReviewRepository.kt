@@ -64,14 +64,6 @@ class ReviewRepository(
         col.document(reviewId).update("rating", 0).await()
     }
 
-    // Admin: When a campsite is removed, remove all of its reviews US 03.01.01
-    suspend fun deleteByCampsite(campsiteId: String) {
-        val snapshot = col.whereEqualTo("campsiteId", campsiteId).get().await()
-        for (doc in snapshot.documents) {
-            doc.reference.delete().await()
-        }
-    }
-
 
     // Find an entrant's existing review for a campsite
     suspend fun getReviewByEntrant(
