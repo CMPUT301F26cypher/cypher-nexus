@@ -14,6 +14,9 @@
  * - For now, the dates are limited to May 2027.
  */
 
+// US 01.01.04 - View campsite summary information.
+// US 01.01.01 - Search for campsites.
+
 package com.example.campsitereservationsystem.EntrantPath
 
 import androidx.activity.compose.BackHandler

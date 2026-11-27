@@ -8,7 +8,7 @@
  * Outstanding issue: We still need to test the WOW Factor with Firebase
  * and make sure all the registration timestamps use the same fields.
  */
-
+// WOW Factor - Allow entrants to join multiple matching waiting lists at once.
 package com.example.campsitereservationsystem
 
 import android.content.Context
