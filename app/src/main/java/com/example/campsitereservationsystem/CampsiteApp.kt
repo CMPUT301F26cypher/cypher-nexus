@@ -475,7 +475,7 @@ fun CampsiteApp() {
                 onImages = {navController.openPage(page, ADMIN_IMAGES)},
                 onNotifications = {navController.openPage(page, ADMIN_NOTIFICATIONS)},
                 onProfiles = {navController.openPage(page, ADMIN_PROFILES)},
-                onCampsites = {},
+                onCampsites = {navController.openPage(page, ADMIN_CAMPSITES)},
                 onMessages = {}
             )
         }
