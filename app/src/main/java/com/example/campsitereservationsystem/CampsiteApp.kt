@@ -505,7 +505,19 @@ fun CampsiteApp() {
             )
         }
 
-        composable(AVAILABILITY) { page ->
+        composable(ADMIN_CAMPSITES) { page ->
+            AdminCampsiteBrowseScreen(
+                load = { campsiteRepository.getAll() },
+                onRemoveCampsite = { c -> campsiteRepository.delete(c.id) },
+                onRemoveOwner = { ownerId -> userRepository.deleteByOwnerId(ownerId) },
+                loadReviews = { id -> reviewRepository.getReviewsByCampsite(id) },
+                onRemoveReview = { r -> reviewRepository.deleteReview(r.id) },
+                onRemoveRating = { r -> reviewRepository.removeRating(r.id) },
+                onBack = { navController.closePage(page) }
+            )
+        }
+
+            composable(AVAILABILITY) { page ->
             // Opening Arpit's existing calendar (9b13916).
             AvailabilityScreen(
                 schedule = demoNights.localSchedule(sampleCamp.id) ?: AvailabilitySchedule(),

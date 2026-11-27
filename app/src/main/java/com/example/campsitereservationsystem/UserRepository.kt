@@ -180,4 +180,19 @@ class UserRepository(
     fun updateUser(user: User) {
         usersRef.document(user.id).set(toMap(user))
     }
+
+    // Admins can delete owners
+    fun deleteByOwnerId(ownerId: String) {
+        if (ownerId.isBlank()) return
+        usersRef.document(ownerId).get().addOnSuccessListener { doc ->
+            if (doc.exists()) {
+                usersRef.document(ownerId).delete()
+            }
+            else {
+                findByDeviceId(ownerId, onResult = { u ->
+                    if (u != null) usersRef.document(u.id).delete()
+                })
+            }
+        }
+    }
 }

@@ -14,12 +14,25 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 
 
+/*
+    AdminProfileReview.kt
+
+    Admin list of every profile.
+    Admins can remove a profile that violates app policy. (US 03.02.01)
+    Admins do not have the option to delete their own profile.
+ */
+
 @Composable
-fun AdminProfileReview(onBack: () -> Unit) {
+fun AdminProfileReview(
+    currentUserId: String = "",
+    onBack: () -> Unit
+) {
 
     val userRepo = remember { UserRepository() }
 
     var users by remember { mutableStateOf<List<User>>(emptyList()) }
+
+    var toRemove by remember { mutableStateOf<User?>(null) }
 
     // Retrieve all users
     LaunchedEffect(userRepo) {
@@ -46,7 +59,11 @@ fun AdminProfileReview(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             items(users, key = { it.id }) { user ->
-            AdminProfileRow(user)
+            AdminProfileRow(
+                user = user,
+                canRemove = user.id != currentUserId,
+                onRemove = { toRemove = user }
+            )
             }
         }
 
@@ -54,9 +71,30 @@ fun AdminProfileReview(onBack: () -> Unit) {
 
         AdminMenuButtons("Back", onBack)
     }
+
+    // Confirm before deleting
+    toRemove?.let { user ->
+        AlertDialog(
+            onDismissRequest = { toRemove = null },
+            title = { Text("Remove profile") },
+            text = { Text("Remove ${user.name}'s profile? This cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    userRepo.delete(user)
+                    users = users.filter { it.id != user.id }
+                    toRemove = null
+                }) { Text("Remove") }
+            },
+            dismissButton = { TextButton(onClick = { toRemove = null }) { Text("Cancel") } }
+        )
+    }
 }
 @Composable
-private fun AdminProfileRow(user: User) {
+private fun AdminProfileRow(
+    user: User,
+    canRemove: Boolean,
+    onRemove: () -> Unit
+) {
     OutlinedCard(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -76,6 +114,10 @@ private fun AdminProfileRow(user: User) {
                 )
             ){
                 Text("View Profile Details", color = Color.Black)
+            }
+            if (canRemove) {
+                OutlinedButton(onClick = onRemove) {}
+                Text("Remove", color = Color.Red)
             }
         }
     }

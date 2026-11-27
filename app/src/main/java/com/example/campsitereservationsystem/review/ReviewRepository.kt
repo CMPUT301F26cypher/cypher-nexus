@@ -52,6 +52,27 @@ class ReviewRepository(
         }
     }
 
+    // Admins can remove reviews US 03.10.01
+    suspend fun deleteReview(reviewId: String) {
+        require(reviewId.isNotBlank()) {"Review ID cannot be empty."}
+        col.document(reviewId).delete().await()
+    }
+
+    // Admins can delete star ratings, but the review will stay US 03.09.01
+    suspend fun removeRating(reviewId: String) {
+        require(reviewId.isNotBlank()) {"Review ID cannot be empty."}
+        col.document(reviewId).update("rating", 0).await()
+    }
+
+    // Admin: When a campsite is removed, remove all of its reviews US 03.01.01
+    suspend fun deleteByCampsite(campsiteId: String) {
+        val snapshot = col.whereEqualTo("campsiteId", campsiteId).get().await()
+        for (doc in snapshot.documents) {
+            doc.reference.delete().await()
+        }
+    }
+
+
     // Find an entrant's existing review for a campsite
     suspend fun getReviewByEntrant(
         campsiteId: String,
