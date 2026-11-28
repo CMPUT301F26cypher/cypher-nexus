@@ -106,9 +106,7 @@ private fun AdminProfileRow(
             Text("Role: ${user.roles.joinToString(", ")}", fontSize = 16.sp)
 
             Button(
-                onClick = {
-                    // View selected user profile
-                },
+                onClick = onViewProfile,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF819F5C)
                 )

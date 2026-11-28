@@ -7,6 +7,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -87,10 +88,15 @@ private const val ADMIN_NOTIFICATIONS = "admin_notifications"
 
 private const val ADMIN_PROFILES = "admin_profiles"
 
+private const val ADMIN_PROFILE_DETAILS = "admin_profile"
+
 private const val ADMIN_CAMPSITES = "admin_campsites"
 
 private const val ADMIN_MESSAGES = "admin_messages"
 
+
+// INBOX ROUTE
+private const val INBOX = "inbox"
 
 
 /** Connecting the team's existing screens with NavHost pattern.(In lab-7 format) */
@@ -126,6 +132,8 @@ fun CampsiteApp() {
     var selectedCampsite by remember {
         mutableStateOf<Campsite?>(null)
     }
+
+    var selectedUser by remember{mutableStateOf<User?>(null)}
 
     val lotteryDetailsRepository = remember {
         LotteryDetailsRepository()
@@ -249,7 +257,7 @@ fun CampsiteApp() {
             campsiteRepository = campsiteRepository,
             campsiteController = campsiteController,
             reservationRepository = reservationRepository,
-            ownerId = deviceId,
+            ownerId = signedInCamper?.id ?: deviceId,
             ownerSites = ownerSites,
             recentlyViewedIds = recentlyViewedIds,
             reviewRepository = reviewRepository,
@@ -264,7 +272,8 @@ fun CampsiteApp() {
                 onBooking = { navController.openPage(page, ENTRANT_BOOKING) },
                 onEntrantReservations = { navController.openPage(page, ENTRANT_RESERVATIONS) },
                 onQRScan = { navController.openPage(page, ENTRANT_QRSCAN) },
-                onEntrantProfile = { navController.openPage(page, ENTRANT_PROFILE) }
+                onEntrantProfile = { navController.openPage(page, ENTRANT_PROFILE) },
+                onInbox = {navController.openPage(page, INBOX)}
             )
         }
 
@@ -303,14 +312,28 @@ fun CampsiteApp() {
         }
         */
 
-        //Joined Lotteries page
+
+        // Joined Lotteries page
         composable(ENTRANT_LOTTERIES) { page ->
+
             JoinedLotteriesListScreen(
+                user = signedInCamper,
+                lotteryRepository = lotteryRepository,
+
+                onViewCampsite = { campsiteId ->
+
+                    navController.openPage(
+                        page,
+                        siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
+                    )
+                },
+
                 onBack = {
                     navController.closePage(page)
                 }
             )
         }
+
 
         //Booking page
         composable(ENTRANT_BOOKING) { page ->
@@ -357,10 +380,11 @@ fun CampsiteApp() {
         //*****************************OWNER_SCREEN AND SUBSEQUENT PAGES************************
         composable(OWNER_SCREEN) { page ->
             OwnerHomeScreen(
-                onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES) },
+                onMyCampsites = { navController.openPage(page, OWNER_CAMPSITES_ROUTE) },
                 onMyLotteries = { navController.openPage(page, OWNER_LOTTERIES) },
                 onOwnerReservations = { navController.openPage(page, OWNER_RESERVATIONS) },
-                onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) }
+                onOwnerNotifications = { navController.openPage(page, OWNER_NOTIFICATIONS) },
+                onInbox = {navController.openPage(page, INBOX)}
             )
         }
 

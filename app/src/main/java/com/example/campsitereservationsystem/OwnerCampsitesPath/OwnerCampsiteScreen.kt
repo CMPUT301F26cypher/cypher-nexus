@@ -15,7 +15,7 @@
  *   need to connect it to the booking functionality.
  *   The button is disabled until we pass the callback.
  */
-
+// US 02.03.01 - View a list of owned campsites.
 package com.example.campsitereservationsystem.OwnerCampsitesPath
 
 import androidx.activity.compose.BackHandler

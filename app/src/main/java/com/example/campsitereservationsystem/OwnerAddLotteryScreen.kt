@@ -95,6 +95,7 @@ fun OwnerAddLotteryScreen(
 
     // TEST DATA FROM LOTTERY SCREEN
 
+    /*
     var testUserList = remember{
         listOf(
             User(
@@ -191,6 +192,7 @@ fun OwnerAddLotteryScreen(
         )
     }
 
+     */
 
     /*
     // Loading the saved lottery once, when the screen opens (Frame 31: "current values should be shown").
@@ -264,6 +266,7 @@ fun OwnerAddLotteryScreen(
             }
         }
 
+        /*
         //this is just here to test if the lotteries will be automatically
         //drawn after a certain amount of time has passed
         //it adds the testUserList to the lotteries waiting list
@@ -274,6 +277,7 @@ fun OwnerAddLotteryScreen(
                 "waitingList"
             )
         }
+         */
         onSaved()
     }
 
