@@ -7,6 +7,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -87,6 +88,8 @@ private const val ADMIN_NOTIFICATIONS = "admin_notifications"
 
 private const val ADMIN_PROFILES = "admin_profiles"
 
+private const val ADMIN_PROFILE_DETAILS = "admin_profile"
+
 private const val ADMIN_CAMPSITES = "admin_campsites"
 
 private const val ADMIN_MESSAGES = "admin_messages"
@@ -126,6 +129,8 @@ fun CampsiteApp() {
     var selectedCampsite by remember {
         mutableStateOf<Campsite?>(null)
     }
+
+    var selectedUser by remember{mutableStateOf<User?>(null)}
 
     val lotteryDetailsRepository = remember {
         LotteryDetailsRepository()
@@ -500,10 +505,39 @@ fun CampsiteApp() {
         composable(ADMIN_PROFILES){ page ->
             AdminProfileReview(
                 currentUserId = currentUser.id,
+                onViewProfile = { user ->
+                    selectedUser = user
+                    navController.openPage(page, ADMIN_PROFILE_DETAILS)
+                },
                 onBack = {
                     navController.closePage(page)
                 }
             )
+        }
+
+        composable(ADMIN_PROFILE_DETAILS){ page ->
+            val user = selectedUser
+
+            if (user != null){
+                val adminUserRepo = remember{ UserRepository() }
+
+                ProfileScreen(
+                    user = user,
+                    imageRepo = imageRepository,
+                    onSave = {},
+                    onDelete = {
+                        adminUserRepo.banAndDelete(user) {
+                            selectedUser = null
+                            navController.closePage(page)
+                        }
+                    },
+                    onBack = {navController.closePage(page)},
+                    adminView = true
+
+                )
+            } else{
+                LaunchedEffect(Unit){navController.closePage(page)}
+            }
         }
 
         composable(ADMIN_CAMPSITES) { page ->

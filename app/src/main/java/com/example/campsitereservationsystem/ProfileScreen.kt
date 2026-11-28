@@ -48,7 +48,8 @@ fun ProfileScreen(
     imageRepo: ImageRepository,
     onSave: (User) -> Unit,
     onDelete: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    adminView: Boolean = false
 ) {
 
     val context = LocalContext.current

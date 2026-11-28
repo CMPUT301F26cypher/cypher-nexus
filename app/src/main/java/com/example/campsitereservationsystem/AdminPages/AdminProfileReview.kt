@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.CheckboxDefaults.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,13 +26,13 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun AdminProfileReview(
     currentUserId: String = "",
+    onViewProfile: (User) -> Unit,
     onBack: () -> Unit
 ) {
 
     val userRepo = remember { UserRepository() }
 
     var users by remember { mutableStateOf<List<User>>(emptyList()) }
-
     var toRemove by remember { mutableStateOf<User?>(null) }
 
     // Retrieve all users
@@ -59,11 +60,12 @@ fun AdminProfileReview(
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             items(users, key = { it.id }) { user ->
-            AdminProfileRow(
-                user = user,
-                canRemove = user.id != currentUserId,
-                onRemove = { toRemove = user }
-            )
+                AdminProfileRow(
+                    user = user,
+                    canRemove = user.id != currentUserId,
+                    onViewProfile = { onViewProfile(user) },
+                    onRemove = { toRemove = user }
+                )
             }
         }
 
@@ -72,12 +74,12 @@ fun AdminProfileReview(
         AdminMenuButtons("Back", onBack)
     }
 
-    // Confirm before deleting
+    // Confirm before deleting (US 03.02.01)
     toRemove?.let { user ->
         AlertDialog(
             onDismissRequest = { toRemove = null },
             title = { Text("Remove profile") },
-            text = { Text("Remove ${user.name}'s profile? They will be banned from creating a new account.") },
+            text = { Text("Remove ${user.name}'s profile? They will also be banned from creating a new account.") },
             confirmButton = {
                 TextButton(onClick = {
                     userRepo.banAndDelete(user)
@@ -85,14 +87,18 @@ fun AdminProfileReview(
                     toRemove = null
                 }) { Text("Remove") }
             },
-            dismissButton = { TextButton(onClick = { toRemove = null }) { Text("Cancel") } }
+            dismissButton = {
+                TextButton(onClick = { toRemove = null }) { Text("Cancel") }
+            }
         )
     }
 }
+
 @Composable
 private fun AdminProfileRow(
     user: User,
     canRemove: Boolean,
+    onViewProfile: () -> Unit,
     onRemove: () -> Unit
 ) {
     OutlinedCard(
@@ -106,18 +112,17 @@ private fun AdminProfileRow(
             Text("Role: ${user.roles.joinToString(", ")}", fontSize = 16.sp)
 
             Button(
-                onClick = {
-                    // View selected user profile
-                },
+                onClick = onViewProfile,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF819F5C)
                 )
             ){
                 Text("View Profile Details", color = Color.Black)
             }
+
             if (canRemove) {
                 OutlinedButton(onClick = onRemove) {
-                    Text("Remove", color = Color.Red)
+                    Text("Remove Profile")
                 }
             }
         }

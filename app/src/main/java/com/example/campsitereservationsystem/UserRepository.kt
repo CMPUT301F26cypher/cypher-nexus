@@ -196,7 +196,7 @@ class UserRepository(
     }
 
     // New functions for banning people
-    fun banAndDelete(user: User) {
+    fun banAndDelete(user: User, onSuccess: () -> Unit = {}) {
         val email = user.email.trim().lowercase()
         if (email.isNotBlank()) {
             bannedRef.document("email:$email").set(mapOf("email" to email))
@@ -205,6 +205,7 @@ class UserRepository(
             bannedRef.document("deviceId:${user.deviceId}").set(mapOf("deviceId" to user.deviceId))
         }
         usersRef.document(user.id).delete()
+            .addOnSuccessListener { onSuccess }
     }
 
     private fun isBanned(
