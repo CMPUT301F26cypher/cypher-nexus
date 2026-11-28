@@ -125,6 +125,7 @@ fun AccountTest(
                             }
                         },
                         onEmailTaken = { error = "Email already in use!" },
+                        onBanned = { error = "This account has violated app policy and guidelines!" },
                         onError = { error = "Something went wrong! Please try again." }
                     )
                 }

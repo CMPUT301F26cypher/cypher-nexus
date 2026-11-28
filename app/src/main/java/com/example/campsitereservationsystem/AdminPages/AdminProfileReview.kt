@@ -77,10 +77,10 @@ fun AdminProfileReview(
         AlertDialog(
             onDismissRequest = { toRemove = null },
             title = { Text("Remove profile") },
-            text = { Text("Remove ${user.name}'s profile? This cannot be undone.") },
+            text = { Text("Remove ${user.name}'s profile? They will be banned from creating a new account.") },
             confirmButton = {
                 TextButton(onClick = {
-                    userRepo.delete(user)
+                    userRepo.banAndDelete(user)
                     users = users.filter { it.id != user.id }
                     toRemove = null
                 }) { Text("Remove") }
