@@ -499,9 +499,8 @@ fun CampsiteApp() {
                 onImages = {navController.openPage(page, ADMIN_IMAGES)},
                 onNotifications = {navController.openPage(page, ADMIN_NOTIFICATIONS)},
                 onProfiles = {navController.openPage(page, ADMIN_PROFILES)},
-                onCampsites = {},
-                onMessages = {},
-                onInbox = {navController.openPage(page, INBOX)}
+                onCampsites = {navController.openPage(page, ADMIN_CAMPSITES)},
+                onMessages = {}
             )
         }
 
@@ -524,50 +523,26 @@ fun CampsiteApp() {
 
         composable(ADMIN_PROFILES){ page ->
             AdminProfileReview(
-                onViewProfile = { user ->
-                    selectedUser = user
-                    navController.openPage(page, ADMIN_PROFILE_DETAILS)
-                },
+                currentUserId = currentUser.id,
                 onBack = {
                     navController.closePage(page)
                 }
             )
         }
 
-        composable(ADMIN_PROFILE_DETAILS){ page ->
-            val user = selectedUser
-
-            if (user != null){
-                val adminUserRepo = remember{ UserRepository() }
-
-                ProfileScreen(
-                    user = user,
-                    imageRepo = imageRepository,
-                    onSave = {},
-                    onDelete = {
-                        adminUserRepo.delete(user){
-                            selectedUser = null
-                            navController.closePage(page)
-                        }
-                    },
-                    onBack = {navController.closePage(page)},
-                    adminView = true
-
-                )
-            } else{
-                LaunchedEffect(Unit){navController.closePage(page)}
-            }
-        }
-
-        // OPEN INBOX SCREEN
-        composable(INBOX) { page ->
-            InboxScreen(
-                userID = currentUser.id,
-                onBack = {navController.closePage(page)}
+        composable(ADMIN_CAMPSITES) { page ->
+            AdminCampsiteBrowseScreen(
+                load = { campsiteRepository.getAll() },
+                onRemoveCampsite = { c -> campsiteRepository.delete(c.id) },
+                onRemoveOwner = { ownerId -> userRepository.deleteByOwnerId(ownerId) },
+                loadReviews = { id -> reviewRepository.getReviewsByCampsite(id) },
+                onRemoveReview = { r -> reviewRepository.deleteReview(r.id) },
+                onRemoveRating = { r -> reviewRepository.removeRating(r.id) },
+                onBack = { navController.closePage(page) }
             )
         }
 
-        composable(AVAILABILITY) { page ->
+            composable(AVAILABILITY) { page ->
             // Opening Arpit's existing calendar (9b13916).
             AvailabilityScreen(
                 schedule = demoNights.localSchedule(sampleCamp.id) ?: AvailabilitySchedule(),

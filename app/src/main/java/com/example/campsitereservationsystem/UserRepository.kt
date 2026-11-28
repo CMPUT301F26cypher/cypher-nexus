@@ -6,6 +6,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
+import kotlin.text.get
 
 
 // Gets the device ID of the current device
@@ -21,6 +22,11 @@ object DeviceId {
     Keeps track of user's data.
     Can log them in without username or password.
     It remembers the user's Device ID.
+
+    Keeps track of banned users too.
+    If someone gets banned they cannot make a new profile with
+    their email, or device ID.
+
  */
 
 class UserRepository(
@@ -28,6 +34,7 @@ class UserRepository(
 ) {
     private val db = Firebase.firestore
     private val usersRef = db.collection("users")
+    private val bannedRef = db.collection("bannedUsers")
 
     private var listener: ListenerRegistration? = null
 
@@ -112,30 +119,37 @@ class UserRepository(
         password: String,
         onSuccess: (User) -> Unit,
         onEmailTaken: () -> Unit,
+        onBanned: () -> Unit = {},
         onError: () -> Unit = {}
     ) {
         val email = user.email.trim().lowercase()
-        usersRef.whereEqualTo("email", email).limit(1).get()
-            .addOnSuccessListener { snapshot ->
-                if (!snapshot.isEmpty) {
-                    onEmailTaken()
-                    return@addOnSuccessListener
-                }
-                val doc = usersRef.document()
-                val newUser = user.copy(
-                    id = doc.id,
-                    email = email
-                )
-                doc.set(toMap(newUser))
-                    .addOnSuccessListener {
-                        startListening(newUser.id)
-                        onSuccess(newUser)
-                    }
-                    .addOnFailureListener { onError() }
+        isBanned(email, user.deviceId, onError = { onError() }, onResult = { banned ->
+            if (banned) {
+                onBanned()
+                return@isBanned
             }
-            .addOnFailureListener { onError() }
-
+            usersRef.whereEqualTo("email", email).limit(1).get()
+                .addOnSuccessListener { snapshot ->
+                    if (!snapshot.isEmpty) {
+                        onEmailTaken()
+                        return@addOnSuccessListener
+                    }
+                    val doc = usersRef.document()
+                    val newUser = user.copy(
+                        id = doc.id,
+                        email = email
+                    )
+                    doc.set(toMap(newUser))
+                        .addOnSuccessListener {
+                            startListening(newUser.id)
+                            onSuccess(newUser)
+                        }
+                        .addOnFailureListener { onError() }
+                }
+                .addOnFailureListener { onError() }
+        })
     }
+
 
     // Finds a user by email and remembers this device
     fun login(
@@ -180,5 +194,53 @@ class UserRepository(
     // Saves changes to an existing user
     fun updateUser(user: User) {
         usersRef.document(user.id).set(toMap(user))
+    }
+
+    // New functions for banning people
+    fun banAndDelete(user: User) {
+        val email = user.email.trim().lowercase()
+        if (email.isNotBlank()) {
+            bannedRef.document("email:$email").set(mapOf("email" to email))
+        }
+        if (user.deviceId.isNotBlank()) {
+            bannedRef.document("deviceId:${user.deviceId}").set(mapOf("deviceId" to user.deviceId))
+        }
+        usersRef.document(user.id).delete()
+    }
+
+    private fun isBanned(
+        email: String,
+        deviceId: String,
+        onResult: (Boolean) -> Unit,
+        onError: () -> Unit
+    ) {
+        bannedRef.document("email:$email").get()
+            .addOnSuccessListener { emailDoc ->
+                if (emailDoc.exists() || deviceId.isNotBlank()) {
+                    onResult(emailDoc.exists())
+                    return@addOnSuccessListener
+                }
+                bannedRef.document("deviceId:$deviceId").get()
+                    .addOnSuccessListener { deviceIdDoc ->
+                        onResult(deviceIdDoc.exists())
+                    }
+                    .addOnFailureListener { onError() }
+            }
+            .addOnFailureListener { onError() }
+    }
+
+    // Admins can delete owners and that owner is banned from making a new account
+    fun deleteByOwnerId(ownerId: String) {
+        if (ownerId.isBlank()) return
+        usersRef.document(ownerId).get().addOnSuccessListener { doc ->
+            if (doc.exists()) {
+                banAndDelete(toUser(doc))
+            }
+            else {
+                findByDeviceId(ownerId, onResult = { u ->
+                    if (u != null) banAndDelete(u)
+                })
+            }
+        }
     }
 }
