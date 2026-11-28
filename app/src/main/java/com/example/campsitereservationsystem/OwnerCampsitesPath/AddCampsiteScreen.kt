@@ -20,6 +20,9 @@ import com.example.campsitereservationsystem.ImagePickerButton
 import com.example.campsitereservationsystem.ImageRepository
 import com.example.campsitereservationsystem.OwnerCampsitesPath.Campsite
 
+// US 02.01.01 - Register a campsite.
+// US 02.01.02 - Provide campsite details.
+// US 02.01.03 - Update campsite details.
 @Composable
 fun AddCampsiteScreen(
     campsite: Campsite? = null,

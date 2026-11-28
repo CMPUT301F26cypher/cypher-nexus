@@ -10,12 +10,12 @@
  * and give the entrant the option to join multiple waiting lists.
  *
  * Outstanding issues:
- * - We still need to connect the Join All Matching Waitlists
- *   button to the actual waitlist functionality.
- * - We still need to check which matching campsites have
- *   eligible waiting lists before registering the entrant.
+ * - We still need to test the waiting list registration with Firebase.
  * - For now, the dates are limited to May 2027.
  */
+
+// US 01.01.04 - View campsite summary information.
+// US 01.01.01 - Search for campsites.
 
 package com.example.campsitereservationsystem.EntrantPath
 
@@ -55,8 +55,8 @@ private val CampsiteGreen = Color(0xFF819F5C)
  * @param reviewRepository The repository we use to get the reviews.
  * @param repository The repository we use to get the campsites.
  * @param controller The controller we use to filter the campsites.
- * @param onJoinAllWaitlists Callback used to request joining multiple
- * waiting lists. For now, it can be null until the functionality is connected.
+ * @param onJoinAllWaitlists Callback used to join multiple waiting lists.
+ * @param isJoiningAll Tells us if the entrant is joining waiting lists.
  */
 @Composable
 fun EntrantCampsiteListScreen(
@@ -66,7 +66,8 @@ fun EntrantCampsiteListScreen(
     reviewRepository: ReviewRepository,
     repository: CampsiteRepository,
     controller: CampsiteController,
-    onJoinAllWaitlists: ((List<String>) -> Unit)? = null
+    onJoinAllWaitlists: ((List<String>) -> Unit)? = null,
+    isJoiningAll: Boolean = false
 ) {
 
     // Here we store what the entrant enters in the search bar and filters
@@ -186,12 +187,14 @@ fun EntrantCampsiteListScreen(
         .filter { it.isNotBlank() }
         .distinct()
 
-    // We only enable the button if the entrant is searching,
-    // there are matching campsites and there are no errors
+    // We only enable the button if there are matching campsites,
+    // there are no errors and we are not already joining waiting lists
     val canJoinMatchingWaitlists =
         error.isEmpty() &&
                 matchingCampsiteIds.isNotEmpty() &&
-                isSearching
+                isSearching &&
+                !isJoiningAll &&
+                onJoinAllWaitlists != null
 
     // We use the recently viewed IDs to find the campsites
     // that the entrant has already opened
@@ -253,8 +256,8 @@ fun EntrantCampsiteListScreen(
                         showJoinConfirmation = false
                         pendingWaitlistIds = emptyList()
 
-                        // If the callback is available, we pass the IDs.
-                        // Otherwise, we let the entrant know it is not ready.
+                        // We pass the matching IDs to CampsiteRoutes
+                        // so the entrant can join the waiting lists
                         if (onJoinAllWaitlists != null) {
 
                             onJoinAllWaitlists.invoke(campsiteIds)
@@ -264,6 +267,7 @@ fun EntrantCampsiteListScreen(
                             showUnavailableDialog = true
                         }
                     },
+                    enabled = !isJoiningAll,
                     colors = greenButtonColors
                 ) {
                     Text("Confirm")
@@ -287,8 +291,7 @@ fun EntrantCampsiteListScreen(
         )
     }
 
-    // For now, we show this message if the actual
-    // waitlist functionality has not been connected
+    // We keep this message in case the callback is not available
     if (showUnavailableDialog) {
 
         AlertDialog(
@@ -503,8 +506,9 @@ fun EntrantCampsiteListScreen(
                 }
             }
 
-            // Here we give the entrant the option to request
-            // joining multiple waiting lists at once
+            // WOW Factor
+            // Here we give the entrant the option to join
+            // multiple matching waiting lists at once
             if (isSearching) {
 
                 item {
@@ -537,10 +541,29 @@ fun EntrantCampsiteListScreen(
                             colors = greenButtonColors
                         ) {
 
-                            Text(
-                                "Join All Matching Waitlists " +
-                                        "(${matchingCampsiteIds.size})"
-                            )
+                            // We show the loading indicator while
+                            // the entrant is joining the waiting lists
+                            if (isJoiningAll) {
+
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                    color = CampsiteGreen
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(8.dp)
+                                )
+
+                                Text("Joining Waitlists...")
+
+                            } else {
+
+                                Text(
+                                    "Join All Matching Waitlists " +
+                                            "(${matchingCampsiteIds.size})"
+                                )
+                            }
                         }
                     }
                 }

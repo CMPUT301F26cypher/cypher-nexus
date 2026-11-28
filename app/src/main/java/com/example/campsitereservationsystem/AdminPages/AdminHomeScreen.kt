@@ -17,6 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import com.example.campsitereservationsystem.reusableButtons.InboxButton
+
 /*
 
  */
@@ -24,49 +28,59 @@ import androidx.compose.ui.unit.sp
 fun AdminHomeScreen(
     onImages: () -> Unit,
     onNotifications: () -> Unit,
-    onProfiles:() -> Unit,
+    onProfiles: () -> Unit,
     onCampsites: () -> Unit,
-    onMessages: () -> Unit
-){
+    onMessages: () -> Unit,
+    onInbox: () -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            //BROWSE CAMPSITES
+            AdminMenuButtons("Image Gallery") {
+                onImages()
+            }
+            Spacer(modifier = Modifier.height(25.dp))
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        //BROWSE CAMPSITES
-        AdminMenuButtons("Image Gallery"){
-            onImages()
+            //JOINED LOTTERIES
+            AdminMenuButtons("Review Notifications") {
+                onNotifications()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            AdminMenuButtons("Review Profiles") {
+                onProfiles()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            //BOOKING
+            AdminMenuButtons("Review Campsites") {
+                onCampsites()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            //RESERVATIONS
+            AdminMenuButtons("Review Messages") {
+                onMessages()
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
         }
-        Spacer(modifier = Modifier.height(25.dp))
 
-        //JOINED LOTTERIES
-        AdminMenuButtons("Review Notifications"){
-            onNotifications()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        AdminMenuButtons("Review Profiles"){
-            onProfiles()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        //BOOKING
-        AdminMenuButtons("Review Campsites"){
-            onCampsites()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        //RESERVATIONS
-        AdminMenuButtons("Review Messages"){
-            onMessages()
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
+        // Inbox Button
+        InboxButton(
+            onClick = onInbox,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
 
     }
 }

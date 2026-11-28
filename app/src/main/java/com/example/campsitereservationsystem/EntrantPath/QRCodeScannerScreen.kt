@@ -13,7 +13,7 @@
  * - For now, we only display a general error message
  *   if something goes wrong while scanning.
  */
-
+// US 01.12.01 - View campsite details by scanning the promotional QR code.
 package com.example.campsitereservationsystem.EntrantPath
 
 import androidx.activity.compose.BackHandler

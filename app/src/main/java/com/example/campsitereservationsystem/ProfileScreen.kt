@@ -1,4 +1,3 @@
-
 package com.example.campsitereservationsystem
 
 import android.net.Uri
@@ -138,23 +137,24 @@ fun ProfileScreen(
                 }
             }
         }
-
-        Spacer(Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ImagePickerButton(onImageSelected = onPicked)
-            if (imageBytes != null) {
-                Spacer(Modifier.width(8.dp))
-                OutlinedButton(
-                    onClick = {
-                        imageBytes = null
-                        imageChanged = true
+        if (!adminView) {
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ImagePickerButton(onImageSelected = onPicked)
+                if (imageBytes != null) {
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedButton(
+                        onClick = {
+                            imageBytes = null
+                            imageChanged = true
+                        }
+                    ) {
+                        Text("Remove Photo")
                     }
-                ) {
-                    Text("Remove Photo")
                 }
             }
         }
@@ -167,6 +167,7 @@ fun ProfileScreen(
             onValueChange = { name = it },
             label = { Text("Name") },
             isError = nameError,
+            readOnly = adminView,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
@@ -175,6 +176,7 @@ fun ProfileScreen(
             onValueChange = { email = it },
             label = { Text("Email") },
             isError = emailError,
+            readOnly = adminView,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
@@ -183,6 +185,7 @@ fun ProfileScreen(
             onValueChange = { phone = it },
             label = { Text("Phone") },
             isError = phoneError,
+            readOnly = adminView,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -200,31 +203,31 @@ fun ProfileScreen(
         }
 
         Spacer(Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                // Write the photo only if the user picked or removed one
-                if (imageChanged) {
-                    val bytes = imageBytes
-                    if (bytes == null) {
-                        imageRepo.deleteProfileImage(user.id)
-                    } else {
-                        imageRepo.saveProfileImage(user.id, bytes)
+        if (!adminView) {
+            Button(
+                onClick = {
+                    // Write the photo only if the user picked or removed one
+                    if (imageChanged) {
+                        val bytes = imageBytes
+                        if (bytes == null) {
+                            imageRepo.deleteProfileImage(user.id)
+                        } else {
+                            imageRepo.saveProfileImage(user.id, bytes)
+                        }
                     }
-                }
-                // Admins can turn the owner role on or off. The admin role is always kept.
-                val newRoles: List<Role> = if (isAdmin) {
-                    if (wantsOwner) user.roles + Role.OWNER else user.roles - Role.OWNER
-                } else {
-                    user.roles
-                }
-                onSave(user.copy(name = name, email = email, phone = phone, roles = newRoles))
-                onBack()
-            },
-            enabled = canSave,
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Save Changes") }
-
+                    // Admins can turn the owner role on or off. The admin role is always kept.
+                    val newRoles: List<Role> = if (isAdmin) {
+                        if (wantsOwner) user.roles + Role.OWNER else user.roles - Role.OWNER
+                    } else {
+                        user.roles
+                    }
+                    onSave(user.copy(name = name, email = email, phone = phone, roles = newRoles))
+                    onBack()
+                },
+                enabled = canSave,
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Save Changes") }
+        }
         Spacer(Modifier.height(8.dp))
 
         OutlinedButton(
@@ -233,11 +236,12 @@ fun ProfileScreen(
         ) { Text("Delete Profile") }
     }
 
+
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("Delete Profile") },
-            text = { Text("Are you sure you want to delete your profile?") },
+            text = { Text("Are you sure you want to delete profile?") },
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteDialog = false

@@ -1,4 +1,4 @@
-// Opening the owner and QR screens. The entrant’s waiting-list action is still a placeholder.
+// Here we connect the campsite screens and the waiting list actions.
 
 package com.example.campsitereservationsystem
 
@@ -84,6 +84,7 @@ internal fun NavGraphBuilder.campsiteRoutes(
     //var lastScan: Pair<String, OwnerCampsite>? = null
 
     var lastScan: Pair<String, Campsite>? = null
+
 
     // Reusing a campsite already loaded for the owner list.
     fun knownOwnerSite(page: NavBackStackEntry): Campsite? {
@@ -232,17 +233,58 @@ internal fun NavGraphBuilder.campsiteRoutes(
 
     composable("$ENTRANT_DETAILS_ROUTE/{$CAMPSITE_ID}", arguments = campsiteArguments) { page ->
         val goBack = { navController.closePage(page) }
+        val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        val lotteryRepository = remember { LotteryRepository() }
+        var isJoining by remember { mutableStateOf(false) }
+
         val campsiteId = page.arguments?.getString(CAMPSITE_ID)
         // Reusing the scan result only when its key matches the entrant details route.
         val knownSite = lastScan?.takeIf { it.first == campsiteId }?.second
         CampsitePage(page, campsiteRepository, knownSite, goBack) { site ->
             EntrantCampsiteDetailsScreen(
+                user = currentUser,
                 campsite = site,
                 reviewRepository = reviewRepository,
-                // Keeping the existing demo behavior until the waiting list is connected.
-                isLotteryActive = true,
-                // Keeping the existing placeholder for the waiting list button.
-                onJoinWaitingList = { println("Join Waiting List clicked") },
+
+                // Here we register the entrant in this waiting list
+                onJoinWaitingList = join@{
+
+                    if (isJoining) return@join
+
+                    isJoining = true
+
+                    scope.launch {
+                        try {
+                            val joined = lotteryRepository.joinWaitingList(
+                                campsiteID = site.id,
+                                user = currentUser
+                            )
+
+                            if (joined) {
+                                context.showCampsiteMessage(
+                                    "Waiting list joined successfully!"
+                                )
+                            } else {
+                                context.showCampsiteMessage(
+                                    "You cannot join this waiting list"
+                                )
+                            }
+
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+
+                        } catch (error: Exception) {
+                            context.showCampsiteMessage(
+                                "Failed to join waiting list",
+                                long = true
+                            )
+
+                        } finally {
+                            isJoining = false
+                        }
+                    }
+                },
                 onWriteReview = {
                     navController.openPage(
                         page,
@@ -257,6 +299,10 @@ internal fun NavGraphBuilder.campsiteRoutes(
     composable(BROWSE_CAMPSITES_ROUTE) { page ->
 
         val goBack = { navController.closePage(page) }
+        val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        val lotteryRepository = remember { LotteryRepository() }
+        var isJoiningAll by remember { mutableStateOf(false) }
 
         EntrantCampsiteListScreen(
             onBack = goBack,
@@ -281,10 +327,54 @@ internal fun NavGraphBuilder.campsiteRoutes(
                     siteRoute(ENTRANT_DETAILS_ROUTE, campsiteId)
                 )
             },
+
             recentlyViewedIds = recentlyViewedIds,
             reviewRepository = reviewRepository,
             repository = campsiteRepository,
-            controller = campsiteController
+            controller = campsiteController,
+
+            // Here we let the entrant join all the matching waiting lists
+            //We use joinAll so if the user clicks to times we are save of that double registration.
+            onJoinAllWaitlists = joinAll@{ campsiteIds ->
+
+                if (isJoiningAll) return@joinAll
+
+                isJoiningAll = true
+
+                scope.launch {
+                    try {
+                        val joinedCount = lotteryRepository.joinMatchingWaitlists(
+                            campsiteIDs = campsiteIds,
+                            user = currentUser
+                        )
+
+                        if (joinedCount > 0) {
+                            context.showCampsiteMessage(
+                                "Successfully joined $joinedCount waiting lists!",
+                                long = true
+                            )
+                        } else {
+                            context.showCampsiteMessage(
+                                "No new waiting lists were joined",
+                                long = true
+                            )
+                        }
+
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+
+                    } catch (error: Exception) {
+                        context.showCampsiteMessage(
+                            "Failed to join waiting lists",
+                            long = true
+                        )
+
+                    } finally {
+                        isJoiningAll = false
+                    }
+                }
+            }
+
         )
     }
     composable(

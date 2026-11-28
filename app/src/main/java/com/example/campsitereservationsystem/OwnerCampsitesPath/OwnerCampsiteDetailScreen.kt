@@ -14,7 +14,7 @@
  * - For now, we do not display the campsite image,
  *   rules and policies or tags on this screen.
  */
-
+// US 02.01.04 - View campsite details as an owner.
 package com.example.campsitereservationsystem.OwnerCampsitesPath
 
 import androidx.activity.compose.BackHandler
